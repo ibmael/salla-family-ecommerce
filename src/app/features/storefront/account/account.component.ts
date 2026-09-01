@@ -24,9 +24,14 @@ import {
   User as UserIcon,
   CheckCircle2,
   AlertCircle,
+  ShieldCheck,
+  KeyRound,
+  LogOut,
 } from 'lucide-angular';
+import { ASSETS } from '../../../core/constants/assets';
 import { MockAuthStore } from '../../../core/state/auth.store';
 import { ToastService } from '../../../core/services/toast.service';
+import { BreadcrumbsComponent, BreadcrumbItem } from '../../../shared/ui/breadcrumbs/breadcrumbs.component';
 
 function passwordMatchValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -39,9 +44,11 @@ function passwordMatchValidator(): ValidatorFn {
   };
 }
 
+export type AccountTab = 'personal' | 'security';
+
 @Component({
   selector: 'app-account',
-  imports: [RouterLink, ReactiveFormsModule, LucideAngularModule],
+  imports: [ReactiveFormsModule, LucideAngularModule, BreadcrumbsComponent],
   templateUrl: './account.component.html',
   styleUrl: './account.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,6 +60,13 @@ export class AccountComponent {
   private readonly toast = inject(ToastService);
   private readonly platformId = inject(PLATFORM_ID);
 
+  readonly heroImage = ASSETS.categories.home;
+
+  readonly breadcrumbs: BreadcrumbItem[] = [
+    { label: 'Home', url: '/' },
+    { label: 'Account' },
+  ];
+
   readonly icons = {
     Camera,
     Trash2,
@@ -60,7 +74,12 @@ export class AccountComponent {
     User: UserIcon,
     CheckCircle2,
     AlertCircle,
+    ShieldCheck,
+    KeyRound,
+    LogOut,
   };
+
+  activeTab = signal<AccountTab>('personal');
 
   isSavingProfile = signal<boolean>(false);
   profileError = signal<string | null>(null);
@@ -121,6 +140,17 @@ export class AccountComponent {
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }
     return name.slice(0, 2).toUpperCase();
+  }
+
+  setTab(tab: AccountTab): void {
+    this.activeTab.set(tab);
+  }
+
+  onTabKeydown(event: KeyboardEvent): void {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+      event.preventDefault();
+      this.activeTab.update((current) => (current === 'personal' ? 'security' : 'personal'));
+    }
   }
 
   onAvatarSelected(event: Event): void {

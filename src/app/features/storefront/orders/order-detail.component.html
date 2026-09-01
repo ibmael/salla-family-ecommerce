@@ -1,26 +1,26 @@
-<section class="page py-14">
-  <a routerLink="/orders" class="text-sm opacity-60">← Back to orders</a>
+<section class="page py-8 sm:py-12">
+  <app-breadcrumbs [items]="breadcrumbs()" class="mb-4" />
 
   @if (order(); as o) {
-    <h1 class="mt-4 font-display text-4xl font-semibold">Order {{ o.id }}</h1>
-    <p class="mt-2 text-sm opacity-60">{{ formatDate(o.createdAt, 'MMMM d, yyyy') }} · {{ o.status }}</p>
+    <h1 class="font-display text-3xl sm:text-4xl font-semibold text-ink dark:text-white">Order {{ o.id }}</h1>
+    <p class="mt-2 text-xs sm:text-sm text-stone">{{ formatDate(o.createdAt, 'MMMM d, yyyy') }} · <span class="capitalize">{{ o.status }}</span></p>
 
     <div class="mt-8 space-y-3">
       @for (line of o.lines; track line.productId) {
-        <div class="line">
+        <div class="line p-4 rounded-2xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-between">
           <div>
-            <p class="font-semibold">{{ line.productName }}</p>
-            <p class="text-sm opacity-60">{{ line.color }} · {{ line.size }} · Qty {{ line.quantity }}</p>
+            <p class="font-semibold text-sm sm:text-base text-ink dark:text-white">{{ line.productName }}</p>
+            <p class="text-xs text-stone mt-0.5">{{ line.color }} · {{ line.size }} · Qty {{ line.quantity }}</p>
           </div>
-          <p class="font-bold">${{ line.price * line.quantity }}</p>
+          <p class="font-bold text-sm sm:text-base text-ink dark:text-white">${{ line.price * line.quantity }}</p>
         </div>
       }
     </div>
 
-    <div class="mt-8 max-w-sm space-y-2 border-t border-black/10 pt-4 dark:border-white/10">
-      <div class="flex justify-between"><span>Subtotal</span><span>${{ o.subtotal }}</span></div>
-      <div class="flex justify-between"><span>Shipping</span><span>${{ o.shipping }}</span></div>
-      <div class="flex justify-between font-bold"><span>Total</span><span>${{ o.total }}</span></div>
+    <div class="mt-8 max-w-sm space-y-2 border-t border-black/10 pt-4 dark:border-white/10 text-sm">
+      <div class="flex justify-between text-stone"><span>Subtotal</span><span class="text-ink dark:text-white font-medium">${{ o.subtotal }}</span></div>
+      <div class="flex justify-between text-stone"><span>Shipping</span><span class="text-ink dark:text-white font-medium">${{ o.shipping }}</span></div>
+      <div class="flex justify-between font-bold text-base text-ink dark:text-white border-t border-black/10 dark:border-white/10 pt-2"><span>Total</span><span>${{ o.total }}</span></div>
     </div>
   }
 </section>

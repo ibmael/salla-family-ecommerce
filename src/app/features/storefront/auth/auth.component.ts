@@ -12,7 +12,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   LucideAngularModule,
   AlertCircle,
@@ -30,6 +30,7 @@ import {
 import { ASSETS } from '../../../core/constants/assets';
 import { MockAuthStore } from '../../../core/state/auth.store';
 import { ToastService } from '../../../core/services/toast.service';
+import { User as UserModel } from '../../../core/models/user.model';
 
 function passwordMatchValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -52,6 +53,7 @@ function passwordMatchValidator(): ValidatorFn {
 export class AuthComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   readonly auth = inject(MockAuthStore);
   private readonly toast = inject(ToastService);
 
@@ -71,7 +73,9 @@ export class AuthComponent {
     ShieldCheck,
   };
 
-  activeTab = signal<'signin' | 'signup'>('signin');
+  activeTab = signal<'signin' | 'signup'>(
+    this.route.snapshot.queryParamMap.get('tab') === 'signup' ? 'signup' : 'signin'
+  );
   showLoginPassword = signal<boolean>(false);
   showSignUpPassword = signal<boolean>(false);
   showSignUpConfirmPassword = signal<boolean>(false);
@@ -141,6 +145,36 @@ export class AuthComponent {
     }
   }
 
+  private getSafeReturnUrl(): string | null {
+    const raw = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (!raw) return null;
+    const trimmed = raw.trim();
+    // Must be a safe internal relative path starting with / and not //, /\, or containing protocol
+    if (
+      trimmed.startsWith('/') &&
+      !trimmed.startsWith('//') &&
+      !trimmed.startsWith('/\\') &&
+      !trimmed.includes('\\') &&
+      !trimmed.includes('://')
+    ) {
+      return trimmed;
+    }
+    return null;
+  }
+
+  private navigatePostAuth(user: UserModel): void {
+    const returnUrl = this.getSafeReturnUrl();
+    if (returnUrl) {
+      this.router.navigateByUrl(returnUrl);
+      return;
+    }
+    if (user.role === 'admin') {
+      this.router.navigate(['/admin']);
+    } else {
+      this.router.navigate(['/account']);
+    }
+  }
+
   onLogin(): void {
     this.errorMessage.set(null);
     if (this.loginForm.invalid) {
@@ -156,11 +190,7 @@ export class AuthComponent {
       next: (user) => {
         this.isLoading.set(false);
         this.toast.success(`Welcome back, ${user.name}!`);
-        if (user.role === 'admin') {
-          this.router.navigate(['/admin']);
-        } else {
-          this.router.navigate(['/account']);
-        }
+        this.navigatePostAuth(user);
       },
       error: (err) => {
         this.isLoading.set(false);
@@ -191,11 +221,7 @@ export class AuthComponent {
         next: (user) => {
           this.isLoading.set(false);
           this.toast.success(`Account created successfully. Welcome, ${user.name}!`);
-          if (user.role === 'admin') {
-            this.router.navigate(['/admin']);
-          } else {
-            this.router.navigate(['/account']);
-          }
+          this.navigatePostAuth(user);
         },
         error: (err) => {
           this.isLoading.set(false);

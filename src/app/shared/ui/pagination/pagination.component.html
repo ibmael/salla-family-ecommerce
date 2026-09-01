@@ -1,33 +1,46 @@
 @if (totalPages() > 1) {
-  <nav class="flex items-center justify-center gap-2" aria-label="Pagination">
+  <nav class="pagination-nav flex items-center justify-center gap-1.5 sm:gap-2 select-none" aria-label="Pagination">
+    <!-- Previous Button -->
     <button
       type="button"
-      class="page-btn"
+      class="page-nav-btn flex items-center gap-1 px-3 py-2 rounded-full border border-black/10 dark:border-white/15 text-xs font-semibold text-ink dark:text-white transition-all"
+      [class.disabled]="page() <= 1"
       [disabled]="page() <= 1"
-      (click)="pageChange.emit(page() - 1)"
+      (click)="onPageSelect(page() - 1)"
       aria-label="Previous page"
     >
-      ‹
+      <lucide-icon [img]="icons.ChevronLeft" class="size-3.5" />
+      <span class="hidden sm:inline">Previous</span>
     </button>
-    @for (p of pages(); track p) {
-      <button
-        type="button"
-        class="page-btn"
-        [class.active]="p === page()"
-        (click)="pageChange.emit(p)"
-        [attr.aria-current]="p === page() ? 'page' : null"
-      >
-        {{ p }}
-      </button>
-    }
+
+    <!-- Page Number Buttons -->
+    <div class="flex items-center gap-1 sm:gap-1.5">
+      @for (p of pages(); track p) {
+        <button
+          type="button"
+          class="page-num-btn size-9 rounded-full text-xs font-semibold flex items-center justify-center transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"
+          [class.active]="p === page()"
+          [class.inactive]="p !== page()"
+          (click)="onPageSelect(p)"
+          [attr.aria-current]="p === page() ? 'page' : null"
+          [attr.aria-label]="'Page ' + p"
+        >
+          {{ p }}
+        </button>
+      }
+    </div>
+
+    <!-- Next Button -->
     <button
       type="button"
-      class="page-btn"
+      class="page-nav-btn flex items-center gap-1 px-3 py-2 rounded-full border border-black/10 dark:border-white/15 text-xs font-semibold text-ink dark:text-white transition-all"
+      [class.disabled]="page() >= totalPages()"
       [disabled]="page() >= totalPages()"
-      (click)="pageChange.emit(page() + 1)"
+      (click)="onPageSelect(page() + 1)"
       aria-label="Next page"
     >
-      ›
+      <span class="hidden sm:inline">Next</span>
+      <lucide-icon [img]="icons.ChevronRight" class="size-3.5" />
     </button>
   </nav>
 }

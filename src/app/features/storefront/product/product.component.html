@@ -1,8 +1,8 @@
 @if (product(); as p) {
-  <section class="page py-7">
-    <a routerLink="/category" class="text-sm text-black/55 dark:text-white/55">← Back to collection</a>
+  <section class="page py-6">
+    <app-breadcrumbs [items]="breadcrumbs()" class="mb-3" />
 
-    <div class="mt-5 grid gap-8 lg:grid-cols-2">
+    <div class="mt-3 grid gap-8 lg:grid-cols-2">
       <div class="gallery">
         <div class="main-media" (mouseenter)="showVideo.set(!!p.videoUrl)" (mouseleave)="showVideo.set(false)">
           @if (showVideo() && p.videoUrl) {
@@ -58,14 +58,28 @@
         </div>
 
         <div class="mt-8 flex gap-3">
-          <button type="button" class="btn-primary flex-1" (click)="addToCart()">Add to bag · ${{ p.price }}</button>
+          <button
+            type="button"
+            class="flex-1 py-3.5"
+            [class.btn-primary]="!isInCart()"
+            [class.btn-secondary]="isInCart()"
+            (click)="toggleCart()"
+          >
+            @if (isInCart()) {
+              <span>Remove from cart</span>
+            } @else {
+              <span>Add to cart · ${{ p.price * quantity() }}</span>
+            }
+          </button>
           <button
             type="button"
             class="wish-btn"
             [attr.aria-label]="wishlist.has(p.id) ? 'Remove from wishlist' : 'Add to wishlist'"
             (click)="wishlist.toggle(p.id)"
           >
-            {{ wishlist.has(p.id) ? '♥' : '♡' }}
+            <span [class.text-clay]="wishlist.has(p.id)">
+              {{ wishlist.has(p.id) ? '♥' : '♡' }}
+            </span>
           </button>
         </div>
 

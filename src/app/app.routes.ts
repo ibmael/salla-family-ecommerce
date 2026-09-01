@@ -14,6 +14,14 @@ export const routes: Routes = [
           import('./features/storefront/home/home.component').then((m) => m.HomeComponent),
       },
       {
+        path: 'categories',
+        title: 'Categories',
+        loadComponent: () =>
+          import('./features/storefront/categories/categories.component').then(
+            (m) => m.CategoriesComponent,
+          ),
+      },
+      {
         path: 'category',
         title: 'Shop All',
         loadComponent: () =>
@@ -62,6 +70,7 @@ export const routes: Routes = [
           import('./features/storefront/checkout/checkout.component').then(
             (m) => m.CheckoutComponent,
           ),
+        canActivate: [authGuard],
       },
       {
         path: 'order/confirmed',

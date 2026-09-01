@@ -3,12 +3,26 @@
   border: 1px solid rgb(0 0 0 / 0.15);
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.option-btn:hover {
+  border-color: var(--color-clay);
+}
+
+.option-btn:active {
+  transform: scale(0.96);
 }
 
 .option-btn.selected {
-  border-color: #b86f52;
-  box-shadow: 0 0 0 1px #b86f52;
+  border-color: var(--color-clay);
+  box-shadow: 0 0 0 1px var(--color-clay);
+}
+
+:host-context(.dark) .option-btn {
+  border-color: rgb(255 255 255 / 0.2);
 }
 
 .size-btn {
@@ -25,6 +39,27 @@
   border-radius: 9999px;
   border: 1px solid rgb(0 0 0 / 0.15);
   font-size: 1.125rem;
+  display: grid;
+  place-items: center;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.qty-btn:hover {
+  background-color: rgb(0 0 0 / 0.05);
+}
+
+.qty-btn:active {
+  transform: scale(0.92);
+}
+
+:host-context(.dark) .qty-btn {
+  border-color: rgb(255 255 255 / 0.2);
+}
+
+:host-context(.dark) .qty-btn:hover {
+  background-color: rgb(255 255 255 / 0.1);
 }
 
 .wish-btn {
@@ -33,6 +68,23 @@
   border-radius: 9999px;
   border: 1px solid rgb(0 0 0 / 0.15);
   font-size: 1.25rem;
+  display: grid;
+  place-items: center;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.wish-btn:hover {
+  border-color: var(--color-clay);
+  transform: scale(1.04);
+}
+
+.wish-btn:active {
+  transform: scale(0.92);
+}
+
+:host-context(.dark) .wish-btn {
+  border-color: rgb(255 255 255 / 0.2);
 }
 
 .review-card {
@@ -43,4 +95,13 @@
 
 :host-context(.dark) .review-card {
   background: rgb(255 255 255 / 0.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option-btn,
+  .qty-btn,
+  .wish-btn {
+    transition: none !important;
+    transform: none !important;
+  }
 }

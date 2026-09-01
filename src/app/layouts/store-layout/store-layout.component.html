@@ -1,6 +1,12 @@
-<app-announcement-bar />
-<app-header />
-<main>
+<!-- Fixed Top Container for Announcement Bar + Header -->
+<div class="fixed-top-header fixed top-0 inset-x-0 z-40 flex flex-col">
+  <app-announcement-bar />
+  <app-header />
+</div>
+
+<!-- Main Content with central top offset to prevent sliding under fixed header -->
+<main class="store-main min-h-screen pt-[100px] transition-[padding] duration-200">
   <router-outlet />
 </main>
+
 <app-footer />

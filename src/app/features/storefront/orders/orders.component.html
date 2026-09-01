@@ -1,19 +1,25 @@
-<section class="page py-14">
-  <h1 class="font-display text-4xl font-semibold">Your orders</h1>
+<section class="page py-8 sm:py-12">
+  <app-breadcrumbs [items]="breadcrumbs" class="mb-4" />
+
+  <h1 class="font-display text-3xl sm:text-4xl font-semibold text-ink dark:text-white">Your orders</h1>
 
   @if (orders().length) {
     <div class="mt-8 space-y-4">
       @for (order of orders(); track order.id) {
-        <a [routerLink]="['/orders', order.id]" class="order-card">
+        <a [routerLink]="['/orders', order.id]" class="order-card p-4 rounded-2xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-between hover:border-clay transition-colors cursor-pointer block">
           <div>
-            <p class="font-display font-semibold">{{ order.id }}</p>
-            <p class="text-sm opacity-60">{{ formatDate(order.createdAt, 'MMM d, yyyy') }} · {{ order.status }}</p>
+            <p class="font-display font-semibold text-ink dark:text-white">{{ order.id }}</p>
+            <p class="text-xs sm:text-sm text-stone mt-0.5">{{ formatDate(order.createdAt, 'MMM d, yyyy') }} · <span class="capitalize">{{ order.status }}</span></p>
           </div>
-          <p class="font-bold">${{ order.total }}</p>
+          <p class="font-bold text-ink dark:text-white">${{ order.total }}</p>
         </a>
       }
     </div>
   } @else {
-    <p class="mt-8 text-black/60 dark:text-white/60">No orders yet.</p>
+    <div class="empty py-16 text-center max-w-md mx-auto">
+      <p class="font-display text-2xl font-bold text-ink dark:text-white">No orders yet.</p>
+      <p class="text-sm text-stone mt-1">Once you place an order, its tracking and details will appear here.</p>
+      <a routerLink="/category" class="btn-primary mt-6 inline-block">Explore products</a>
+    </div>
   }
 </section>

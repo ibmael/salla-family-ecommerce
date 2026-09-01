@@ -1,3 +1,16 @@
 :host {
   display: block;
 }
+
+.brand-logo {
+  aspect-ratio: 1 / 1;
+}
+
+.brand-wordmark {
+  max-height: 2.25rem;
+  transition: filter 0.2s ease;
+}
+
+:host-context(.dark) .brand-wordmark {
+  filter: brightness(0) invert(1);
+}

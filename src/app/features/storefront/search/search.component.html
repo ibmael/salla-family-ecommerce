@@ -1,31 +1,25 @@
-<section class="page py-12">
-  <h1 class="font-display text-4xl font-semibold">Search</h1>
-  @if (query()) {
-    <p class="mt-2 text-black/60 dark:text-white/60">{{ result().total }} results for "{{ query() }}"</p>
-  }
+<section class="page py-8 sm:py-12">
+  <app-breadcrumbs [items]="breadcrumbs" class="mb-4" />
 
-  <div class="mt-6 flex gap-3">
-    <label class="text-sm">
-      Sort
-      <select class="ml-2 rounded-full border px-3 py-1.5" [ngModel]="sort()" (ngModelChange)="sort.set($event)">
-        <option value="featured">Featured</option>
-        <option value="price-asc">Price: low</option>
-        <option value="price-desc">Price: high</option>
-        <option value="rating">Rating</option>
-      </select>
-    </label>
-  </div>
+  <p class="eyebrow text-clay">Search results</p>
+  <h1 class="font-display text-3xl sm:text-4xl font-semibold text-ink dark:text-white mt-1">
+    {{ query() ? '“' + query() + '”' : 'All Products' }}
+  </h1>
+  <p class="mt-2 text-sm text-stone dark:text-white/60">
+    Found {{ result().total }} matching piece{{ result().total === 1 ? '' : 's' }}
+  </p>
 
   @if (result().items.length) {
-    <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+    <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
       @for (product of result().items; track product.id) {
         <app-product-card [product]="product" />
       }
     </div>
   } @else {
-    <div class="py-20 text-center">
-      <p class="font-display text-2xl">No matches found</p>
-      <a routerLink="/category" class="mt-4 inline-block underline">Browse all products</a>
+    <div class="empty-state py-16 text-center">
+      <h2 class="font-display text-2xl font-bold text-ink dark:text-white">No results found</h2>
+      <p class="mt-2 text-sm text-stone dark:text-white/60">Try checking your spelling or search for broader keywords.</p>
+      <a routerLink="/category" class="btn-primary mt-6 inline-block">Browse all collections</a>
     </div>
   }
 </section>

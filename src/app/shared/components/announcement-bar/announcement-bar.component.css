@@ -1,3 +1,46 @@
 :host {
   display: block;
 }
+
+.announcement-wrapper {
+  display: grid;
+  grid-template-rows: 1fr;
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  transition: grid-template-rows 200ms cubic-bezier(0.25, 1, 0.5, 1), opacity 180ms ease-out;
+  opacity: 1;
+  overflow: hidden;
+  will-change: grid-template-rows, opacity;
+}
+
+:host-context(.dark) .announcement-wrapper {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+
+.announcement-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.announcement-content {
+  padding-block: 0.5rem;
+  transform: translateY(0);
+  transition: transform 180ms ease-out;
+}
+
+.announcement-wrapper.closing {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+
+.announcement-wrapper.closing .announcement-content {
+  transform: translateY(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .announcement-wrapper,
+  .announcement-content {
+    transition: none !important;
+  }
+}

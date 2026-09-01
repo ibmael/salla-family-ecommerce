@@ -1,19 +1,51 @@
-.account-input {
-  width: 100%;
-  border-radius: 0.75rem;
-  border: 1px solid rgb(0 0 0 / 0.15);
-  background: transparent;
-  padding: 0.65rem 0.875rem;
-  font-size: 0.875rem;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+:host {
+  display: block;
 }
 
-:host-context(.dark) .account-input {
-  border-color: rgb(255 255 255 / 0.15);
+.editorial-profile-hero {
+  border-radius: 1.5rem;
 }
 
-.account-input:focus {
+.account-tab-btn {
+  border-color: transparent;
+  color: var(--color-stone);
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+
+.account-tab-btn:hover {
+  color: var(--color-ink);
+}
+
+:host-context(.dark) .account-tab-btn:hover {
+  color: var(--color-paper);
+}
+
+.account-tab-btn.active {
+  color: var(--color-clay);
   border-color: var(--color-clay);
-  box-shadow: 0 0 0 1px var(--color-clay);
+}
+
+.tab-panel {
+  animation: panelFadeIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+@keyframes panelFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-panel,
+  .account-tab-btn {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
 }

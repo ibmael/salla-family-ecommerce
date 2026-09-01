@@ -1,35 +1,67 @@
-<section class="page py-14">
-  <h1 class="font-display text-4xl font-semibold">Your bag</h1>
+<section class="page py-8 sm:py-12">
+  <app-breadcrumbs [items]="breadcrumbs" class="mb-4" />
+
+  <h1 class="font-display text-3xl sm:text-4xl font-semibold text-ink dark:text-white">Your bag</h1>
 
   @if (cart.lines().length) {
-    <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
+    <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_360px] items-start">
       <div class="space-y-4">
         @for (line of cart.lines(); track line.key) {
-          <article class="line-card">
-            <img [src]="line.product.image" class="size-24 rounded-xl object-cover" [alt]="line.product.name" />
-            <div class="flex-1">
-              <h2 class="font-display font-semibold">{{ line.product.name }}</h2>
-              <p class="text-sm opacity-60">{{ line.color }} · {{ line.size }} · Qty {{ line.quantity }}</p>
-              <p class="mt-2 font-bold">${{ line.product.price * line.quantity }}</p>
+          <article class="line-card flex items-center gap-4 p-4 rounded-2xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-sm">
+            <img [src]="line.product.image" class="size-20 sm:size-24 rounded-xl object-cover shrink-0" [alt]="line.product.name" />
+            <div class="flex-1 min-w-0">
+              <h2 class="font-display font-semibold text-sm sm:text-base text-ink dark:text-white truncate">{{ line.product.name }}</h2>
+              <p class="text-xs text-stone mt-0.5">{{ line.color }} · {{ line.size }}</p>
+              <div class="mt-3 flex items-center gap-4">
+                <!-- Quantity Controls -->
+                <div class="flex items-center border border-black/10 dark:border-white/15 rounded-lg overflow-hidden">
+                  <button
+                    type="button"
+                    class="px-2.5 py-1 text-xs hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                    (click)="cart.updateQuantity(line.key, line.quantity - 1)"
+                    aria-label="Decrease quantity"
+                  >
+                    −
+                  </button>
+                  <span class="px-2.5 text-xs font-semibold select-none">{{ line.quantity }}</span>
+                  <button
+                    type="button"
+                    class="px-2.5 py-1 text-xs hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                    (click)="cart.updateQuantity(line.key, line.quantity + 1)"
+                    aria-label="Increase quantity"
+                  >
+                    +
+                  </button>
+                </div>
+                <p class="font-bold text-sm text-ink dark:text-white">${{ line.product.price * line.quantity }}</p>
+              </div>
             </div>
-            <button type="button" (click)="cart.remove(line.key)" aria-label="Remove item">×</button>
+            <button
+              type="button"
+              class="p-2 rounded-full text-stone hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+              (click)="cart.remove(line.key)"
+              aria-label="Remove item"
+            >
+              <lucide-icon [img]="icons.Trash2" class="size-4" />
+            </button>
           </article>
         }
       </div>
-      <aside class="summary-card">
-        <h2 class="font-display text-xl font-semibold">Order summary</h2>
-        <div class="mt-5 flex justify-between">
-          <span>Subtotal</span>
-          <b>${{ cart.total() }}</b>
+      <aside class="summary-card p-6 rounded-2xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-sm sticky top-20">
+        <h2 class="font-display text-xl font-bold text-ink dark:text-white">Order summary</h2>
+        <div class="mt-5 flex justify-between text-sm">
+          <span class="text-stone">Subtotal</span>
+          <b class="text-ink dark:text-white">${{ cart.total() }}</b>
         </div>
-        <p class="mt-3 text-sm opacity-60">Shipping and taxes calculated at checkout.</p>
-        <a routerLink="/checkout" class="btn-primary mt-6 block text-center">Checkout</a>
+        <p class="mt-3 text-xs text-stone">Shipping and taxes calculated at checkout.</p>
+        <a routerLink="/checkout" class="btn-primary mt-6 w-full text-center block py-3.5">Proceed to checkout</a>
       </aside>
     </div>
   } @else {
-    <div class="empty">
-      <p class="font-display text-2xl">Your bag is waiting.</p>
-      <a routerLink="/" class="mt-4 inline-block underline">Discover something special</a>
+    <div class="empty py-16 text-center max-w-md mx-auto">
+      <p class="font-display text-2xl font-bold text-ink dark:text-white">Your bag is waiting.</p>
+      <p class="text-sm text-stone mt-1">Discover handcrafted pieces and essentials for considered living.</p>
+      <a routerLink="/category" class="btn-primary mt-6 inline-block">Explore collections</a>
     </div>
   }
 </section>

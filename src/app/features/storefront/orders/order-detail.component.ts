@@ -1,14 +1,15 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, switchMap } from 'rxjs';
 import { ORDER_REPOSITORY } from '../../../core/repositories/repository.tokens';
 import { PageTitleService } from '../../../core/services/page-title.service';
+import { BreadcrumbsComponent, BreadcrumbItem } from '../../../shared/ui/breadcrumbs/breadcrumbs.component';
 import { format } from 'date-fns';
 
 @Component({
   selector: 'app-order-detail',
-  imports: [RouterLink],
+  imports: [BreadcrumbsComponent],
   templateUrl: './order-detail.component.html',
   styleUrl: './order-detail.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,6 +26,16 @@ export class OrderDetailComponent {
     ),
     { initialValue: undefined },
   );
+
+  readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
+    const ord = this.order();
+    return [
+      { label: 'Home', url: '/' },
+      { label: 'Account', url: '/account' },
+      { label: 'Orders', url: '/orders' },
+      { label: ord ? `Order #${ord.id}` : 'Order Details' },
+    ];
+  });
 
   constructor() {
     effect(() => {

@@ -1,21 +1,419 @@
-<section class="page py-14">
-  <h1 class="font-display text-4xl font-semibold">Checkout</h1>
-
-  <div class="mt-8 grid gap-8 md:grid-cols-2">
-    <form class="card p-6" [formGroup]="form" (ngSubmit)="submit()">
-      <h2 class="font-display text-xl">Delivery details</h2>
-      <label class="mt-6 block text-sm" for="email">Email address</label>
-      <input id="email" class="field" formControlName="email" type="email" autocomplete="email" />
-      <label class="mt-4 block text-sm" for="name">Full name</label>
-      <input id="name" class="field" formControlName="name" autocomplete="name" />
-      <label class="mt-4 block text-sm" for="address">Address</label>
-      <input id="address" class="field" formControlName="address" autocomplete="street-address" />
-      <button type="submit" class="btn-primary mt-6 w-full">Place mock order</button>
-    </form>
-
-    <div class="summary">
-      <h2 class="font-display text-xl">Your order</h2>
-      <p class="mt-5">{{ cart.count() }} pieces · ${{ cart.total() }}</p>
+<section class="page py-8 lg:py-12">
+  <app-breadcrumbs [items]="breadcrumbs" class="mb-4" />
+  @if (cart.count() === 0) {
+    <!-- Empty Cart Protected State -->
+    <div class="empty-cart-state max-w-lg mx-auto py-16 px-6 text-center rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-ink/40">
+      <div class="mx-auto size-16 rounded-full bg-sand dark:bg-white/10 flex items-center justify-center mb-5 text-stone dark:text-white/60">
+        <lucide-icon [img]="icons.ShoppingBag" class="size-8" />
+      </div>
+      <h1 class="font-display text-2xl sm:text-3xl font-bold text-ink dark:text-white">Your cart is empty</h1>
+      <p class="mt-2 text-sm text-stone dark:text-white/60 max-w-sm mx-auto leading-relaxed">
+        Add a few pieces before heading to checkout.
+      </p>
+      <div class="mt-8">
+        <a routerLink="/category" class="btn-primary inline-flex items-center gap-2 px-8 py-3.5">
+          <span>Continue shopping</span>
+        </a>
+      </div>
     </div>
-  </div>
+  } @else {
+    <!-- Active Checkout -->
+    <div class="mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-black/10 dark:border-white/10 pb-5">
+        <div>
+          <h1 class="font-display text-3xl sm:text-4xl font-bold tracking-tight text-ink dark:text-white">Checkout</h1>
+          <!-- Tasteful checkout context row -->
+          <div class="mt-2 flex items-center gap-2 text-xs font-medium text-stone">
+            <span class="text-clay font-semibold">Cart</span>
+            <span>→</span>
+            <span class="text-ink dark:text-white font-semibold">Information</span>
+            <span>→</span>
+            <span>Payment</span>
+          </div>
+        </div>
+
+        <div class="inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 px-3.5 py-1.5 text-xs font-medium text-stone self-start sm:self-auto bg-white/50 dark:bg-white/5">
+          <lucide-icon [img]="icons.ShieldCheck" class="size-4 text-moss" />
+          <span>Secure 256-bit SSL checkout</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+      <!-- LEFT COLUMN: Checkout Forms -->
+      <div class="lg:col-span-7 xl:col-span-7 space-y-8">
+        <form [formGroup]="form" (ngSubmit)="submitOrder()" novalidate>
+          
+          <!-- 1. CONTACT INFORMATION -->
+          <div class="checkout-card">
+            <div class="flex items-center gap-2.5 mb-4">
+              <span class="step-num">1</span>
+              <h2 class="font-display text-lg font-bold text-ink dark:text-white">Contact information</h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="field-label" for="contact-email">Email address</label>
+                <input
+                  id="contact-email"
+                  formControlName="email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="hello@example.com"
+                  class="field-input"
+                  [class.border-red-400]="form.get('email')?.invalid && form.get('email')?.touched"
+                />
+                @if (form.get('email')?.invalid && form.get('email')?.touched) {
+                  <p class="field-error">Please enter a valid email address.</p>
+                }
+              </div>
+
+              <div>
+                <label class="field-label" for="contact-phone">Phone number</label>
+                <input
+                  id="contact-phone"
+                  formControlName="phoneNumber"
+                  type="tel"
+                  autocomplete="tel"
+                  placeholder="+1 (555) 012-3456"
+                  class="field-input"
+                  [class.border-red-400]="form.get('phoneNumber')?.invalid && form.get('phoneNumber')?.touched"
+                />
+                @if (form.get('phoneNumber')?.invalid && form.get('phoneNumber')?.touched) {
+                  <p class="field-error">Please enter a valid phone number.</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. DELIVERY ADDRESS -->
+          <div class="checkout-card mt-6">
+            <div class="flex items-center gap-2.5 mb-4">
+              <span class="step-num">2</span>
+              <h2 class="font-display text-lg font-bold text-ink dark:text-white">Delivery address</h2>
+            </div>
+
+            <div class="space-y-4">
+              <div>
+                <label class="field-label" for="delivery-name">Full name</label>
+                <input
+                  id="delivery-name"
+                  formControlName="name"
+                  type="text"
+                  autocomplete="name"
+                  placeholder="Sarah Mitchell"
+                  class="field-input"
+                  [class.border-red-400]="form.get('name')?.invalid && form.get('name')?.touched"
+                />
+                @if (form.get('name')?.invalid && form.get('name')?.touched) {
+                  <p class="field-error">Name is required.</p>
+                }
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="field-label" for="delivery-country">Country / Region</label>
+                  <select id="delivery-country" formControlName="country" class="field-input bg-transparent">
+                    <option value="United States">United States</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Germany">Germany</option>
+                    <option value="France">France</option>
+                    <option value="Saudi Arabia">Saudi Arabia</option>
+                    <option value="United Arab Emirates">United Arab Emirates</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="field-label" for="delivery-city">City</label>
+                  <input
+                    id="delivery-city"
+                    formControlName="city"
+                    type="text"
+                    autocomplete="address-level2"
+                    placeholder="New York"
+                    class="field-input"
+                    [class.border-red-400]="form.get('city')?.invalid && form.get('city')?.touched"
+                  />
+                  @if (form.get('city')?.invalid && form.get('city')?.touched) {
+                    <p class="field-error">City is required.</p>
+                  }
+                </div>
+              </div>
+
+              <div>
+                <label class="field-label" for="delivery-address">Street address</label>
+                <input
+                  id="delivery-address"
+                  formControlName="address"
+                  type="text"
+                  autocomplete="street-address"
+                  placeholder="123 Artisanal Way"
+                  class="field-input"
+                  [class.border-red-400]="form.get('address')?.invalid && form.get('address')?.touched"
+                />
+                @if (form.get('address')?.invalid && form.get('address')?.touched) {
+                  <p class="field-error">Street address is required.</p>
+                }
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="field-label" for="delivery-apt">Apartment, suite, etc. (optional)</label>
+                  <input
+                    id="delivery-apt"
+                    formControlName="apartment"
+                    type="text"
+                    placeholder="Apt 4B"
+                    class="field-input"
+                  />
+                </div>
+
+                <div>
+                  <label class="field-label" for="delivery-postal">Postal code</label>
+                  <input
+                    id="delivery-postal"
+                    formControlName="postalCode"
+                    type="text"
+                    autocomplete="postal-code"
+                    placeholder="10001"
+                    class="field-input"
+                    [class.border-red-400]="form.get('postalCode')?.invalid && form.get('postalCode')?.touched"
+                  />
+                  @if (form.get('postalCode')?.invalid && form.get('postalCode')?.touched) {
+                    <p class="field-error">Postal code is required.</p>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. DELIVERY METHOD -->
+          <div class="checkout-card mt-6">
+            <div class="flex items-center gap-2.5 mb-4">
+              <span class="step-num">3</span>
+              <h2 class="font-display text-lg font-bold text-ink dark:text-white">Delivery method</h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <!-- Standard Delivery Option -->
+              <div
+                class="option-card"
+                [class.selected]="deliveryMethod() === 'standard'"
+                (click)="setDeliveryMethod('standard')"
+              >
+                <div class="flex items-start justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <div class="radio-indicator" [class.active]="deliveryMethod() === 'standard'"></div>
+                    <div>
+                      <p class="text-sm font-bold text-ink dark:text-white">Standard Delivery</p>
+                      <p class="text-xs text-stone mt-0.5">3–5 business days</p>
+                    </div>
+                  </div>
+                  <span class="text-xs font-bold text-moss uppercase tracking-wider">Free</span>
+                </div>
+              </div>
+
+              <!-- Express Delivery Option -->
+              <div
+                class="option-card"
+                [class.selected]="deliveryMethod() === 'express'"
+                (click)="setDeliveryMethod('express')"
+              >
+                <div class="flex items-start justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <div class="radio-indicator" [class.active]="deliveryMethod() === 'express'"></div>
+                    <div>
+                      <p class="text-sm font-bold text-ink dark:text-white">Express Delivery</p>
+                      <p class="text-xs text-stone mt-0.5">1–2 business days</p>
+                    </div>
+                  </div>
+                  <span class="text-xs font-bold text-ink dark:text-white">$12.00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. PAYMENT METHOD -->
+          <div class="checkout-card mt-6">
+            <div class="flex items-center gap-2.5 mb-4">
+              <span class="step-num">4</span>
+              <h2 class="font-display text-lg font-bold text-ink dark:text-white">Payment method</h2>
+            </div>
+
+            <div class="space-y-3.5">
+              <!-- Credit / Debit Card -->
+              <div
+                class="option-card"
+                [class.selected]="paymentMethod() === 'card'"
+                (click)="setPaymentMethod('card')"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <div class="radio-indicator" [class.active]="paymentMethod() === 'card'"></div>
+                    <div>
+                      <p class="text-sm font-bold text-ink dark:text-white">Credit / Debit Card</p>
+                      <p class="text-xs text-stone mt-0.5">Visa, Mastercard, Amex</p>
+                    </div>
+                  </div>
+                  <lucide-icon [img]="icons.CreditCard" class="size-5 text-stone" />
+                </div>
+
+                <!-- Conditional Mock Card Fields -->
+                @if (paymentMethod() === 'card') {
+                  <div class="mt-4 pt-4 border-t border-black/10 dark:border-white/10 space-y-3.5" (click)="$event.stopPropagation()">
+                    <div>
+                      <label class="field-label" for="card-num">Card number</label>
+                      <input
+                        id="card-num"
+                        formControlName="cardNumber"
+                        type="text"
+                        placeholder="•••• •••• •••• ••••"
+                        class="field-input"
+                      />
+                    </div>
+
+                    <div>
+                      <label class="field-label" for="card-name">Name on card</label>
+                      <input
+                        id="card-name"
+                        formControlName="cardName"
+                        type="text"
+                        placeholder="Sarah Mitchell"
+                        class="field-input"
+                      />
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <label class="field-label" for="card-exp">Expiry date</label>
+                        <input
+                          id="card-exp"
+                          formControlName="cardExpiry"
+                          type="text"
+                          placeholder="MM / YY"
+                          class="field-input"
+                        />
+                      </div>
+                      <div>
+                        <label class="field-label" for="card-cvv">CVV</label>
+                        <input
+                          id="card-cvv"
+                          formControlName="cardCvv"
+                          type="password"
+                          maxlength="4"
+                          placeholder="123"
+                          class="field-input"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Cash on Delivery -->
+              <div
+                class="option-card"
+                [class.selected]="paymentMethod() === 'cod'"
+                (click)="setPaymentMethod('cod')"
+              >
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <div class="radio-indicator" [class.active]="paymentMethod() === 'cod'"></div>
+                    <div>
+                      <p class="text-sm font-bold text-ink dark:text-white">Cash on Delivery</p>
+                      <p class="text-xs text-stone mt-0.5">Pay upon delivery receipt</p>
+                    </div>
+                  </div>
+                  <lucide-icon [img]="icons.Banknote" class="size-5 text-stone" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- RIGHT COLUMN: Detailed Sticky Order Summary -->
+      <div class="lg:col-span-5 xl:col-span-5 w-full">
+        <div class="summary-sticky-card border border-black/10 dark:border-white/10 bg-white dark:bg-ink/40">
+          <div class="flex items-center justify-between pb-4 border-b border-black/10 dark:border-white/10">
+            <h2 class="font-display text-xl font-bold text-ink dark:text-white">Order summary</h2>
+            <span class="rounded-full bg-sand dark:bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-ink dark:text-white">
+              {{ cart.count() }} {{ cart.count() === 1 ? 'item' : 'items' }}
+            </span>
+          </div>
+
+          <!-- Items List -->
+          <div class="divide-y divide-black/5 dark:divide-white/5 max-h-80 overflow-y-auto py-2">
+            @for (line of cart.lines(); track line.key) {
+              <div class="flex items-center gap-3.5 py-3">
+                <div class="relative size-16 shrink-0 rounded-xl overflow-hidden bg-sand dark:bg-white/10 border border-black/5 dark:border-white/10">
+                  <img [src]="line.product.image" [alt]="line.product.name" class="size-full object-cover" />
+                  <span class="absolute right-1 bottom-1 rounded-md bg-ink/80 text-paper text-[10px] font-bold px-1.5 py-0.2">
+                    ×{{ line.quantity }}
+                  </span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-ink dark:text-white truncate">{{ line.product.name }}</p>
+                  <p class="text-[11px] text-stone mt-0.5">
+                    @if (line.size) { <span>{{ line.size }}</span> }
+                    @if (line.size && line.color) { <span> · </span> }
+                    @if (line.color) { <span>{{ line.color }}</span> }
+                  </p>
+                  <p class="text-xs text-stone mt-1">${{ line.product.price }} each</p>
+                </div>
+                <div class="text-right shrink-0">
+                  <p class="text-xs font-bold text-ink dark:text-white">${{ line.product.price * line.quantity }}</p>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Cost Breakdown -->
+          <div class="border-t border-black/10 dark:border-white/10 pt-4 space-y-2.5 text-xs">
+            <div class="flex items-center justify-between text-stone">
+              <span>Subtotal</span>
+              <span class="font-medium text-ink dark:text-white">${{ cart.total() }}</span>
+            </div>
+            <div class="flex items-center justify-between text-stone">
+              <span>Shipping</span>
+              @if (shippingCost() === 0) {
+                <span class="font-bold text-moss uppercase tracking-wider">Free</span>
+              } @else {
+                <span class="font-medium text-ink dark:text-white">${{ shippingCost() }}.00</span>
+              }
+            </div>
+            <div class="border-t border-black/10 dark:border-white/10 pt-3 flex items-center justify-between text-sm font-bold text-ink dark:text-white">
+              <span>Total</span>
+              <span class="text-lg">${{ orderTotal() }}</span>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            type="button"
+            (click)="submitOrder()"
+            class="btn-primary mt-6 w-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2 shadow-sm"
+            [disabled]="isSubmitting() || cart.count() === 0"
+          >
+            @if (isSubmitting()) {
+              <span class="spinner"></span>
+              <span>Processing order...</span>
+            } @else {
+              <lucide-icon [img]="icons.Lock" class="size-4" />
+              <span>Place order · ${{ orderTotal() }}</span>
+            }
+          </button>
+
+          <!-- Reassurance Footer -->
+          <div class="mt-4 flex items-center justify-center gap-2 text-center text-[11px] text-stone">
+            <lucide-icon [img]="icons.ShieldCheck" class="size-3.5 text-moss shrink-0" />
+            <span>Your information is protected and securely processed.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </section>

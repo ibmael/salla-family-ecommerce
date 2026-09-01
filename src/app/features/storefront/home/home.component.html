@@ -1,72 +1,187 @@
-<section class="hero-banner page" [appRevealOnScroll]="0">
-  <div class="hero-media">
-    <img [src]="heroImage" alt="Salla premium collection" class="hero-image" />
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <p class="eyebrow text-clay">New season</p>
-      <h1 class="font-display text-4xl font-semibold md:text-5xl">Curated for living well</h1>
-      <p class="mt-4 max-w-md text-white/85">Discover pieces that feel as good as they look.</p>
-      <a routerLink="/category" class="btn-primary mt-8">Shop the edit</a>
+<!-- 3-Slide Hero Carousel -->
+<section
+  class="hero-section page pt-4 sm:pt-6"
+  (mouseenter)="onHeroMouseEnter()"
+  (mouseleave)="onHeroMouseLeave()"
+  (focusin)="onHeroFocusIn()"
+  (focusout)="onHeroFocusOut()"
+  aria-roledescription="carousel"
+  aria-label="Highlighted collections and stories"
+  [appRevealOnScroll]="0"
+>
+  <div class="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-sand/40 dark:bg-ink/60 border border-black/10 dark:border-white/10 shadow-sm">
+    <!-- Embla Viewport -->
+    <div #emblaViewport class="embla-viewport overflow-hidden w-full">
+      <div class="embla-container flex touch-pan-y">
+        @for (slide of slides; track slide.id; let idx = $index) {
+          <div
+            class="embla-slide relative min-w-0 flex-[0_0_100%] select-none"
+            role="group"
+            aria-roledescription="slide"
+            [attr.aria-label]="'Slide ' + (idx + 1) + ' of ' + slides.length + ': ' + slide.heading"
+          >
+            <!-- Background Media -->
+            <div class="hero-media relative w-full h-[420px] sm:h-[480px] md:h-[540px] lg:h-[600px] overflow-hidden">
+              <img
+                [src]="slide.image"
+                [alt]="slide.heading"
+                class="w-full h-full object-cover object-center"
+                [loading]="idx === 0 ? 'eager' : 'lazy'"
+              />
+              <!-- Editorial Ambient Overlay -->
+              <div class="hero-overlay absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-transparent sm:w-3/4"></div>
+
+              <!-- Content Area -->
+              <div class="hero-content absolute inset-0 flex flex-col justify-end p-6 sm:p-10 md:p-14 lg:p-16 text-white max-w-2xl">
+                <p class="eyebrow text-clay tracking-widest text-xs font-bold uppercase mb-2">
+                  {{ slide.eyebrow }}
+                </p>
+                <h1 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight sm:leading-none">
+                  {{ slide.heading }}
+                </h1>
+                <p class="mt-3 sm:mt-4 text-sm sm:text-base text-white/85 max-w-lg leading-relaxed">
+                  {{ slide.description }}
+                </p>
+                <div class="mt-6 sm:mt-8">
+                  <a
+                    [routerLink]="slide.ctaLink"
+                    class="btn-primary inline-flex items-center gap-2 px-6 py-3 text-sm font-bold shadow-lg hover:shadow-xl transition-all cursor-pointer"
+                  >
+                    <span>{{ slide.ctaText }}</span>
+                    <lucide-icon [img]="icons.ArrowRight" class="size-4" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Navigation Controls (Prev / Next Buttons) -->
+    <div class="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 flex items-center gap-2.5 z-20">
+      <button
+        type="button"
+        (click)="scrollPrev()"
+        class="hero-nav-btn size-10 sm:size-11 rounded-full bg-white/20 hover:bg-white/35 dark:bg-black/30 dark:hover:bg-black/50 backdrop-blur-md text-white border border-white/20 flex items-center justify-center transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
+        aria-label="Previous slide"
+      >
+        <lucide-icon [img]="icons.ChevronLeft" class="size-5" />
+      </button>
+
+      <button
+        type="button"
+        (click)="scrollNext()"
+        class="hero-nav-btn size-10 sm:size-11 rounded-full bg-white/20 hover:bg-white/35 dark:bg-black/30 dark:hover:bg-black/50 backdrop-blur-md text-white border border-white/20 flex items-center justify-center transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
+        aria-label="Next slide"
+      >
+        <lucide-icon [img]="icons.ChevronRight" class="size-5" />
+      </button>
+    </div>
+
+    <!-- Slide Indicators / Dots (Bottom Center with Progress) -->
+    <div
+      class="hero-indicators-bar absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 dark:bg-black/60 backdrop-blur-md border border-white/15 z-20 shadow-md"
+      role="tablist"
+      aria-label="Slide selection"
+    >
+      @for (slide of slides; track slide.id; let idx = $index) {
+        @if (activeIndex() === idx) {
+          <!-- Active Slide Indicator with 5-Second Progress Fill -->
+          <button
+            type="button"
+            (click)="scrollTo(idx)"
+            class="hero-progress-track relative w-12 h-2 rounded-full bg-white/30 overflow-hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            [attr.aria-label]="'Current slide ' + (idx + 1) + ' (playing)'"
+            aria-selected="true"
+            role="tab"
+          >
+            <span
+              class="hero-progress-fill absolute inset-0 bg-white rounded-full"
+              [class.paused]="isPaused()"
+            ></span>
+          </button>
+        } @else {
+          <!-- Inactive Slide Dot -->
+          <button
+            type="button"
+            (click)="scrollTo(idx)"
+            class="hero-dot size-2 rounded-full bg-white/40 hover:bg-white/70 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            [attr.aria-label]="'Go to slide ' + (idx + 1)"
+            aria-selected="false"
+            role="tab"
+          ></button>
+        }
+      }
     </div>
   </div>
 </section>
 
+<!-- Shop by Collection -->
 <section class="page py-12" [appRevealOnScroll]="100">
   <div class="flex items-end justify-between">
     <div>
-      <p class="eyebrow text-clay">Categories</p>
-      <h2 class="mt-2 font-display text-3xl font-semibold">Shop by collection</h2>
+      <p class="eyebrow text-clay">Collections</p>
+      <h2 class="mt-2 font-display text-3xl font-semibold text-ink dark:text-white">Shop by collection</h2>
     </div>
-    <a routerLink="/category" class="text-sm underline">View all</a>
+    <a routerLink="/categories" class="text-sm font-semibold text-clay hover:underline cursor-pointer">
+      View all categories &rarr;
+    </a>
   </div>
   <div class="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
     @for (cat of data().categories; track cat.id) {
-      <a [routerLink]="['/category', cat.slug]" class="category-card group">
-        <img [src]="cat.image" [alt]="cat.name" class="aspect-[4/5] w-full rounded-card object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
-        <div class="mt-3">
-          <h3 class="font-display font-semibold">{{ cat.name }}</h3>
-          <p class="text-sm text-black/55 dark:text-white/55">{{ cat.productCount }} pieces</p>
+      <a [routerLink]="['/category', cat.slug]" class="category-card group block overflow-hidden rounded-2xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-3 hover:border-clay/40 transition-colors cursor-pointer">
+        <div class="overflow-hidden rounded-xl bg-sand/30 aspect-[4/5]">
+          <img [src]="cat.image" [alt]="cat.name" class="size-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+        </div>
+        <div class="mt-3 px-1">
+          <h3 class="font-display font-semibold text-ink dark:text-white group-hover:text-clay transition-colors">{{ cat.name }}</h3>
+          <p class="text-xs text-stone dark:text-white/55 mt-0.5">{{ cat.productCount }} pieces</p>
         </div>
       </a>
     }
   </div>
 </section>
 
+<!-- Trending Section -->
 <section class="page py-12" [appRevealOnScroll]="150">
   <p class="eyebrow text-clay">Trending now</p>
-  <h2 class="mt-2 font-display text-3xl font-semibold">What everyone's loving</h2>
-  <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+  <h2 class="mt-2 font-display text-3xl font-semibold text-ink dark:text-white">What everyone's loving</h2>
+  <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
     @for (product of data().trending; track product.id) {
       <app-product-card [product]="product" />
     }
   </div>
 </section>
 
+<!-- Deals Section -->
 <section class="page py-12" [appRevealOnScroll]="200">
   <p class="eyebrow text-clay">Limited offers</p>
-  <h2 class="mt-2 font-display text-3xl font-semibold">Today's deals</h2>
-  <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+  <h2 class="mt-2 font-display text-3xl font-semibold text-ink dark:text-white">Today's deals</h2>
+  <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
     @for (product of data().deals; track product.id) {
       <app-product-card [product]="product" />
     }
   </div>
 </section>
 
+<!-- Editor's Picks -->
 <section class="page py-12" [appRevealOnScroll]="250">
   <p class="eyebrow text-clay">Editor's picks</p>
-  <h2 class="mt-2 font-display text-3xl font-semibold">Recommended for you</h2>
-  <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+  <h2 class="mt-2 font-display text-3xl font-semibold text-ink dark:text-white">Recommended for you</h2>
+  <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
     @for (product of data().featured; track product.id) {
       <app-product-card [product]="product" />
     }
   </div>
 </section>
 
+<!-- Style Quiz CTA -->
 <section class="page my-16">
-  <div class="quiz-cta" [appRevealOnScroll]="300">
+  <div class="quiz-cta rounded-3xl" [appRevealOnScroll]="300">
     <p class="eyebrow text-clay">Style quiz</p>
-    <h2 class="mt-3 font-display text-3xl font-semibold">Find your perfect edit</h2>
-    <p class="mt-3 max-w-md text-black/65 dark:text-white/65">Answer a few questions and we'll curate a collection just for you.</p>
-    <a routerLink="/auth" class="btn-primary mt-6">Start the quiz</a>
+    <h2 class="mt-3 font-display text-3xl sm:text-4xl font-semibold">Find your perfect edit</h2>
+    <p class="mt-3 max-w-md mx-auto text-white/80 text-sm sm:text-base">Answer a few questions and we'll curate a collection just for you.</p>
+    <a routerLink="/auth" class="btn-primary mt-6 inline-block cursor-pointer">Start the quiz</a>
   </div>
 </section>

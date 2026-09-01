@@ -1,6 +1,6 @@
 <div class="toast-container" aria-live="polite">
   @for (item of toast.messages(); track item.id) {
-    <div class="toast" role="status">
+    <div class="toast" [class.exiting]="item.exiting" role="status">
       <p class="font-semibold">{{ item.title }}</p>
       <p class="text-sm opacity-80">{{ item.message }}</p>
       <button type="button" class="dismiss" (click)="toast.dismiss(item.id)" aria-label="Dismiss">×</button>

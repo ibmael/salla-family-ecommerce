@@ -1,0 +1,20 @@
+:host {
+  display: block;
+}
+
+.category-discovery-card {
+  transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.category-discovery-card:hover {
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-discovery-card,
+  .category-discovery-card img,
+  .category-discovery-card lucide-icon {
+    transition: none !important;
+    transform: none !important;
+  }
+}

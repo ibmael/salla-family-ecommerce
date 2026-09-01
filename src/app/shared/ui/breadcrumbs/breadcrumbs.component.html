@@ -1,0 +1,28 @@
+<nav aria-label="Breadcrumb" class="breadcrumbs py-3">
+  <ol class="flex flex-wrap items-center gap-1.5 text-xs text-stone dark:text-white/60">
+    @for (item of items(); track $index; let last = $last) {
+      <li class="flex items-center gap-1.5 min-w-0 max-w-full">
+        @if (!last && item.url) {
+          <a
+            [routerLink]="item.url"
+            class="breadcrumb-link hover:text-clay dark:hover:text-white transition-colors cursor-pointer truncate max-w-[14rem] sm:max-w-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-clay rounded"
+          >
+            {{ item.label }}
+          </a>
+          <lucide-icon
+            [img]="icons.ChevronRight"
+            class="size-3.5 shrink-0 text-stone/50 dark:text-white/40"
+            aria-hidden="true"
+          />
+        } @else {
+          <span
+            class="font-medium text-ink dark:text-white truncate max-w-[16rem] sm:max-w-md"
+            aria-current="page"
+          >
+            {{ item.label }}
+          </span>
+        }
+      </li>
+    }
+  </ol>
+</nav>

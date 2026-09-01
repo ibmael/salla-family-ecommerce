@@ -8,10 +8,11 @@ import { PageTitleService } from '../../../core/services/page-title.service';
 import { ProductCardComponent } from '../../../shared/ui/product-card/product-card.component';
 import { PaginationComponent } from '../../../shared/ui/pagination/pagination.component';
 import { SkeletonComponent } from '../../../shared/ui/skeleton/skeleton.component';
+import { BreadcrumbsComponent, BreadcrumbItem } from '../../../shared/ui/breadcrumbs/breadcrumbs.component';
 
 @Component({
   selector: 'app-catalog',
-  imports: [FormsModule, RouterLink, ProductCardComponent, PaginationComponent, SkeletonComponent],
+  imports: [FormsModule, RouterLink, ProductCardComponent, PaginationComponent, SkeletonComponent, BreadcrumbsComponent],
   templateUrl: './catalog.component.html',
   styleUrl: './catalog.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,6 +63,21 @@ export class CatalogComponent {
     return 'All pieces';
   });
 
+  readonly breadcrumbs = computed<BreadcrumbItem[]>(() => {
+    const cat = this.category();
+    if (cat) {
+      return [
+        { label: 'Home', url: '/' },
+        { label: 'Categories', url: '/categories' },
+        { label: cat.name },
+      ];
+    }
+    return [
+      { label: 'Home', url: '/' },
+      { label: 'Shop' },
+    ];
+  });
+
   constructor() {
     effect(() => this.pageTitle.set(this.title()));
   }
@@ -69,5 +85,12 @@ export class CatalogComponent {
   reload(): void {
     this.page.set(1);
     this.loading.set(false);
+  }
+
+  onPageChange(p: number): void {
+    this.page.set(p);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 }

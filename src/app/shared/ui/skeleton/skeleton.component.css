@@ -14,3 +14,13 @@
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none !important;
+    background: rgb(0 0 0 / 0.08);
+  }
+  :host-context(.dark) .skeleton {
+    background: rgb(255 255 255 / 0.08);
+  }
+}

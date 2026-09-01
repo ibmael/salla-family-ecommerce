@@ -1,34 +1,54 @@
 <a
   [routerLink]="['/product', product().slug]"
-  class="group block"
+  class="group block rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay focus-visible:ring-offset-2"
 >
   <div class="relative overflow-hidden rounded-card bg-sand dark:bg-white/10">
     <img
       [src]="product().image"
       [alt]="product().name"
-      class="aspect-[4/5] w-full object-cover transition duration-500 group-hover:scale-105"
+      class="aspect-[4/5] w-full object-cover transition duration-300 group-hover:scale-105"
       loading="lazy"
     />
     @if (product().originalPrice) {
-      <span class="absolute left-3 top-3 rounded-full bg-clay px-3 py-1 text-xs font-bold text-white">Sale</span>
+      <span class="absolute left-3 top-3 rounded-full bg-clay px-3 py-1 text-xs font-bold text-white shadow-sm select-none">Sale</span>
     }
-    @if (wishlist.count() >= 0) {
+    <!-- Card action buttons (top-right) -->
+    <div class="absolute right-3 top-3 flex flex-col gap-1.5 z-10">
       <button
         type="button"
-        class="absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-white/90 text-lg backdrop-blur transition hover:scale-110 dark:bg-ink/80"
+        class="grid size-9 place-items-center rounded-full bg-white/90 text-lg backdrop-blur transition duration-150 hover:scale-110 active:scale-90 dark:bg-ink/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay cursor-pointer shadow-sm"
         [attr.aria-label]="wishlist.has(product().id) ? 'Remove from wishlist' : 'Add to wishlist'"
         [attr.aria-pressed]="wishlist.has(product().id)"
         (click)="toggleWishlist($event, product().id)"
       >
-        {{ wishlist.has(product().id) ? '♥' : '♡' }}
+        <span [class.text-clay]="wishlist.has(product().id)">
+          {{ wishlist.has(product().id) ? '♥' : '♡' }}
+        </span>
       </button>
-    }
+      <button
+        type="button"
+        class="grid size-9 place-items-center rounded-full backdrop-blur transition duration-150 hover:scale-110 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay cursor-pointer shadow-sm"
+        [class.bg-clay]="isInCart()"
+        [class.text-white]="isInCart()"
+        [class.bg-white/90]="!isInCart()"
+        [class.dark:bg-ink/80]="!isInCart()"
+        [attr.aria-label]="isInCart() ? 'Remove from cart' : 'Add to cart'"
+        [attr.title]="isInCart() ? 'Remove from cart' : 'Add to cart'"
+        (click)="toggleCart($event)"
+      >
+        @if (isInCart()) {
+          <lucide-icon [img]="icons.Check" class="size-4 text-white" />
+        } @else {
+          <lucide-icon [img]="icons.ShoppingBag" class="size-4 text-ink dark:text-paper" />
+        }
+      </button>
+    </div>
   </div>
   <div class="mt-3">
     <p class="text-xs uppercase tracking-wider text-stone">{{ product().category }}</p>
-    <h3 class="mt-1 font-display text-base font-semibold">{{ product().name }}</h3>
+    <h3 class="mt-1 font-display text-base font-semibold text-ink dark:text-white line-clamp-1">{{ product().name }}</h3>
     <div class="mt-1 flex items-center gap-2">
-      <span class="font-semibold">${{ product().price }}</span>
+      <span class="font-semibold text-ink dark:text-white">${{ product().price }}</span>
       @if (product().originalPrice) {
         <del class="text-sm text-black/40 dark:text-white/40">${{ product().originalPrice }}</del>
       }

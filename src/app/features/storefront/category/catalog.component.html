@@ -1,24 +1,26 @@
-<section class="page py-12">
+<section class="page py-8 sm:py-12">
+  <app-breadcrumbs [items]="breadcrumbs()" class="mb-4" />
+
   <p class="eyebrow text-clay">Browse the collection</p>
-  <h1 class="font-display text-4xl font-semibold">{{ title() }}</h1>
+  <h1 class="font-display text-3xl sm:text-4xl font-semibold text-ink dark:text-white mt-1">{{ title() }}</h1>
   @if (category(); as cat) {
-    <p class="mt-2 max-w-xl text-black/60 dark:text-white/60">{{ cat.description }}</p>
+    <p class="mt-2 max-w-xl text-sm sm:text-base text-black/60 dark:text-white/60 leading-relaxed">{{ cat.description }}</p>
   }
 
-  <div class="mt-8 flex flex-wrap gap-3 border-y border-black/10 py-4 dark:border-white/10">
-    <label class="filter-chip">
+  <div class="mt-8 flex flex-wrap gap-3 border-y border-black/10 py-4 dark:border-white/10 items-center">
+    <label class="filter-chip cursor-pointer">
       Sort
-      <select class="ml-2 bg-transparent outline-none" [ngModel]="sort()" (ngModelChange)="sort.set($event); reload()">
+      <select class="ml-2 bg-transparent outline-none cursor-pointer" [ngModel]="sort()" (ngModelChange)="sort.set($event); reload()">
         <option value="featured">Featured</option>
         <option value="price-asc">Price: low to high</option>
         <option value="price-desc">Price: high to low</option>
         <option value="rating">Top rated</option>
       </select>
     </label>
-    <button type="button" class="filter-chip" (click)="saleOnly.update((v) => !v); reload()">
+    <button type="button" class="filter-chip cursor-pointer" (click)="saleOnly.update((v) => !v); reload()">
       Deals only {{ saleOnly() ? '✓' : '' }}
     </button>
-    <span class="ml-auto self-center text-sm text-black/55 dark:text-white/55">
+    <span class="ml-auto self-center text-xs sm:text-sm text-stone dark:text-white/55 font-medium">
       {{ result().total }} pieces
     </span>
   </div>
@@ -39,14 +41,14 @@
       <app-pagination
         [page]="result().page"
         [totalPages]="result().totalPages"
-        (pageChange)="page.set($event)"
+        (pageChange)="onPageChange($event)"
       />
     </div>
   } @else {
-    <div class="empty-state">
-      <h2 class="font-display text-2xl">Nothing here yet</h2>
-      <p class="mt-2 text-black/60 dark:text-white/60">Try removing a filter or explore another collection.</p>
-      <a routerLink="/" class="mt-5 inline-block underline">Return home</a>
+    <div class="empty-state py-16 text-center">
+      <h2 class="font-display text-2xl font-bold text-ink dark:text-white">Nothing here yet</h2>
+      <p class="mt-2 text-sm text-stone dark:text-white/60">Try removing a filter or explore another collection.</p>
+      <a routerLink="/" class="btn-primary mt-6 inline-block">Return home</a>
     </div>
   }
 </section>

@@ -1,257 +1,356 @@
-<section class="page py-12 max-w-4xl">
-  @if (auth.isLoggedIn()) {
-    <!-- Account Header & Navigation -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-8 border-b border-black/10 dark:border-white/10">
-      <div class="flex items-center gap-4">
-        <!-- Avatar / Picture with upload trigger -->
-        <div class="relative group">
-          @if (auth.user()?.avatar) {
-            <img
-              [src]="auth.user()?.avatar"
-              alt="Profile avatar"
-              class="size-16 rounded-full object-cover border-2 border-black/10 dark:border-white/20 shadow-sm"
-            />
-          } @else {
-            <div class="size-16 rounded-full bg-sand dark:bg-white/10 text-ink dark:text-white flex items-center justify-center font-display text-xl font-bold border border-black/10 dark:border-white/20 shadow-sm">
-              {{ userInitials }}
-            </div>
-          }
-          <label
-            for="avatar-upload"
-            class="absolute -bottom-1 -right-1 size-7 bg-ink dark:bg-white text-paper dark:text-ink rounded-full flex items-center justify-center shadow-md cursor-pointer hover:opacity-90 transition-opacity"
-            title="Upload profile picture"
-          >
-            <lucide-icon [img]="icons.Camera" class="size-3.5" />
-            <input
-              id="avatar-upload"
-              type="file"
-              accept="image/*"
-              class="sr-only"
-              (change)="onAvatarSelected($event)"
-            />
-          </label>
-        </div>
+<section class="page py-8 sm:py-12 max-w-4xl">
+  <app-breadcrumbs [items]="breadcrumbs" class="mb-5" />
 
-        <div>
-          <h1 class="font-display text-3xl font-bold">{{ auth.user()?.name }}</h1>
-          <p class="text-sm opacity-60">@{{ auth.user()?.username }} · {{ auth.user()?.email }}</p>
-          @if (auth.user()?.avatar) {
+  @if (auth.isLoggedIn()) {
+    <!-- Editorial Profile Hero Header -->
+    <div class="editorial-profile-hero relative rounded-3xl overflow-hidden mb-8 border border-black/10 dark:border-white/10 shadow-sm">
+      <div class="relative w-full min-h-[220px] sm:min-h-[260px] bg-sand/40 dark:bg-ink/60">
+        <img
+          [src]="heroImage"
+          alt="Curated Lifestyle"
+          class="absolute inset-0 w-full h-full object-cover object-center"
+        />
+        <!-- Editorial Gradient Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/40"></div>
+
+        <!-- Hero Content & User Identity Overlay -->
+        <div class="relative z-10 p-6 sm:p-8 md:p-10 flex flex-col justify-between h-full text-white">
+          <div class="max-w-xl">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[11px] font-bold uppercase tracking-wider text-white mb-3">
+              <lucide-icon [img]="icons.User" class="size-3" />
+              Member Account
+            </span>
+            <h1 class="font-display text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+              Your space, your way.
+            </h1>
+            <p class="mt-2 text-xs sm:text-sm text-white/80 leading-relaxed max-w-md">
+              Manage your personal details and keep your Salla account secure.
+            </p>
+          </div>
+
+          <!-- User Quick Profile Row -->
+          <div class="mt-6 pt-6 border-t border-white/15 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <!-- Avatar with upload trigger -->
+              <div class="relative group shrink-0">
+                @if (auth.user()?.avatar) {
+                  <img
+                    [src]="auth.user()?.avatar"
+                    alt="Profile avatar"
+                    class="size-14 sm:size-16 rounded-full object-cover border-2 border-white/60 shadow-md"
+                  />
+                } @else {
+                  <div class="size-14 sm:size-16 rounded-full bg-sand text-ink flex items-center justify-center font-display text-lg sm:text-xl font-bold border-2 border-white/60 shadow-md">
+                    {{ userInitials }}
+                  </div>
+                }
+                <label
+                  for="avatar-upload"
+                  class="absolute -bottom-1 -right-1 size-6 sm:size-7 bg-white text-ink rounded-full flex items-center justify-center shadow-md cursor-pointer hover:bg-clay hover:text-white transition-colors"
+                  title="Upload profile picture"
+                >
+                  <lucide-icon [img]="icons.Camera" class="size-3 sm:size-3.5" />
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    class="sr-only"
+                    (change)="onAvatarSelected($event)"
+                  />
+                </label>
+              </div>
+
+              <div>
+                <p class="font-display text-lg font-bold text-white">{{ auth.user()?.name }}</p>
+                <p class="text-xs text-white/75">&#64;{{ auth.user()?.username }} · {{ auth.user()?.email }}</p>
+                @if (auth.user()?.avatar) {
+                  <button
+                    type="button"
+                    (click)="removeAvatar()"
+                    class="mt-1 text-[11px] text-red-300 hover:text-red-100 flex items-center gap-1 font-medium transition-colors cursor-pointer"
+                  >
+                    <lucide-icon [img]="icons.Trash2" class="size-3" />
+                    Remove photo
+                  </button>
+                }
+              </div>
+            </div>
+
             <button
               type="button"
-              (click)="removeAvatar()"
-              class="mt-1 text-xs text-red-500 hover:text-red-700 flex items-center gap-1 font-medium transition-colors"
+              (click)="signOut()"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-xs font-semibold text-white border border-white/20 transition-colors cursor-pointer"
             >
-              <lucide-icon [img]="icons.Trash2" class="size-3" />
-              Remove photo
+              <lucide-icon [img]="icons.LogOut" class="size-3.5" />
+              Sign out
             </button>
-          }
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Main Content Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-      <!-- Profile Information -->
-      <div class="bg-white dark:bg-white/5 rounded-2xl p-6 border border-black/10 dark:border-white/10 shadow-sm">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="font-display text-lg font-bold flex items-center gap-2">
-            <lucide-icon [img]="icons.User" class="size-4 text-clay" />
-            Personal Information
-          </h2>
-          @if (profileSuccess()) {
-            <span class="text-xs text-moss flex items-center gap-1 font-medium">
-              <lucide-icon [img]="icons.CheckCircle2" class="size-3.5" /> Saved
-            </span>
-          }
-        </div>
+    <!-- Tab Navigation -->
+    <div class="mb-6 border-b border-black/10 dark:border-white/10">
+      <div
+        class="flex items-center gap-2 sm:gap-4 overflow-x-auto no-scrollbar"
+        role="tablist"
+        aria-label="Account sections"
+        (keydown)="onTabKeydown($event)"
+      >
+        <button
+          type="button"
+          (click)="setTab('personal')"
+          id="tab-personal"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'personal'"
+          aria-controls="panel-personal"
+          class="account-tab-btn pb-3 px-1 text-sm font-semibold flex items-center gap-2 border-b-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"
+          [class.active]="activeTab() === 'personal'"
+        >
+          <lucide-icon [img]="icons.User" class="size-4" />
+          <span>Personal Information</span>
+        </button>
 
-        @if (profileError()) {
-          <div class="mb-4 flex items-start gap-2 rounded-xl bg-red-50 p-3 text-xs text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-800">
-            <lucide-icon [img]="icons.AlertCircle" class="size-4 shrink-0 mt-0.5" />
-            <span>{{ profileError() }}</span>
-          </div>
-        }
-
-        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate class="space-y-4">
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="profile-name">
-              Full Name
-            </label>
-            <input
-              id="profile-name"
-              formControlName="name"
-              type="text"
-              class="account-input mt-1"
-              [class.border-red-400]="profileForm.get('name')?.invalid && profileForm.get('name')?.touched"
-            />
-            @if (profileForm.get('name')?.invalid && profileForm.get('name')?.touched) {
-              <p class="mt-1 text-xs text-red-500">Name is required (min 2 characters).</p>
-            }
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="profile-username">
-              Username
-            </label>
-            <input
-              id="profile-username"
-              formControlName="username"
-              type="text"
-              class="account-input mt-1"
-              [class.border-red-400]="profileForm.get('username')?.invalid && profileForm.get('username')?.touched"
-            />
-            @if (profileForm.get('username')?.invalid && profileForm.get('username')?.touched) {
-              <p class="mt-1 text-xs text-red-500">Valid username required (letters, numbers, _, -, .).</p>
-            }
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="profile-email">
-              Email Address
-            </label>
-            <input
-              id="profile-email"
-              formControlName="email"
-              type="email"
-              class="account-input mt-1"
-              [class.border-red-400]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
-            />
-            @if (profileForm.get('email')?.invalid && profileForm.get('email')?.touched) {
-              <p class="mt-1 text-xs text-red-500">Valid email address required.</p>
-            }
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="profile-phone">
-              Phone Number
-            </label>
-            <input
-              id="profile-phone"
-              formControlName="phoneNumber"
-              type="tel"
-              placeholder="+1 (555) 000-0000"
-              class="account-input mt-1"
-              [class.border-red-400]="profileForm.get('phoneNumber')?.invalid && profileForm.get('phoneNumber')?.touched"
-            />
-            @if (profileForm.get('phoneNumber')?.invalid && profileForm.get('phoneNumber')?.touched) {
-              <p class="mt-1 text-xs text-red-500">Please enter a valid phone number.</p>
-            }
-          </div>
-
-          <button
-            type="submit"
-            class="btn-primary w-full mt-2"
-            [disabled]="isSavingProfile() || profileForm.invalid"
-          >
-            @if (isSavingProfile()) {
-              Saving changes...
-            } @else {
-              Save Changes
-            }
-          </button>
-        </form>
+        <button
+          type="button"
+          (click)="setTab('security')"
+          id="tab-security"
+          role="tab"
+          [attr.aria-selected]="activeTab() === 'security'"
+          aria-controls="panel-security"
+          class="account-tab-btn pb-3 px-1 text-sm font-semibold flex items-center gap-2 border-b-2 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"
+          [class.active]="activeTab() === 'security'"
+        >
+          <lucide-icon [img]="icons.Lock" class="size-4" />
+          <span>Security & Password</span>
+        </button>
       </div>
+    </div>
 
-      <!-- Security & Password -->
-      <div class="bg-white dark:bg-white/5 rounded-2xl p-6 border border-black/10 dark:border-white/10 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="font-display text-lg font-bold flex items-center gap-2">
-              <lucide-icon [img]="icons.Lock" class="size-4 text-clay" />
+    <!-- Tab Content Panels -->
+    <div class="tab-content-container">
+      @if (activeTab() === 'personal') {
+        <!-- Panel: Personal Information -->
+        <div
+          id="panel-personal"
+          role="tabpanel"
+          aria-labelledby="tab-personal"
+          class="tab-panel bg-white dark:bg-white/5 rounded-3xl p-6 sm:p-8 border border-black/10 dark:border-white/10 shadow-sm animate-in fade-in duration-200"
+        >
+          <div class="max-w-xl">
+            <h2 class="font-display text-xl font-bold text-ink dark:text-white flex items-center gap-2 mb-1">
+              <lucide-icon [img]="icons.User" class="size-5 text-clay" />
+              Personal Information
+            </h2>
+            <p class="text-xs text-stone dark:text-white/60 mb-6">
+              Update your personal details. These details are used across your orders and store communication.
+            </p>
+
+            <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="space-y-5">
+              <!-- Full Name -->
+              <div>
+                <label for="acc-name" class="block text-xs font-bold uppercase tracking-wider text-stone dark:text-white/60 mb-1.5">
+                  Full Name
+                </label>
+                <input
+                  id="acc-name"
+                  type="text"
+                  formControlName="name"
+                  placeholder="e.g. Eleanor Vance"
+                  class="w-full rounded-xl border border-black/10 dark:border-white/15 bg-paper/50 dark:bg-white/5 px-4 py-3 text-sm text-ink dark:text-white outline-none focus:border-clay focus:bg-white dark:focus:bg-white/10 transition-colors"
+                />
+                @if (profileForm.get('name')?.touched && profileForm.get('name')?.invalid) {
+                  <p class="mt-1 text-xs text-red-500 font-medium">Name is required (at least 2 characters).</p>
+                }
+              </div>
+
+              <!-- Username -->
+              <div>
+                <label for="acc-username" class="block text-xs font-bold uppercase tracking-wider text-stone dark:text-white/60 mb-1.5">
+                  Username
+                </label>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-stone select-none">&#64;</span>
+                  <input
+                    id="acc-username"
+                    type="text"
+                    formControlName="username"
+                    placeholder="username"
+                    class="w-full rounded-xl border border-black/10 dark:border-white/15 bg-paper/50 dark:bg-white/5 pl-8 pr-4 py-3 text-sm text-ink dark:text-white outline-none focus:border-clay focus:bg-white dark:focus:bg-white/10 transition-colors"
+                  />
+                </div>
+                @if (profileForm.get('username')?.touched && profileForm.get('username')?.invalid) {
+                  <p class="mt-1 text-xs text-red-500 font-medium">Username must be at least 3 alphanumeric characters.</p>
+                }
+              </div>
+
+              <!-- Email -->
+              <div>
+                <label for="acc-email" class="block text-xs font-bold uppercase tracking-wider text-stone dark:text-white/60 mb-1.5">
+                  Email Address
+                </label>
+                <input
+                  id="acc-email"
+                  type="email"
+                  formControlName="email"
+                  placeholder="eleanor@example.com"
+                  class="w-full rounded-xl border border-black/10 dark:border-white/15 bg-paper/50 dark:bg-white/5 px-4 py-3 text-sm text-ink dark:text-white outline-none focus:border-clay focus:bg-white dark:focus:bg-white/10 transition-colors"
+                />
+                @if (profileForm.get('email')?.touched && profileForm.get('email')?.invalid) {
+                  <p class="mt-1 text-xs text-red-500 font-medium">Please enter a valid email address.</p>
+                }
+              </div>
+
+              <!-- Phone Number -->
+              <div>
+                <label for="acc-phone" class="block text-xs font-bold uppercase tracking-wider text-stone dark:text-white/60 mb-1.5">
+                  Phone Number <span class="text-stone/60 font-normal lowercase">(optional)</span>
+                </label>
+                <input
+                  id="acc-phone"
+                  type="tel"
+                  formControlName="phoneNumber"
+                  placeholder="+1 (555) 019-2834"
+                  class="w-full rounded-xl border border-black/10 dark:border-white/15 bg-paper/50 dark:bg-white/5 px-4 py-3 text-sm text-ink dark:text-white outline-none focus:border-clay focus:bg-white dark:focus:bg-white/10 transition-colors"
+                />
+              </div>
+
+              <!-- Alerts -->
+              @if (profileError()) {
+                <div class="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 flex items-center gap-2 text-xs text-red-600 dark:text-red-400">
+                  <lucide-icon [img]="icons.AlertCircle" class="size-4 shrink-0" />
+                  <span>{{ profileError() }}</span>
+                </div>
+              }
+
+              @if (profileSuccess()) {
+                <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
+                  <lucide-icon [img]="icons.CheckCircle2" class="size-4 shrink-0" />
+                  <span>Profile details saved successfully.</span>
+                </div>
+              }
+
+              <!-- Submit Button -->
+              <div class="pt-2">
+                <button
+                  type="submit"
+                  [disabled]="isSavingProfile() || profileForm.invalid"
+                  class="btn-primary px-8 py-3 text-sm font-bold disabled:opacity-50 cursor-pointer"
+                >
+                  @if (isSavingProfile()) {
+                    <span class="spinner size-3.5 border-2"></span>
+                    <span>Saving changes...</span>
+                  } @else {
+                    <span>Save Changes</span>
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      } @else if (activeTab() === 'security') {
+        <!-- Panel: Security & Password -->
+        <div
+          id="panel-security"
+          role="tabpanel"
+          aria-labelledby="tab-security"
+          class="tab-panel bg-white dark:bg-white/5 rounded-3xl p-6 sm:p-8 border border-black/10 dark:border-white/10 shadow-sm animate-in fade-in duration-200"
+        >
+          <div class="max-w-xl">
+            <h2 class="font-display text-xl font-bold text-ink dark:text-white flex items-center gap-2 mb-1">
+              <lucide-icon [img]="icons.ShieldCheck" class="size-5 text-clay" />
               Security & Password
             </h2>
-            @if (passwordSuccess()) {
-              <span class="text-xs text-moss flex items-center gap-1 font-medium">
-                <lucide-icon [img]="icons.CheckCircle2" class="size-3.5" /> Updated
-              </span>
-            }
+            <p class="text-xs text-stone dark:text-white/60 mb-6">
+              Ensure your account is protected by using a secure password of at least 8 characters.
+            </p>
+
+            <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" class="space-y-5">
+              <!-- Current Password -->
+              <div>
+                <label for="acc-curr-pass" class="block text-xs font-bold uppercase tracking-wider text-stone dark:text-white/60 mb-1.5">
+                  Current Password
+                </label>
+                <input
+                  id="acc-curr-pass"
+                  type="password"
+                  formControlName="currentPassword"
+                  placeholder="••••••••"
+                  class="w-full rounded-xl border border-black/10 dark:border-white/15 bg-paper/50 dark:bg-white/5 px-4 py-3 text-sm text-ink dark:text-white outline-none focus:border-clay focus:bg-white dark:focus:bg-white/10 transition-colors"
+                />
+                @if (passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.invalid) {
+                  <p class="mt-1 text-xs text-red-500 font-medium">Current password is required (minimum 8 characters).</p>
+                }
+              </div>
+
+              <!-- New Password -->
+              <div>
+                <label for="acc-new-pass" class="block text-xs font-bold uppercase tracking-wider text-stone dark:text-white/60 mb-1.5">
+                  New Password
+                </label>
+                <input
+                  id="acc-new-pass"
+                  type="password"
+                  formControlName="newPassword"
+                  placeholder="••••••••"
+                  class="w-full rounded-xl border border-black/10 dark:border-white/15 bg-paper/50 dark:bg-white/5 px-4 py-3 text-sm text-ink dark:text-white outline-none focus:border-clay focus:bg-white dark:focus:bg-white/10 transition-colors"
+                />
+                @if (passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.invalid) {
+                  <p class="mt-1 text-xs text-red-500 font-medium">New password must be at least 8 characters long.</p>
+                }
+              </div>
+
+              <!-- Confirm New Password -->
+              <div>
+                <label for="acc-confirm-pass" class="block text-xs font-bold uppercase tracking-wider text-stone dark:text-white/60 mb-1.5">
+                  Confirm New Password
+                </label>
+                <input
+                  id="acc-confirm-pass"
+                  type="password"
+                  formControlName="confirmNewPassword"
+                  placeholder="••••••••"
+                  class="w-full rounded-xl border border-black/10 dark:border-white/15 bg-paper/50 dark:bg-white/5 px-4 py-3 text-sm text-ink dark:text-white outline-none focus:border-clay focus:bg-white dark:focus:bg-white/10 transition-colors"
+                />
+                @if (passwordForm.get('confirmNewPassword')?.touched && passwordForm.hasError('passwordMismatch')) {
+                  <p class="mt-1 text-xs text-red-500 font-medium">Passwords do not match.</p>
+                }
+              </div>
+
+              <!-- Alerts -->
+              @if (passwordError()) {
+                <div class="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 flex items-center gap-2 text-xs text-red-600 dark:text-red-400">
+                  <lucide-icon [img]="icons.AlertCircle" class="size-4 shrink-0" />
+                  <span>{{ passwordError() }}</span>
+                </div>
+              }
+
+              @if (passwordSuccess()) {
+                <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
+                  <lucide-icon [img]="icons.CheckCircle2" class="size-4 shrink-0" />
+                  <span>Password updated successfully.</span>
+                </div>
+              }
+
+              <!-- Submit Button -->
+              <div class="pt-2">
+                <button
+                  type="submit"
+                  [disabled]="isChangingPassword() || passwordForm.invalid"
+                  class="btn-primary px-8 py-3 text-sm font-bold disabled:opacity-50 cursor-pointer"
+                >
+                  @if (isChangingPassword()) {
+                    <span class="spinner size-3.5 border-2"></span>
+                    <span>Updating password...</span>
+                  } @else {
+                    <span>Update Password</span>
+                  }
+                </button>
+              </div>
+            </form>
           </div>
-
-          @if (passwordError()) {
-            <div class="mb-4 flex items-start gap-2 rounded-xl bg-red-50 p-3 text-xs text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-800">
-              <lucide-icon [img]="icons.AlertCircle" class="size-4 shrink-0 mt-0.5" />
-              <span>{{ passwordError() }}</span>
-            </div>
-          }
-
-          <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" novalidate class="space-y-4">
-            <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="current-pwd">
-                Current Password
-              </label>
-              <input
-                id="current-pwd"
-                formControlName="currentPassword"
-                type="password"
-                placeholder="••••••••"
-                class="account-input mt-1"
-                [class.border-red-400]="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched"
-              />
-              @if (passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched) {
-                <p class="mt-1 text-xs text-red-500">Current password is required (min 8 characters).</p>
-              }
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="new-pwd">
-                New Password (min 8 characters)
-              </label>
-              <input
-                id="new-pwd"
-                formControlName="newPassword"
-                type="password"
-                placeholder="••••••••"
-                class="account-input mt-1"
-                [class.border-red-400]="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched"
-              />
-              @if (passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched) {
-                <p class="mt-1 text-xs text-red-500">New password must be at least 8 characters.</p>
-              }
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="confirm-new-pwd">
-                Confirm New Password
-              </label>
-              <input
-                id="confirm-new-pwd"
-                formControlName="confirmNewPassword"
-                type="password"
-                placeholder="••••••••"
-                class="account-input mt-1"
-                [class.border-red-400]="(passwordForm.get('confirmNewPassword')?.invalid || passwordForm.hasError('passwordMismatch')) && passwordForm.get('confirmNewPassword')?.touched"
-              />
-              @if (passwordForm.hasError('passwordMismatch') && passwordForm.get('confirmNewPassword')?.touched) {
-                <p class="mt-1 text-xs text-red-500">Passwords do not match.</p>
-              }
-            </div>
-
-            <button
-              type="submit"
-              class="btn-primary w-full mt-2"
-              [disabled]="isChangingPassword() || passwordForm.invalid"
-            >
-              @if (isChangingPassword()) {
-                Updating password...
-              } @else {
-                Update Password
-              }
-            </button>
-          </form>
         </div>
-
-        <div class="mt-6 pt-4 border-t border-black/10 dark:border-white/10 text-xs opacity-60">
-          <p>Account created: {{ auth.user()?.createdAt || 'N/A' }} · Role: {{ auth.user()?.role }}</p>
-        </div>
-      </div>
-    </div>
-  } @else {
-    <div class="text-center py-20 bg-white dark:bg-white/5 rounded-2xl border border-black/10 dark:border-white/10 p-8">
-      <h1 class="font-display text-3xl font-bold">Your Account</h1>
-      <p class="mt-2 text-stone">Sign in to manage your profile, orders, and security preferences.</p>
-      <div class="mt-6">
-        <a routerLink="/auth" class="btn-primary">Sign in or Create Account</a>
-      </div>
+      }
     </div>
   }
 </section>

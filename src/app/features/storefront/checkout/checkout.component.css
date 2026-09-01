@@ -1,9 +1,137 @@
-.summary {
-  border-radius: var(--radius-card);
-  background: #ebe4d8;
-  padding: 1.5rem;
+:host {
+  display: block;
 }
 
-:host-context(.dark) .summary {
-  background: rgb(255 255 255 / 0.1);
+.checkout-card {
+  border-radius: var(--radius-card);
+  background: #ffffff;
+  padding: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(26, 23, 20, 0.02);
+}
+
+:host-context(.dark) .checkout-card {
+  background: #201d19;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  background: rgba(184, 111, 82, 0.12);
+  color: var(--color-clay);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-stone);
+  margin-bottom: 0.375rem;
+}
+
+.field-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background: transparent;
+  padding: 0.65rem 0.875rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+:host-context(.dark) .field-input {
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.field-input:focus {
+  border-color: var(--color-clay);
+  box-shadow: 0 0 0 1px var(--color-clay);
+}
+
+.field-error {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #ef4444;
+}
+
+/* Option Cards (Delivery & Payment) */
+.option-card {
+  border-radius: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: transparent;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+:host-context(.dark) .option-card {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.option-card:hover {
+  border-color: rgba(184, 111, 82, 0.5);
+  background: rgba(184, 111, 82, 0.02);
+}
+
+.option-card.selected {
+  border-color: var(--color-clay);
+  background: rgba(184, 111, 82, 0.04);
+}
+
+:host-context(.dark) .option-card.selected {
+  border-color: var(--color-clay);
+  background: rgba(184, 111, 82, 0.08);
+}
+
+.radio-indicator {
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 9999px;
+  border: 2px solid rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease;
+}
+
+:host-context(.dark) .radio-indicator {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.radio-indicator.active {
+  border-color: var(--color-clay);
+}
+
+.radio-indicator.active::after {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: var(--color-clay);
+}
+
+/* Sticky Order Summary */
+.summary-sticky-card {
+  border-radius: var(--radius-card);
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px -4px rgba(26, 23, 20, 0.06);
+}
+
+@media (min-width: 1024px) {
+  .summary-sticky-card {
+    position: sticky;
+    top: 5.5rem;
+  }
 }

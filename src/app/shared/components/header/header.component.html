@@ -1,42 +1,242 @@
-<header class="sticky top-0 z-40 border-b border-black/10 bg-paper/90 backdrop-blur-md dark:border-white/10 dark:bg-ink/90">
-  <div class="page flex h-16 items-center gap-4">
-    <a routerLink="/" class="flex items-center gap-2" aria-label="Salla home">
-      <img [src]="logo" alt="" class="h-8 w-8 rounded-full object-cover" />
-      <img [src]="wordmark" alt="Salla" class="hidden h-6 w-auto sm:block" />
+<header class="navbar-glass relative w-full border-b border-black/8 dark:border-white/10 transition-colors">
+  <div class="page relative flex h-16 items-center gap-3 sm:gap-4">
+    <!-- Brand Logo -->
+    <a routerLink="/" class="brand-link flex items-center gap-2.5 shrink-0" aria-label="Salla home">
+      <img
+        [src]="wordmark"
+        alt="Salla"
+        class="brand-wordmark h-6 sm:h-7 w-auto object-contain shrink-0"
+      />
     </a>
 
-    <form class="mx-auto hidden max-w-md flex-1 md:block" (submit)="$event.preventDefault(); search()">
-      <label class="sr-only" for="header-search">Search products</label>
-      <div class="relative">
-        <lucide-icon [img]="icons.Search" class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-stone" />
-        <input
-          id="header-search"
-          [(ngModel)]="query"
-          name="q"
-          type="search"
-          placeholder="Search the collection..."
-          class="w-full rounded-full border border-black/10 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-clay dark:border-white/15 dark:bg-white/5"
-        />
-      </div>
-    </form>
+    <!-- Main Navigation (Desktop) -->
+    <nav class="hidden lg:flex items-center gap-1 ml-2" aria-label="Store Navigation">
+      <!-- Shop All Link -->
+      <a
+        routerLink="/category"
+        routerLinkActive="text-clay font-semibold"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="rounded-full px-3.5 py-1.5 text-sm font-medium text-ink/80 hover:text-ink hover:bg-black/5 dark:text-white/80 dark:hover:text-white dark:hover:bg-white/10 transition-colors cursor-pointer"
+      >
+        Shop
+      </a>
 
-    <nav class="ml-auto flex items-center gap-1 sm:gap-2" aria-label="Main">
-      <a routerLink="/category" class="hidden rounded-full px-3 py-2 text-sm font-medium hover:bg-black/5 dark:hover:bg-white/10 sm:inline-block">Shop</a>
-      <a routerLink="/wishlist" class="relative rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Wishlist">
+      <!-- Categories Dropdown Trigger -->
+      <div class="relative">
+        <button
+          type="button"
+          (click)="toggleCategories()"
+          [attr.aria-expanded]="isCategoriesOpen()"
+          aria-haspopup="true"
+          class="flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium text-ink/80 hover:text-ink hover:bg-black/5 dark:text-white/80 dark:hover:text-white dark:hover:bg-white/10 transition-colors cursor-pointer"
+        >
+          <span>Categories</span>
+          <lucide-icon
+            [img]="icons.ChevronDown"
+            class="size-3.5 text-stone transition-transform duration-200"
+            [class.rotate-180]="isCategoriesOpen()"
+          />
+        </button>
+
+        <!-- Categories Dropdown Panel -->
+        @if (isCategoriesOpen()) {
+          <div
+            class="header-dropdown absolute left-0 top-full mt-2 w-72 rounded-2xl border border-black/10 bg-white/95 p-2 shadow-xl backdrop-blur-md dark:border-white/15 dark:bg-ink/95 z-50 animate-in fade-in zoom-in-95 duration-150"
+            role="menu"
+            aria-orientation="vertical"
+          >
+            <div class="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-stone dark:text-white/50">
+              Popular Collections
+            </div>
+
+            @for (cat of previewCategories(); track cat.id) {
+              <a
+                [routerLink]="['/category', cat.slug]"
+                (click)="closeCategories()"
+                class="flex items-center gap-3 rounded-xl p-2 text-xs font-medium text-ink hover:bg-black/5 dark:text-white dark:hover:bg-white/10 transition-colors cursor-pointer group"
+                role="menuitem"
+              >
+                <img
+                  [src]="cat.image"
+                  [alt]="cat.name"
+                  class="size-9 rounded-lg object-cover bg-sand/30 shrink-0 group-hover:scale-105 transition-transform"
+                />
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-ink dark:text-white truncate group-hover:text-clay transition-colors">
+                    {{ cat.name }}
+                  </p>
+                  <p class="text-[11px] text-stone dark:text-white/55 truncate">
+                    {{ cat.productCount }} pieces
+                  </p>
+                </div>
+              </a>
+            }
+
+            <div class="my-1.5 border-t border-black/5 dark:border-white/10"></div>
+
+            <a
+              routerLink="/categories"
+              (click)="closeCategories()"
+              class="flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold text-clay hover:bg-clay/10 transition-colors cursor-pointer"
+              role="menuitem"
+            >
+              <span>View all categories</span>
+              <lucide-icon [img]="icons.ArrowRight" class="size-3.5" />
+            </a>
+          </div>
+        }
+      </div>
+    </nav>
+
+    <!-- Search Input & Live Suggestions -->
+    <div class="relative mx-auto hidden max-w-md flex-1 md:block">
+      <form (submit)="$event.preventDefault(); submitSearch()">
+        <label class="sr-only" for="header-search">Search products</label>
+        <div class="relative">
+          <lucide-icon
+            [img]="icons.Search"
+            class="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-stone pointer-events-none"
+          />
+          <input
+            id="header-search"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchInput($event)"
+            (focus)="onSearchFocus()"
+            (blur)="onSearchBlur()"
+            (keydown)="onSearchKeydown($event)"
+            name="q"
+            type="search"
+            autocomplete="off"
+            placeholder="Search the collection..."
+            class="w-full rounded-full border border-black/10 bg-white/80 py-2 pl-10 pr-9 text-sm outline-none transition-all placeholder:text-stone/70 focus:border-clay focus:bg-white dark:border-white/15 dark:bg-white/5 dark:focus:bg-white/10 dark:text-white"
+          />
+          @if (searchQuery().length > 0) {
+            <button
+              type="button"
+              (click)="clearSearch()"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-stone hover:text-ink dark:hover:text-white p-0.5 rounded-full cursor-pointer"
+              aria-label="Clear search"
+            >
+              <lucide-icon [img]="icons.X" class="size-3.5" />
+            </button>
+          }
+        </div>
+      </form>
+
+      <!-- Live Search Suggestions Dropdown -->
+      @if (isSearchOpen()) {
+        <div
+          class="header-dropdown absolute left-0 right-0 top-full mt-2 rounded-2xl border border-black/10 bg-white/95 p-2 shadow-2xl backdrop-blur-md dark:border-white/15 dark:bg-ink/95 z-50 animate-in fade-in zoom-in-95 duration-150"
+        >
+          @if (searchSuggestions().length > 0) {
+            <div class="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-stone dark:text-white/50">
+              Product Suggestions
+            </div>
+
+            <div class="space-y-1">
+              @for (prod of searchSuggestions(); track prod.id; let idx = $index) {
+                <button
+                  type="button"
+                  (mousedown)="selectSuggestion(prod.slug)"
+                  class="w-full flex items-center gap-3 rounded-xl p-2 text-left transition-colors cursor-pointer group"
+                  [class.bg-black/5]="activeSuggestionIndex() === idx"
+                  [class.dark:bg-white/10]="activeSuggestionIndex() === idx"
+                  [class.hover:bg-black/5]="activeSuggestionIndex() !== idx"
+                  [class.dark:hover:bg-white/10]="activeSuggestionIndex() !== idx"
+                >
+                  <img
+                    [src]="prod.image"
+                    [alt]="prod.name"
+                    class="size-10 rounded-lg object-cover bg-sand/30 shrink-0"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold text-ink dark:text-white truncate group-hover:text-clay transition-colors">
+                      {{ prod.name }}
+                    </p>
+                    <p class="text-[11px] text-stone dark:text-white/55">
+                      {{ prod.category }}
+                    </p>
+                  </div>
+                  <span class="text-xs font-bold text-ink dark:text-white shrink-0">
+                    ${{ prod.price }}
+                  </span>
+                </button>
+              }
+            </div>
+
+            <div class="my-1.5 border-t border-black/5 dark:border-white/10"></div>
+
+            <!-- View all results CTA -->
+            <button
+              type="button"
+              (mousedown)="submitSearch()"
+              class="w-full flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold text-clay hover:bg-clay/10 transition-colors cursor-pointer"
+            >
+              <span>View all results for &ldquo;{{ searchQuery() }}&rdquo;</span>
+              <lucide-icon [img]="icons.ArrowRight" class="size-3.5" />
+            </button>
+          } @else {
+            <div class="p-4 text-center text-xs text-stone dark:text-white/60">
+              No products found for &ldquo;{{ searchQuery() }}&rdquo;
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Actions / Icons (Right) -->
+    <nav class="ml-auto flex items-center gap-1 sm:gap-2" aria-label="User Actions">
+      <!-- Mobile Links -->
+      <a
+        routerLink="/categories"
+        class="lg:hidden rounded-full px-2.5 py-1.5 text-xs font-medium text-ink/80 hover:bg-black/5 dark:text-white/80 dark:hover:bg-white/10 transition-colors cursor-pointer"
+      >
+        Categories
+      </a>
+      <a
+        routerLink="/category"
+        class="sm:hidden rounded-full px-2.5 py-1.5 text-xs font-medium text-ink/80 hover:bg-black/5 dark:text-white/80 dark:hover:bg-white/10 transition-colors cursor-pointer"
+      >
+        Shop
+      </a>
+
+      <!-- Wishlist -->
+      <a
+        routerLink="/wishlist"
+        class="relative rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+        aria-label="Wishlist"
+      >
         <lucide-icon [img]="icons.Heart" class="size-5" />
         @if (auth.isLoggedIn() && wishlist.count() > 0) {
-          <span class="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white">{{ wishlist.count() }}</span>
+          <span
+            class="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white shadow-sm"
+          >
+            {{ wishlist.count() }}
+          </span>
         }
       </a>
-      <a routerLink="/cart" class="relative rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Cart">
+
+      <!-- Cart -->
+      <a
+        routerLink="/cart"
+        class="header-cart-btn relative rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10 transition-transform cursor-pointer"
+        [class.cart-bump]="isCartBumping()"
+        aria-label="Cart"
+      >
         <lucide-icon [img]="icons.ShoppingBag" class="size-5" />
         @if (auth.isLoggedIn() && cart.count() > 0) {
-          <span class="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white">{{ cart.count() }}</span>
+          <span
+            class="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white shadow-sm"
+          >
+            {{ cart.count() }}
+          </span>
         }
       </a>
+
+      <!-- Theme Switcher -->
       <button
         type="button"
-        class="rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10"
+        class="rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
         (click)="theme.toggle()"
         [attr.aria-label]="theme.isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
       >
@@ -47,14 +247,14 @@
         }
       </button>
 
-      <!-- Authenticated Profile Dropdown & Unauthenticated Login Button -->
+      <!-- Profile Dropdown or Sign In -->
       @if (auth.isLoggedIn()) {
         <div class="relative">
           <button
             type="button"
-            class="flex items-center justify-center rounded-full p-1 hover:ring-2 hover:ring-clay/50 focus:outline-none focus:ring-2 focus:ring-clay transition-all"
-            (click)="toggleDropdown()"
-            [attr.aria-expanded]="isDropdownOpen()"
+            class="flex items-center justify-center rounded-full p-1 hover:ring-2 hover:ring-clay/50 focus:outline-none focus:ring-2 focus:ring-clay transition-all cursor-pointer"
+            (click)="toggleProfile()"
+            [attr.aria-expanded]="isProfileOpen()"
             aria-haspopup="true"
             aria-label="User profile menu"
           >
@@ -65,29 +265,33 @@
                 class="size-7 rounded-full object-cover border border-clay/60"
               />
             } @else {
-              <div class="size-7 rounded-full bg-sand dark:bg-white/15 text-ink dark:text-white flex items-center justify-center text-xs font-bold border border-black/10 dark:border-white/20">
+              <div
+                class="size-7 rounded-full bg-sand dark:bg-white/15 text-ink dark:text-white flex items-center justify-center text-xs font-bold border border-black/10 dark:border-white/20"
+              >
                 {{ userInitials() }}
               </div>
             }
           </button>
 
-          @if (isDropdownOpen()) {
+          @if (isProfileOpen()) {
             <div
-              class="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-black/10 bg-white/95 p-2 shadow-xl backdrop-blur-md dark:border-white/15 dark:bg-ink/95 z-50 animate-in fade-in zoom-in-95 duration-100"
+              class="header-dropdown absolute right-0 top-full mt-2 w-56 rounded-2xl border border-black/10 bg-white/95 p-2 shadow-xl backdrop-blur-md dark:border-white/15 dark:bg-ink/95 z-50 animate-in fade-in zoom-in-95 duration-150"
               role="menu"
               aria-orientation="vertical"
             >
               <!-- User Info header -->
               <div class="px-3 py-2 border-b border-black/5 dark:border-white/10 mb-1">
-                <p class="text-xs font-bold text-ink dark:text-white truncate">{{ auth.user()?.name }}</p>
+                <p class="text-xs font-bold text-ink dark:text-white truncate">
+                  {{ auth.user()?.name }}
+                </p>
                 <p class="text-[11px] text-stone truncate">&#64;{{ auth.user()?.username }}</p>
               </div>
 
               <!-- Orders -->
               <a
                 routerLink="/orders"
-                (click)="closeDropdown()"
-                class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors"
+                (click)="closeProfile()"
+                class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors cursor-pointer"
                 routerLinkActive="bg-black/5 dark:bg-white/10 text-ink dark:text-white font-semibold"
                 role="menuitem"
               >
@@ -98,8 +302,8 @@
               <!-- Wishlist -->
               <a
                 routerLink="/wishlist"
-                (click)="closeDropdown()"
-                class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors"
+                (click)="closeProfile()"
+                class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors cursor-pointer"
                 routerLinkActive="bg-black/5 dark:bg-white/10 text-ink dark:text-white font-semibold"
                 role="menuitem"
               >
@@ -110,8 +314,8 @@
               <!-- Account -->
               <a
                 routerLink="/account"
-                (click)="closeDropdown()"
-                class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors"
+                (click)="closeProfile()"
+                class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors cursor-pointer"
                 routerLinkActive="bg-clay/10 text-clay dark:bg-clay/20 font-semibold"
                 role="menuitem"
               >
@@ -122,8 +326,8 @@
               @if (auth.isAdmin()) {
                 <a
                   routerLink="/admin"
-                  (click)="closeDropdown()"
-                  class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors"
+                  (click)="closeProfile()"
+                  class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors cursor-pointer"
                   routerLinkActive="bg-black/5 dark:bg-white/10 text-ink dark:text-white font-semibold"
                   role="menuitem"
                 >
@@ -139,7 +343,7 @@
               <button
                 type="button"
                 (click)="signOut()"
-                class="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30 transition-colors"
+                class="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
                 role="menuitem"
               >
                 <lucide-icon [img]="icons.LogOut" class="size-4 text-red-500" />
@@ -151,7 +355,7 @@
       } @else {
         <a
           routerLink="/auth"
-          class="flex items-center justify-center rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+          class="flex items-center justify-center rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
           aria-label="Sign in"
         >
           <lucide-icon [img]="icons.User" class="size-5" />

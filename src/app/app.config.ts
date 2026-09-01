@@ -4,6 +4,7 @@ import {
   provideRouter,
   TitleStrategy,
   withEnabledBlockingInitialNavigation,
+  withInMemoryScrolling,
 } from '@angular/router';
 import { routes } from './app.routes';
 import { provideRepositories } from './core/api/repository.providers';
@@ -13,7 +14,14 @@ import { ThemeStore } from './core/state/theme.store';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes, withEnabledBlockingInitialNavigation()),
+    provideRouter(
+      routes,
+      withEnabledBlockingInitialNavigation(),
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'enabled',
+        anchorScrolling: 'enabled',
+      })
+    ),
     { provide: TitleStrategy, useClass: AppTitleStrategy },
     provideClientHydration(withEventReplay()),
     provideRepositories(),

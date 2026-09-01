@@ -1,3 +1,21 @@
-<div class="bg-ink py-2 text-center text-xs font-medium tracking-wide text-paper dark:bg-paper dark:text-ink">
-  Free shipping on orders over $100 · New arrivals every week
-</div>
+@if (!isDismissed()) {
+  <aside
+    class="announcement-wrapper"
+    [class.closing]="isClosing()"
+    aria-label="Announcement"
+  >
+    <div class="announcement-inner">
+      <div class="announcement-content page relative flex items-center justify-center px-8 text-center text-xs font-medium tracking-wide">
+        <span>Free shipping on orders over $100 · New arrivals every week</span>
+        <button
+          type="button"
+          (click)="dismiss()"
+          class="announcement-close-btn absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 rounded-full p-1 text-paper/70 hover:text-paper hover:bg-white/10 dark:text-ink/70 dark:hover:text-ink dark:hover:bg-black/10 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-paper/40 cursor-pointer"
+          aria-label="Close announcement"
+        >
+          <lucide-icon [img]="icons.X" class="size-3.5" />
+        </button>
+      </div>
+    </div>
+  </aside>
+}

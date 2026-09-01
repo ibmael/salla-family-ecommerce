@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+.breadcrumbs {
+  user-select: none;
+}
+
+.breadcrumb-link {
+  text-decoration: none;
+}
+
+.breadcrumb-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
