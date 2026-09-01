@@ -1,0 +1,14 @@
+<div>
+  <h1 class="font-display text-3xl font-semibold">Orders</h1>
+  <div class="mt-8 space-y-3">
+    @for (order of orders(); track order.id) {
+      <div class="order-row">
+        <div>
+          <p class="font-semibold">{{ order.id }}</p>
+          <p class="text-sm opacity-60">{{ order.createdAt }} · {{ order.status }}</p>
+        </div>
+        <p class="font-bold">${{ order.total }}</p>
+      </div>
+    }
+  </div>
+</div>

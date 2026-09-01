@@ -1,0 +1,9 @@
+<section class="page py-20">
+  <div class="auth-card">
+    <h1 class="font-display text-3xl">Welcome back</h1>
+    <p class="mt-2 text-sm opacity-60">Use any email. Include "admin" to access the admin workspace.</p>
+    <label class="mt-6 block text-sm" for="email">Email</label>
+    <input id="email" [(ngModel)]="email" class="auth-input" type="email" placeholder="you@example.com" />
+    <button type="button" class="btn-primary mt-4 w-full" (click)="continue()">Continue</button>
+  </div>
+</section>

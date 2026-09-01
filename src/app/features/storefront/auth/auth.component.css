@@ -1,0 +1,20 @@
+.auth-card {
+  margin-inline: auto;
+  max-width: 28rem;
+  border-radius: var(--radius-card);
+  background: white;
+  padding: 1.75rem;
+}
+
+:host-context(.dark) .auth-card {
+  background: rgb(255 255 255 / 0.05);
+}
+
+.auth-input {
+  width: 100%;
+  margin-top: 0.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  background: transparent;
+  padding: 0.75rem;
+}

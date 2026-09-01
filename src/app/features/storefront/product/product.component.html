@@ -1,0 +1,113 @@
+@if (product(); as p) {
+  <section class="page py-7">
+    <a routerLink="/category" class="text-sm text-black/55 dark:text-white/55">← Back to collection</a>
+
+    <div class="mt-5 grid gap-8 lg:grid-cols-2">
+      <div class="gallery">
+        <div class="main-media" (mouseenter)="showVideo.set(!!p.videoUrl)" (mouseleave)="showVideo.set(false)">
+          @if (showVideo() && p.videoUrl) {
+            <video [src]="p.videoUrl" autoplay muted loop playsinline class="aspect-[4/5] w-full rounded-card object-cover"></video>
+          } @else {
+            <img [src]="p.images[0]" [alt]="p.name" class="aspect-[4/5] w-full rounded-card object-cover" />
+          }
+        </div>
+        <div class="mt-3 grid grid-cols-4 gap-2">
+          @for (image of p.images; track image) {
+            <img [src]="image" [alt]="p.name" class="aspect-square rounded-xl object-cover" />
+          }
+        </div>
+      </div>
+
+      <div>
+        <p class="eyebrow text-clay">{{ p.category }}</p>
+        <h1 class="mt-2 font-display text-4xl font-semibold">{{ p.name }}</h1>
+        <p class="mt-3 text-sm text-moss">★ {{ p.rating }} · {{ p.reviews }} reviews</p>
+        <p class="mt-5 text-xl font-semibold">
+          ${{ p.price }}
+          @if (p.originalPrice) {
+            <del class="ml-2 text-base font-normal text-black/40 dark:text-white/40">${{ p.originalPrice }}</del>
+          }
+        </p>
+        <p class="mt-6 leading-7 text-black/65 dark:text-white/65">{{ p.description }}</p>
+
+        <div class="mt-7">
+          <p class="text-sm font-bold">Color · {{ color() || p.colors[0] }}</p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            @for (c of p.colors; track c) {
+              <button type="button" class="option-btn" [class.selected]="(color() || p.colors[0]) === c" (click)="color.set(c)">{{ c }}</button>
+            }
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <p class="text-sm font-bold">Size</p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            @for (s of p.sizes; track s) {
+              <button type="button" class="option-btn size-btn" [class.selected]="(size() || p.sizes[0]) === s" (click)="size.set(s)">{{ s }}</button>
+            }
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <p class="text-sm font-bold">Quantity</p>
+          <div class="mt-3 flex items-center gap-3">
+            <button type="button" class="qty-btn" (click)="quantity.update((q) => Math.max(1, q - 1))" aria-label="Decrease quantity">−</button>
+            <span class="w-8 text-center font-semibold">{{ quantity() }}</span>
+            <button type="button" class="qty-btn" (click)="quantity.update((q) => q + 1)" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+
+        <div class="mt-8 flex gap-3">
+          <button type="button" class="btn-primary flex-1" (click)="addToCart()">Add to bag · ${{ p.price }}</button>
+          <button
+            type="button"
+            class="wish-btn"
+            [attr.aria-label]="wishlist.has(p.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+            (click)="wishlist.toggle(p.id)"
+          >
+            {{ wishlist.has(p.id) ? '♥' : '♡' }}
+          </button>
+        </div>
+
+        <details class="mt-8 border-t border-black/10 py-4 dark:border-white/10">
+          <summary class="cursor-pointer font-bold">Delivery & returns</summary>
+          <p class="mt-3 text-sm leading-6 text-black/60 dark:text-white/60">Free standard delivery over $100. Returns accepted within 30 days.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="page py-12">
+    <h2 class="font-display text-2xl font-semibold">Customer reviews</h2>
+    @if (reviews().length) {
+      <div class="mt-6 space-y-4">
+        @for (review of reviews(); track review.id) {
+          <article class="review-card">
+            <p class="font-semibold">{{ review.author }} · ★ {{ review.rating }}</p>
+            <p class="mt-2 text-sm text-black/65 dark:text-white/65">{{ review.comment }}</p>
+          </article>
+        }
+      </div>
+    } @else {
+      <p class="mt-4 text-black/60 dark:text-white/60">No reviews yet. Be the first to share your thoughts.</p>
+    }
+  </section>
+
+  <section class="page mt-8">
+    <p class="eyebrow text-clay">You might also like</p>
+    <div class="mt-5 grid grid-cols-2 gap-4 md:grid-cols-4">
+      @for (item of related(); track item.id) {
+        <app-product-card [product]="item" />
+      }
+    </div>
+  </section>
+
+  <section class="page mt-16 mb-16">
+    <p class="eyebrow text-clay">Recently viewed</p>
+    <div class="mt-5 grid grid-cols-2 gap-4 md:grid-cols-4">
+      @for (item of recentProducts().items; track item.id) {
+        <app-product-card [product]="item" />
+      }
+    </div>
+  </section>
+}

@@ -1,0 +1,17 @@
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <p class="font-display text-xl font-bold">Salla Admin</p>
+    <p class="mt-1 text-xs text-white/60">{{ auth.user()?.email }}</p>
+    <nav class="mt-8 space-y-1" aria-label="Admin navigation">
+      <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+      <a routerLink="/admin/products" routerLinkActive="active">Products</a>
+      <a routerLink="/admin/orders" routerLinkActive="active">Orders</a>
+      <a routerLink="/admin/customers" routerLinkActive="active">Customers</a>
+      <a routerLink="/admin/audit-logs" routerLinkActive="active">Audit Logs</a>
+    </nav>
+    <a routerLink="/" class="mt-auto text-sm text-white/70 hover:text-white">← Back to store</a>
+  </aside>
+  <div class="admin-main">
+    <router-outlet />
+  </div>
+</div>

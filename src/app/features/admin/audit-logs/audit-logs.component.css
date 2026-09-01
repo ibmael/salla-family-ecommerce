@@ -1,0 +1,9 @@
+.log-card {
+  border-radius: var(--radius-card);
+  background: white;
+  padding: 1rem 1.25rem;
+}
+
+:host-context(.dark) .log-card {
+  background: rgb(255 255 255 / 0.05);
+}

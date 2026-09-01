@@ -1,0 +1,9 @@
+<div class="relative">
+  <div #viewport class="overflow-hidden">
+    <div class="flex">
+      <ng-content />
+    </div>
+  </div>
+  <button type="button" class="nav-btn left-2" (click)="scrollPrev()" aria-label="Previous slide">‹</button>
+  <button type="button" class="nav-btn right-2" (click)="scrollNext()" aria-label="Next slide">›</button>
+</div>

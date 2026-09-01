@@ -1,0 +1,52 @@
+<section class="page py-12">
+  <p class="eyebrow text-clay">Browse the collection</p>
+  <h1 class="font-display text-4xl font-semibold">{{ title() }}</h1>
+  @if (category(); as cat) {
+    <p class="mt-2 max-w-xl text-black/60 dark:text-white/60">{{ cat.description }}</p>
+  }
+
+  <div class="mt-8 flex flex-wrap gap-3 border-y border-black/10 py-4 dark:border-white/10">
+    <label class="filter-chip">
+      Sort
+      <select class="ml-2 bg-transparent outline-none" [ngModel]="sort()" (ngModelChange)="sort.set($event); reload()">
+        <option value="featured">Featured</option>
+        <option value="price-asc">Price: low to high</option>
+        <option value="price-desc">Price: high to low</option>
+        <option value="rating">Top rated</option>
+      </select>
+    </label>
+    <button type="button" class="filter-chip" (click)="saleOnly.update((v) => !v); reload()">
+      Deals only {{ saleOnly() ? '✓' : '' }}
+    </button>
+    <span class="ml-auto self-center text-sm text-black/55 dark:text-white/55">
+      {{ result().total }} pieces
+    </span>
+  </div>
+
+  @if (loading() && !result().items.length) {
+    <div class="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <app-skeleton height="320px" />
+      }
+    </div>
+  } @else if (result().items.length) {
+    <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
+      @for (product of result().items; track product.id) {
+        <app-product-card [product]="product" />
+      }
+    </div>
+    <div class="mt-10">
+      <app-pagination
+        [page]="result().page"
+        [totalPages]="result().totalPages"
+        (pageChange)="page.set($event)"
+      />
+    </div>
+  } @else {
+    <div class="empty-state">
+      <h2 class="font-display text-2xl">Nothing here yet</h2>
+      <p class="mt-2 text-black/60 dark:text-white/60">Try removing a filter or explore another collection.</p>
+      <a routerLink="/" class="mt-5 inline-block underline">Return home</a>
+    </div>
+  }
+</section>

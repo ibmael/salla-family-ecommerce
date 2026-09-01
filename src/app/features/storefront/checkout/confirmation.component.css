@@ -1,0 +1,11 @@
+.check-icon {
+  margin-inline: auto;
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
+  border-radius: 9999px;
+  background: #4a5d4e;
+  color: white;
+  font-size: 1.875rem;
+}

@@ -1,0 +1,31 @@
+<section class="page py-12">
+  <h1 class="font-display text-4xl font-semibold">Search</h1>
+  @if (query()) {
+    <p class="mt-2 text-black/60 dark:text-white/60">{{ result().total }} results for "{{ query() }}"</p>
+  }
+
+  <div class="mt-6 flex gap-3">
+    <label class="text-sm">
+      Sort
+      <select class="ml-2 rounded-full border px-3 py-1.5" [ngModel]="sort()" (ngModelChange)="sort.set($event)">
+        <option value="featured">Featured</option>
+        <option value="price-asc">Price: low</option>
+        <option value="price-desc">Price: high</option>
+        <option value="rating">Rating</option>
+      </select>
+    </label>
+  </div>
+
+  @if (result().items.length) {
+    <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+      @for (product of result().items; track product.id) {
+        <app-product-card [product]="product" />
+      }
+    </div>
+  } @else {
+    <div class="py-20 text-center">
+      <p class="font-display text-2xl">No matches found</p>
+      <a routerLink="/category" class="mt-4 inline-block underline">Browse all products</a>
+    </div>
+  }
+</section>

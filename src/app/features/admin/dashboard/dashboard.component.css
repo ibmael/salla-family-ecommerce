@@ -1,0 +1,9 @@
+.stat-card {
+  border-radius: var(--radius-card);
+  background: white;
+  padding: 1.25rem;
+}
+
+:host-context(.dark) .stat-card {
+  background: rgb(255 255 255 / 0.05);
+}

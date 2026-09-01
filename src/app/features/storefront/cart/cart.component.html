@@ -1,0 +1,35 @@
+<section class="page py-14">
+  <h1 class="font-display text-4xl font-semibold">Your bag</h1>
+
+  @if (cart.lines().length) {
+    <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
+      <div class="space-y-4">
+        @for (line of cart.lines(); track line.key) {
+          <article class="line-card">
+            <img [src]="line.product.image" class="size-24 rounded-xl object-cover" [alt]="line.product.name" />
+            <div class="flex-1">
+              <h2 class="font-display font-semibold">{{ line.product.name }}</h2>
+              <p class="text-sm opacity-60">{{ line.color }} · {{ line.size }} · Qty {{ line.quantity }}</p>
+              <p class="mt-2 font-bold">${{ line.product.price * line.quantity }}</p>
+            </div>
+            <button type="button" (click)="cart.remove(line.key)" aria-label="Remove item">×</button>
+          </article>
+        }
+      </div>
+      <aside class="summary-card">
+        <h2 class="font-display text-xl font-semibold">Order summary</h2>
+        <div class="mt-5 flex justify-between">
+          <span>Subtotal</span>
+          <b>${{ cart.total() }}</b>
+        </div>
+        <p class="mt-3 text-sm opacity-60">Shipping and taxes calculated at checkout.</p>
+        <a routerLink="/checkout" class="btn-primary mt-6 block text-center">Checkout</a>
+      </aside>
+    </div>
+  } @else {
+    <div class="empty">
+      <p class="font-display text-2xl">Your bag is waiting.</p>
+      <a routerLink="/" class="mt-4 inline-block underline">Discover something special</a>
+    </div>
+  }
+</section>

@@ -1,0 +1,58 @@
+.admin-shell {
+  display: grid;
+  min-height: 100dvh;
+  grid-template-columns: 240px 1fr;
+}
+
+.admin-sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  background: #1a1714;
+  color: #f7f4ef;
+}
+
+.admin-sidebar nav a {
+  display: block;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: rgb(247 244 239 / 0.75);
+  transition: background 0.2s;
+}
+
+.admin-sidebar nav a:hover,
+.admin-sidebar nav a.active {
+  background: rgb(255 255 255 / 0.1);
+  color: #f7f4ef;
+}
+
+.admin-main {
+  padding: 2rem;
+  background: #f7f4ef;
+}
+
+:host-context(.dark) .admin-main {
+  background: #0f0e0d;
+  color: #f7f4ef;
+}
+
+@media (max-width: 768px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .admin-sidebar nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 0;
+  }
+}

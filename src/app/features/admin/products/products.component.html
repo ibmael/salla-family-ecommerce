@@ -1,0 +1,25 @@
+<div>
+  <h1 class="font-display text-3xl font-semibold">Products</h1>
+  <div class="mt-8 overflow-x-auto rounded-card bg-white dark:bg-white/5">
+    <table class="w-full text-left text-sm">
+      <thead>
+        <tr class="border-b border-black/10 dark:border-white/10">
+          <th class="p-4">Name</th>
+          <th class="p-4">Category</th>
+          <th class="p-4">Price</th>
+          <th class="p-4">Stock</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (product of products().items; track product.id) {
+          <tr class="border-b border-black/5 dark:border-white/5">
+            <td class="p-4 font-medium">{{ product.name }}</td>
+            <td class="p-4">{{ product.category }}</td>
+            <td class="p-4">${{ product.price }}</td>
+            <td class="p-4">{{ product.inStock ? 'In stock' : 'Out of stock' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

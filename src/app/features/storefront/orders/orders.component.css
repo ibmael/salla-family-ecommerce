@@ -1,0 +1,17 @@
+.order-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--radius-card);
+  background: white;
+  padding: 1.25rem;
+  transition: transform 0.2s;
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+}
+
+:host-context(.dark) .order-card {
+  background: rgb(255 255 255 / 0.05);
+}

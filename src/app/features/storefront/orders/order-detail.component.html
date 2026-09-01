@@ -1,0 +1,26 @@
+<section class="page py-14">
+  <a routerLink="/orders" class="text-sm opacity-60">← Back to orders</a>
+
+  @if (order(); as o) {
+    <h1 class="mt-4 font-display text-4xl font-semibold">Order {{ o.id }}</h1>
+    <p class="mt-2 text-sm opacity-60">{{ formatDate(o.createdAt, 'MMMM d, yyyy') }} · {{ o.status }}</p>
+
+    <div class="mt-8 space-y-3">
+      @for (line of o.lines; track line.productId) {
+        <div class="line">
+          <div>
+            <p class="font-semibold">{{ line.productName }}</p>
+            <p class="text-sm opacity-60">{{ line.color }} · {{ line.size }} · Qty {{ line.quantity }}</p>
+          </div>
+          <p class="font-bold">${{ line.price * line.quantity }}</p>
+        </div>
+      }
+    </div>
+
+    <div class="mt-8 max-w-sm space-y-2 border-t border-black/10 pt-4 dark:border-white/10">
+      <div class="flex justify-between"><span>Subtotal</span><span>${{ o.subtotal }}</span></div>
+      <div class="flex justify-between"><span>Shipping</span><span>${{ o.shipping }}</span></div>
+      <div class="flex justify-between font-bold"><span>Total</span><span>${{ o.total }}</span></div>
+    </div>
+  }
+</section>

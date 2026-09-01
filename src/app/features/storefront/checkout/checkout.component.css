@@ -1,0 +1,9 @@
+.summary {
+  border-radius: var(--radius-card);
+  background: #ebe4d8;
+  padding: 1.5rem;
+}
+
+:host-context(.dark) .summary {
+  background: rgb(255 255 255 / 0.1);
+}

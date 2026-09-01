@@ -1,0 +1,21 @@
+<section class="page py-14">
+  <h1 class="font-display text-4xl font-semibold">Checkout</h1>
+
+  <div class="mt-8 grid gap-8 md:grid-cols-2">
+    <form class="card p-6" [formGroup]="form" (ngSubmit)="submit()">
+      <h2 class="font-display text-xl">Delivery details</h2>
+      <label class="mt-6 block text-sm" for="email">Email address</label>
+      <input id="email" class="field" formControlName="email" type="email" autocomplete="email" />
+      <label class="mt-4 block text-sm" for="name">Full name</label>
+      <input id="name" class="field" formControlName="name" autocomplete="name" />
+      <label class="mt-4 block text-sm" for="address">Address</label>
+      <input id="address" class="field" formControlName="address" autocomplete="street-address" />
+      <button type="submit" class="btn-primary mt-6 w-full">Place mock order</button>
+    </form>
+
+    <div class="summary">
+      <h2 class="font-display text-xl">Your order</h2>
+      <p class="mt-5">{{ cart.count() }} pieces · ${{ cart.total() }}</p>
+    </div>
+  </div>
+</section>

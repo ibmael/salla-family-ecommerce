@@ -1,0 +1,19 @@
+<section class="page py-14">
+  <h1 class="font-display text-4xl font-semibold">Your orders</h1>
+
+  @if (orders().length) {
+    <div class="mt-8 space-y-4">
+      @for (order of orders(); track order.id) {
+        <a [routerLink]="['/orders', order.id]" class="order-card">
+          <div>
+            <p class="font-display font-semibold">{{ order.id }}</p>
+            <p class="text-sm opacity-60">{{ formatDate(order.createdAt, 'MMM d, yyyy') }} · {{ order.status }}</p>
+          </div>
+          <p class="font-bold">${{ order.total }}</p>
+        </a>
+      }
+    </div>
+  } @else {
+    <p class="mt-8 text-black/60 dark:text-white/60">No orders yet.</p>
+  }
+</section>

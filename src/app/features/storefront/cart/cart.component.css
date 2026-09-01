@@ -1,0 +1,27 @@
+.line-card {
+  display: flex;
+  gap: 1rem;
+  border-radius: var(--radius-card);
+  background: white;
+  padding: 1rem;
+}
+
+:host-context(.dark) .line-card {
+  background: rgb(255 255 255 / 0.05);
+}
+
+.summary-card {
+  height: fit-content;
+  border-radius: var(--radius-card);
+  background: #ebe4d8;
+  padding: 1.5rem;
+}
+
+:host-context(.dark) .summary-card {
+  background: rgb(255 255 255 / 0.1);
+}
+
+.empty {
+  padding: 5rem 0;
+  text-align: center;
+}

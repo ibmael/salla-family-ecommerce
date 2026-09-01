@@ -1,0 +1,34 @@
+.page-btn {
+  display: grid;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 9999px;
+  border: 1px solid rgb(0 0 0 / 0.1);
+  font-size: 0.875rem;
+  transition: background 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: rgb(0 0 0 / 0.05);
+}
+
+.page-btn.active {
+  background: #1a1714;
+  color: #f7f4ef;
+  border-color: #1a1714;
+}
+
+:host-context(.dark) .page-btn {
+  border-color: rgb(255 255 255 / 0.15);
+}
+
+:host-context(.dark) .page-btn.active {
+  background: #f7f4ef;
+  color: #1a1714;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

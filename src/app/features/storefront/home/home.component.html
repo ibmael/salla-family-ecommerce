@@ -1,0 +1,72 @@
+<section class="hero-banner page" [appRevealOnScroll]="0">
+  <div class="hero-media">
+    <img [src]="heroImage" alt="Salla premium collection" class="hero-image" />
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="eyebrow text-clay">New season</p>
+      <h1 class="font-display text-4xl font-semibold md:text-5xl">Curated for living well</h1>
+      <p class="mt-4 max-w-md text-white/85">Discover pieces that feel as good as they look.</p>
+      <a routerLink="/category" class="btn-primary mt-8">Shop the edit</a>
+    </div>
+  </div>
+</section>
+
+<section class="page py-12" [appRevealOnScroll]="100">
+  <div class="flex items-end justify-between">
+    <div>
+      <p class="eyebrow text-clay">Categories</p>
+      <h2 class="mt-2 font-display text-3xl font-semibold">Shop by collection</h2>
+    </div>
+    <a routerLink="/category" class="text-sm underline">View all</a>
+  </div>
+  <div class="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+    @for (cat of data().categories; track cat.id) {
+      <a [routerLink]="['/category', cat.slug]" class="category-card group">
+        <img [src]="cat.image" [alt]="cat.name" class="aspect-[4/5] w-full rounded-card object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+        <div class="mt-3">
+          <h3 class="font-display font-semibold">{{ cat.name }}</h3>
+          <p class="text-sm text-black/55 dark:text-white/55">{{ cat.productCount }} pieces</p>
+        </div>
+      </a>
+    }
+  </div>
+</section>
+
+<section class="page py-12" [appRevealOnScroll]="150">
+  <p class="eyebrow text-clay">Trending now</p>
+  <h2 class="mt-2 font-display text-3xl font-semibold">What everyone's loving</h2>
+  <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+    @for (product of data().trending; track product.id) {
+      <app-product-card [product]="product" />
+    }
+  </div>
+</section>
+
+<section class="page py-12" [appRevealOnScroll]="200">
+  <p class="eyebrow text-clay">Limited offers</p>
+  <h2 class="mt-2 font-display text-3xl font-semibold">Today's deals</h2>
+  <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+    @for (product of data().deals; track product.id) {
+      <app-product-card [product]="product" />
+    }
+  </div>
+</section>
+
+<section class="page py-12" [appRevealOnScroll]="250">
+  <p class="eyebrow text-clay">Editor's picks</p>
+  <h2 class="mt-2 font-display text-3xl font-semibold">Recommended for you</h2>
+  <div class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+    @for (product of data().featured; track product.id) {
+      <app-product-card [product]="product" />
+    }
+  </div>
+</section>
+
+<section class="page my-16">
+  <div class="quiz-cta" [appRevealOnScroll]="300">
+    <p class="eyebrow text-clay">Style quiz</p>
+    <h2 class="mt-3 font-display text-3xl font-semibold">Find your perfect edit</h2>
+    <p class="mt-3 max-w-md text-black/65 dark:text-white/65">Answer a few questions and we'll curate a collection just for you.</p>
+    <a routerLink="/auth" class="btn-primary mt-6">Start the quiz</a>
+  </div>
+</section>

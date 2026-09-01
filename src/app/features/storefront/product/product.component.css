@@ -1,0 +1,46 @@
+.option-btn {
+  border-radius: 9999px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.option-btn.selected {
+  border-color: #b86f52;
+  box-shadow: 0 0 0 1px #b86f52;
+}
+
+.size-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.qty-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  font-size: 1.125rem;
+}
+
+.wish-btn {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  font-size: 1.25rem;
+}
+
+.review-card {
+  border-radius: var(--radius-card);
+  background: rgb(255 255 255 / 0.6);
+  padding: 1.25rem;
+}
+
+:host-context(.dark) .review-card {
+  background: rgb(255 255 255 / 0.05);
+}
