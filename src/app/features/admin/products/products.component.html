@@ -1,25 +1,564 @@
-<div>
-  <h1 class="font-display text-3xl font-semibold">Products</h1>
-  <div class="mt-8 overflow-x-auto rounded-card bg-white dark:bg-white/5">
-    <table class="w-full text-left text-sm">
-      <thead>
-        <tr class="border-b border-black/10 dark:border-white/10">
-          <th class="p-4">Name</th>
-          <th class="p-4">Category</th>
-          <th class="p-4">Price</th>
-          <th class="p-4">Stock</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (product of products().items; track product.id) {
-          <tr class="border-b border-black/5 dark:border-white/5">
-            <td class="p-4 font-medium">{{ product.name }}</td>
-            <td class="p-4">{{ product.category }}</td>
-            <td class="p-4">${{ product.price }}</td>
-            <td class="p-4">{{ product.inStock ? 'In stock' : 'Out of stock' }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+<div class="admin-products space-y-6">
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <p class="eyebrow text-clay">Catalog</p>
+      <h1 class="mt-1 font-display text-2xl sm:text-3xl font-semibold text-ink dark:text-white">
+        Products
+      </h1>
+      <p class="mt-1 text-xs sm:text-sm text-stone dark:text-white/60">
+        Manage your catalog, pricing and product details.
+      </p>
+    </div>
+
+    <div>
+      <button
+        type="button"
+        (click)="openAddModal()"
+        class="btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold shadow-sm cursor-pointer"
+      >
+        <lucide-icon [img]="icons.Plus" class="size-4" aria-hidden="true" />
+        <span>Add product</span>
+      </button>
+    </div>
   </div>
+
+  <!-- Search, Filter & Sort Toolbar -->
+  <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-2xs">
+    <!-- Search Bar -->
+    <div class="relative flex-1 max-w-md">
+      <lucide-icon
+        [img]="icons.Search"
+        class="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-stone dark:text-white/40"
+        aria-hidden="true"
+      />
+      <input
+        type="text"
+        [value]="searchQuery()"
+        (input)="onSearch($event)"
+        placeholder="Search by product name, slug, category..."
+        class="w-full pl-10 pr-4 py-2 rounded-xl bg-sand/40 dark:bg-white/5 border border-black/10 dark:border-white/15 text-xs sm:text-sm text-ink dark:text-white placeholder:text-stone/60 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-clay/50"
+      />
+    </div>
+
+    <!-- Filters and Sort -->
+    <div class="flex flex-wrap items-center gap-3">
+      <!-- Category Filter -->
+      <div class="relative">
+        <select
+          [value]="selectedCategory()"
+          (change)="setCategoryFilter($event)"
+          aria-label="Filter products by category"
+          class="appearance-none pl-3.5 pr-8 py-2 rounded-xl bg-sand/40 dark:bg-white/5 border border-black/10 dark:border-white/15 text-xs sm:text-sm font-semibold text-ink dark:text-white focus:outline-none focus:ring-2 focus:ring-clay/50 cursor-pointer"
+        >
+          <option value="all">All categories</option>
+          @for (cat of categories(); track cat.id) {
+            <option [value]="cat.id">{{ cat.name }}</option>
+          }
+        </select>
+        <lucide-icon
+          [img]="icons.ChevronDown"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 text-stone pointer-events-none"
+        />
+      </div>
+
+      <!-- Deals Only Toggle Chip -->
+      <button
+        type="button"
+        (click)="toggleDealsOnly()"
+        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-colors cursor-pointer"
+        [class]="dealsOnly() ? 'bg-clay text-white border-transparent' : 'bg-sand/40 dark:bg-white/5 text-stone dark:text-white/70 border-black/10 dark:border-white/15 hover:border-clay/40'"
+      >
+        <lucide-icon [img]="icons.Tag" class="size-3.5" />
+        <span>Deals only</span>
+      </button>
+
+      <!-- Sort Dropdown -->
+      <div class="relative">
+        <select
+          [value]="selectedSort()"
+          (change)="setSort($event)"
+          aria-label="Sort products"
+          class="appearance-none pl-3.5 pr-8 py-2 rounded-xl bg-sand/40 dark:bg-white/5 border border-black/10 dark:border-white/15 text-xs sm:text-sm font-semibold text-ink dark:text-white focus:outline-none focus:ring-2 focus:ring-clay/50 cursor-pointer"
+        >
+          <option value="name-asc">Name A &rarr; Z</option>
+          <option value="name-desc">Name Z &rarr; A</option>
+          <option value="price-asc">Price low to high</option>
+          <option value="price-desc">Price high to low</option>
+          <option value="rating-desc">Highest rated</option>
+        </select>
+        <lucide-icon
+          [img]="icons.ChevronDown"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 text-stone pointer-events-none"
+        />
+      </div>
+
+      <span class="text-xs font-semibold text-stone dark:text-white/60 ml-1">
+        {{ filteredProducts().length }} {{ filteredProducts().length === 1 ? 'product' : 'products' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Products Table (Desktop) / Cards (Mobile) -->
+  @if (filteredProducts().length) {
+    <!-- Desktop Table View (>= 768px) -->
+    <div class="hidden md:block overflow-hidden rounded-3xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-2xs">
+      <table class="w-full text-left text-sm" aria-label="Catalog products table">
+        <thead>
+          <tr class="text-[11px] uppercase tracking-wider text-stone dark:text-white/40 border-b border-black/5 dark:border-white/5 bg-sand/20 dark:bg-white/[0.02]">
+            <th scope="col" class="py-3.5 px-6 font-semibold">Product</th>
+            <th scope="col" class="py-3.5 px-6 font-semibold">Category</th>
+            <th scope="col" class="py-3.5 px-6 font-semibold">Price</th>
+            <th scope="col" class="py-3.5 px-6 font-semibold">Deal</th>
+            <th scope="col" class="py-3.5 px-6 font-semibold">Rating</th>
+            <th scope="col" class="py-3.5 px-6 font-semibold">Stock</th>
+            <th scope="col" class="py-3.5 px-6 font-semibold text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-black/5 dark:divide-white/5">
+          @for (prod of filteredProducts(); track prod.id) {
+            <tr class="hover:bg-black/[0.015] dark:hover:bg-white/[0.015] transition-colors">
+              <!-- Product Cell (Image + Name + Slug) -->
+              <td class="py-3.5 px-6">
+                <div class="flex items-center gap-3.5 min-w-0">
+                  <div class="size-13 rounded-xl overflow-hidden bg-sand/30 dark:bg-white/10 shrink-0 border border-black/5">
+                    <img [src]="prod.image" [alt]="prod.name" class="size-full object-cover" loading="lazy" />
+                  </div>
+                  <div class="min-w-0">
+                    <p class="font-display font-semibold text-sm text-ink dark:text-white truncate">
+                      {{ prod.name }}
+                    </p>
+                    <p class="text-xs text-stone dark:text-white/50 font-mono mt-0.5 truncate">
+                      {{ prod.slug }}
+                    </p>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Category -->
+              <td class="py-3.5 px-6 text-xs sm:text-sm font-medium text-stone dark:text-white/80">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-sand/40 dark:bg-white/10 text-xs text-ink dark:text-white font-semibold">
+                  {{ prod.category }}
+                </span>
+              </td>
+
+              <!-- Price -->
+              <td class="py-3.5 px-6 font-bold text-ink dark:text-white text-sm">
+                ${{ prod.price }}
+              </td>
+
+              <!-- Deal -->
+              <td class="py-3.5 px-6 text-xs">
+                @if (prod.originalPrice && prod.originalPrice > prod.price) {
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-clay/10 text-clay dark:text-[#df8c6d] font-semibold text-[11px]">
+                    <span class="line-through text-stone/70 dark:text-white/40">${{ prod.originalPrice }}</span>
+                    <span>Sale</span>
+                  </span>
+                } @else {
+                  <span class="text-stone/40">—</span>
+                }
+              </td>
+
+              <!-- Rating -->
+              <td class="py-3.5 px-6 text-xs text-stone dark:text-white/70">
+                <div class="inline-flex items-center gap-1 font-semibold text-ink dark:text-white">
+                  <lucide-icon [img]="icons.Star" class="size-3.5 fill-amber-400 text-amber-400" />
+                  <span>{{ prod.rating }}</span>
+                  <span class="text-stone/60 dark:text-white/40 font-normal">({{ prod.reviews }})</span>
+                </div>
+              </td>
+
+              <!-- Stock -->
+              <td class="py-3.5 px-6 text-xs">
+                @if (prod.inStock) {
+                  <span class="inline-flex items-center gap-1 text-moss dark:text-[#88a58d] font-semibold">
+                    <span class="size-1.5 rounded-full bg-moss"></span>
+                    <span>In stock</span>
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center gap-1 text-stone dark:text-white/50">
+                    <span class="size-1.5 rounded-full bg-stone"></span>
+                    <span>Out of stock</span>
+                  </span>
+                }
+              </td>
+
+              <!-- Actions -->
+              <td class="py-3.5 px-6 text-right">
+                <div class="inline-flex items-center gap-2">
+                  <button
+                    type="button"
+                    (click)="openEditModal(prod)"
+                    class="p-2 rounded-xl text-stone hover:text-ink dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                    title="Edit product"
+                    [attr.aria-label]="'Edit ' + prod.name"
+                  >
+                    <lucide-icon [img]="icons.Edit2" class="size-4" aria-hidden="true" />
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="confirmDelete(prod)"
+                    class="p-2 rounded-xl text-stone hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                    title="Delete product"
+                    [attr.aria-label]="'Delete ' + prod.name"
+                  >
+                    <lucide-icon [img]="icons.Trash2" class="size-4" aria-hidden="true" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Card View (< 768px) -->
+    <div class="md:hidden space-y-3">
+      @for (prod of filteredProducts(); track prod.id) {
+        <div class="p-4 rounded-2xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 space-y-3 shadow-2xs">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="size-14 rounded-xl overflow-hidden bg-sand/30 dark:bg-white/10 shrink-0 border border-black/5">
+                <img [src]="prod.image" [alt]="prod.name" class="size-full object-cover" loading="lazy" />
+              </div>
+              <div class="min-w-0">
+                <h2 class="font-display font-semibold text-sm text-ink dark:text-white truncate">
+                  {{ prod.name }}
+                </h2>
+                <p class="text-xs text-stone dark:text-white/60 mt-0.5">{{ prod.category }}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="font-bold text-ink dark:text-white text-sm">${{ prod.price }}</span>
+                  @if (prod.originalPrice && prod.originalPrice > prod.price) {
+                    <span class="text-[11px] text-clay font-semibold">Save ${{ prod.originalPrice - prod.price }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                (click)="openEditModal(prod)"
+                class="p-2 rounded-lg text-stone hover:text-ink dark:hover:text-white cursor-pointer"
+                aria-label="Edit"
+              >
+                <lucide-icon [img]="icons.Edit2" class="size-4" />
+              </button>
+              <button
+                type="button"
+                (click)="confirmDelete(prod)"
+                class="p-2 rounded-lg text-stone hover:text-red-600 dark:hover:text-red-400 cursor-pointer"
+                aria-label="Delete"
+              >
+                <lucide-icon [img]="icons.Trash2" class="size-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Empty State -->
+    <div class="py-16 sm:py-20 px-6 rounded-3xl bg-sand/30 dark:bg-white/[0.03] border border-black/10 dark:border-white/10 text-center max-w-md mx-auto">
+      <div class="size-14 rounded-2xl bg-white dark:bg-white/10 border border-black/10 dark:border-white/10 mx-auto flex items-center justify-center text-clay shadow-sm">
+        <lucide-icon [img]="icons.Package" class="size-7" aria-hidden="true" />
+      </div>
+      <h2 class="mt-4 font-display text-xl font-semibold text-ink dark:text-white">
+        No products found
+      </h2>
+      <p class="mt-1 text-xs sm:text-sm text-stone dark:text-white/60">
+        {{ searchQuery() || selectedCategory() !== 'all' || dealsOnly() ? 'No products match your selected filters.' : 'Your store catalog is currently empty.' }}
+      </p>
+      @if (!searchQuery() && selectedCategory() === 'all' && !dealsOnly()) {
+        <button
+          type="button"
+          (click)="openAddModal()"
+          class="btn-primary mt-6 inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold cursor-pointer"
+        >
+          <lucide-icon [img]="icons.Plus" class="size-4" />
+          <span>Add product</span>
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Add / Edit Product Modal Dialog -->
+  @if (isModalOpen()) {
+    <div
+      class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="editingProduct() ? 'Edit Product' : 'Add Product'"
+    >
+      <div class="w-full max-w-2xl rounded-3xl bg-paper dark:bg-ink border border-black/10 dark:border-white/10 p-6 sm:p-7 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+        <!-- Dialog Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-black/5 dark:border-white/10">
+          <div>
+            <h2 class="font-display text-xl font-bold text-ink dark:text-white">
+              {{ editingProduct() ? 'Edit Product' : 'Add New Product' }}
+            </h2>
+            <p class="text-xs text-stone dark:text-white/60 mt-0.5">
+              {{ editingProduct() ? 'Update catalog item pricing and details.' : 'Add a new product to the storefront catalog.' }}
+            </p>
+          </div>
+          <button
+            type="button"
+            (click)="closeModal()"
+            class="size-8 rounded-full flex items-center justify-center text-stone hover:text-ink dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer"
+            aria-label="Close dialog"
+          >
+            <lucide-icon [img]="icons.X" class="size-5" />
+          </button>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="saveProduct()" class="space-y-4">
+          <!-- Row 1: Product Name & Slug -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="prod-name" class="block text-xs font-semibold text-ink dark:text-white mb-1.5">
+                Product name <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="prod-name"
+                type="text"
+                formControlName="name"
+                (input)="onNameChange()"
+                placeholder="e.g. Linen Lounge Chair"
+                class="w-full px-4 py-2.5 rounded-xl bg-sand/30 dark:bg-white/5 border border-black/10 dark:border-white/15 text-sm text-ink dark:text-white focus:outline-none focus:ring-2 focus:ring-clay/50"
+              />
+              @if (form.get('name')?.touched && form.get('name')?.invalid) {
+                <p class="text-xs text-red-500 mt-1">Product name is required.</p>
+              }
+            </div>
+
+            <div>
+              <label for="prod-slug" class="block text-xs font-semibold text-ink dark:text-white mb-1.5">
+                URL Slug <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="prod-slug"
+                type="text"
+                formControlName="slug"
+                placeholder="e.g. linen-lounge-chair"
+                class="w-full px-4 py-2.5 rounded-xl bg-sand/30 dark:bg-white/5 border border-black/10 dark:border-white/15 text-sm font-mono text-ink dark:text-white focus:outline-none focus:ring-2 focus:ring-clay/50"
+              />
+              @if (form.get('slug')?.touched && form.get('slug')?.invalid) {
+                <p class="text-xs text-red-500 mt-1">Slug is required.</p>
+              }
+            </div>
+          </div>
+
+          <!-- Row 2: Category & Price & Compare-at Price -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label for="prod-cat" class="block text-xs font-semibold text-ink dark:text-white mb-1.5">
+                Category <span class="text-red-500">*</span>
+              </label>
+              <select
+                id="prod-cat"
+                formControlName="categoryId"
+                class="w-full px-4 py-2.5 rounded-xl bg-sand/30 dark:bg-white/5 border border-black/10 dark:border-white/15 text-sm text-ink dark:text-white focus:outline-none focus:ring-2 focus:ring-clay/50 cursor-pointer"
+              >
+                @for (cat of categories(); track cat.id) {
+                  <option [value]="cat.id">{{ cat.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div>
+              <label for="prod-price" class="block text-xs font-semibold text-ink dark:text-white mb-1.5">
+                Price ($) <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="prod-price"
+                type="number"
+                step="1"
+                min="1"
+                formControlName="price"
+                placeholder="e.g. 180"
+                class="w-full px-4 py-2.5 rounded-xl bg-sand/30 dark:bg-white/5 border border-black/10 dark:border-white/15 text-sm font-bold text-ink dark:text-white focus:outline-none focus:ring-2 focus:ring-clay/50"
+              />
+              @if (form.get('price')?.touched && form.get('price')?.invalid) {
+                <p class="text-xs text-red-500 mt-1">Valid price required (&gt; $0).</p>
+              }
+            </div>
+
+            <div>
+              <label for="prod-compare-price" class="block text-xs font-semibold text-ink dark:text-white mb-1.5">
+                Original Price ($) <span class="text-stone font-normal">(Deal)</span>
+              </label>
+              <input
+                id="prod-compare-price"
+                type="number"
+                step="1"
+                formControlName="originalPrice"
+                placeholder="e.g. 240 (optional)"
+                class="w-full px-4 py-2.5 rounded-xl bg-sand/30 dark:bg-white/5 border border-black/10 dark:border-white/15 text-sm text-ink dark:text-white focus:outline-none focus:ring-2 focus:ring-clay/50"
+              />
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label for="prod-desc" class="block text-xs font-semibold text-ink dark:text-white mb-1.5">
+              Description <span class="text-red-500">*</span>
+            </label>
+            <textarea
+              id="prod-desc"
+              rows="3"
+              formControlName="description"
+              placeholder="Detailed description of craftsmanship, materials and care..."
+              class="w-full px-4 py-2.5 rounded-xl bg-sand/30 dark:bg-white/5 border border-black/10 dark:border-white/15 text-sm text-ink dark:text-white focus:outline-none focus:ring-2 focus:ring-clay/50"
+            ></textarea>
+            @if (form.get('description')?.touched && form.get('description')?.invalid) {
+              <p class="text-xs text-red-500 mt-1">Description is required.</p>
+            }
+          </div>
+
+          <!-- Image Upload & Preview -->
+          <div>
+            <label class="block text-xs font-semibold text-ink dark:text-white mb-1.5">
+              Product image <span class="text-red-500">*</span>
+            </label>
+
+            <div class="flex items-center gap-4">
+              <div class="size-20 rounded-2xl overflow-hidden bg-sand/40 dark:bg-white/10 border border-black/10 dark:border-white/15 shrink-0 flex items-center justify-center">
+                @if (imagePreview()) {
+                  <img [src]="imagePreview()" alt="Product preview" class="size-full object-cover" />
+                } @else {
+                  <lucide-icon [img]="icons.Image" class="size-6 text-stone/50" />
+                }
+              </div>
+
+              <div class="flex-1">
+                <label class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-black/15 dark:border-white/20 bg-white dark:bg-white/5 text-xs font-semibold text-ink dark:text-white hover:bg-black/5 dark:hover:bg-white/10 cursor-pointer transition-colors shadow-2xs">
+                  <lucide-icon [img]="icons.Upload" class="size-3.5 text-clay" />
+                  <span>Choose image from device</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    (change)="onImageFileSelected($event)"
+                    class="hidden"
+                  />
+                </label>
+                <p class="text-[11px] text-stone dark:text-white/50 mt-1">
+                  PNG, JPG, or WebP up to 4MB.
+                </p>
+              </div>
+            </div>
+            @if (form.get('image')?.touched && form.get('image')?.invalid) {
+              <p class="text-xs text-red-500 mt-1.5">Product image is required.</p>
+            }
+          </div>
+
+          <!-- Variants: Sizes & Colors -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="prod-sizes" class="block text-xs font-semibold text-ink dark:text-white mb-1.5">
+                Available sizes (comma separated)
+              </label>
+              <input
+                id="prod-sizes"
+                type="text"
+                formControlName="sizes"
+                placeholder="XS, S, M, L, XL"
+                class="w-full px-4 py-2 rounded-xl bg-sand/30 dark:bg-white/5 border border-black/10 dark:border-white/15 text-xs sm:text-sm text-ink dark:text-white focus:outline-none focus:ring-2 focus:ring-clay/50"
+              />
+            </div>
+
+            <div>
+              <label for="prod-colors" class="block text-xs font-semibold text-ink dark:text-white mb-1.5">
+                Available colors (comma separated)
+              </label>
+              <input
+                id="prod-colors"
+                type="text"
+                formControlName="colors"
+                placeholder="Sand, Oatmeal, Charcoal"
+                class="w-full px-4 py-2 rounded-xl bg-sand/30 dark:bg-white/5 border border-black/10 dark:border-white/15 text-xs sm:text-sm text-ink dark:text-white focus:outline-none focus:ring-2 focus:ring-clay/50"
+              />
+            </div>
+          </div>
+
+          <!-- Visibility & Toggles -->
+          <div class="flex flex-wrap items-center gap-6 pt-2">
+            <label class="inline-flex items-center gap-2 text-xs font-semibold text-ink dark:text-white cursor-pointer">
+              <input type="checkbox" formControlName="inStock" class="rounded text-clay focus:ring-clay" />
+              <span>In stock</span>
+            </label>
+
+            <label class="inline-flex items-center gap-2 text-xs font-semibold text-ink dark:text-white cursor-pointer">
+              <input type="checkbox" formControlName="featured" class="rounded text-clay focus:ring-clay" />
+              <span>Featured item</span>
+            </label>
+
+            <label class="inline-flex items-center gap-2 text-xs font-semibold text-ink dark:text-white cursor-pointer">
+              <input type="checkbox" formControlName="trending" class="rounded text-clay focus:ring-clay" />
+              <span>Trending item</span>
+            </label>
+          </div>
+
+          <!-- Dialog Actions -->
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-black/5 dark:border-white/10">
+            <button
+              type="button"
+              (click)="closeModal()"
+              class="px-5 py-2.5 rounded-full border border-black/10 dark:border-white/15 text-xs sm:text-sm font-semibold text-stone hover:text-ink dark:text-white/70 dark:hover:text-white cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn-primary px-6 py-2.5 text-xs sm:text-sm font-bold cursor-pointer"
+            >
+              {{ editingProduct() ? 'Save changes' : 'Create product' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Confirmation Modal Dialog -->
+  @if (isDeleteModalOpen() && productToDelete(); as toDelete) {
+    <div
+      class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Confirm product deletion"
+    >
+      <div class="w-full max-w-md rounded-3xl bg-paper dark:bg-ink border border-black/10 dark:border-white/10 p-6 shadow-2xl space-y-4">
+        <div class="size-12 rounded-2xl bg-red-500/10 text-red-600 flex items-center justify-center">
+          <lucide-icon [img]="icons.AlertTriangle" class="size-6" />
+        </div>
+
+        <div>
+          <h2 class="font-display text-lg font-bold text-ink dark:text-white">
+            Delete "{{ toDelete.name }}"?
+          </h2>
+          <p class="text-xs sm:text-sm text-stone dark:text-white/60 mt-1 leading-relaxed">
+            This product will be removed from the storefront catalog. Historical customer orders will remain intact with their saved item snapshots.
+          </p>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-black/5 dark:border-white/10">
+          <button
+            type="button"
+            (click)="closeDeleteModal()"
+            class="px-5 py-2.5 rounded-full border border-black/10 dark:border-white/10 text-xs sm:text-sm font-semibold text-stone hover:text-ink dark:text-white/70 cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="deleteProduct()"
+            class="px-5 py-2.5 rounded-full bg-red-600 text-white text-xs sm:text-sm font-bold hover:bg-red-700 transition-colors shadow-sm cursor-pointer"
+          >
+            Delete product
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

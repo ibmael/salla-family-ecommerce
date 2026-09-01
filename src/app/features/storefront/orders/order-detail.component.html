@@ -2,25 +2,225 @@
   <app-breadcrumbs [items]="breadcrumbs()" class="mb-4" />
 
   @if (order(); as o) {
-    <h1 class="font-display text-3xl sm:text-4xl font-semibold text-ink dark:text-white">Order {{ o.id }}</h1>
-    <p class="mt-2 text-xs sm:text-sm text-stone">{{ formatDate(o.createdAt, 'MMMM d, yyyy') }} · <span class="capitalize">{{ o.status }}</span></p>
-
-    <div class="mt-8 space-y-3">
-      @for (line of o.lines; track line.productId) {
-        <div class="line p-4 rounded-2xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-between">
-          <div>
-            <p class="font-semibold text-sm sm:text-base text-ink dark:text-white">{{ line.productName }}</p>
-            <p class="text-xs text-stone mt-0.5">{{ line.color }} · {{ line.size }} · Qty {{ line.quantity }}</p>
-          </div>
-          <p class="font-bold text-sm sm:text-base text-ink dark:text-white">${{ line.price * line.quantity }}</p>
-        </div>
-      }
+    <!-- Back to Orders Nav -->
+    <div class="mb-6">
+      <a
+        routerLink="/orders"
+        class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-stone hover:text-clay dark:text-white/60 dark:hover:text-white transition-colors cursor-pointer"
+      >
+        <lucide-icon [img]="icons.ArrowLeft" class="size-4" aria-hidden="true" />
+        <span>Back to all orders</span>
+      </a>
     </div>
 
-    <div class="mt-8 max-w-sm space-y-2 border-t border-black/10 pt-4 dark:border-white/10 text-sm">
-      <div class="flex justify-between text-stone"><span>Subtotal</span><span class="text-ink dark:text-white font-medium">${{ o.subtotal }}</span></div>
-      <div class="flex justify-between text-stone"><span>Shipping</span><span class="text-ink dark:text-white font-medium">${{ o.shipping }}</span></div>
-      <div class="flex justify-between font-bold text-base text-ink dark:text-white border-t border-black/10 dark:border-white/10 pt-2"><span>Total</span><span>${{ o.total }}</span></div>
+    <!-- Order Header -->
+    <div class="order-header flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-black/10 dark:border-white/10">
+      <div>
+        <p class="eyebrow text-clay">Order details</p>
+        <h1 class="mt-1 font-display text-3xl sm:text-4xl font-semibold text-ink dark:text-white">
+          Order #{{ o.id }}
+        </h1>
+        <p class="mt-1.5 text-xs sm:text-sm text-stone dark:text-white/60">
+          Placed on {{ formatDate(o.createdAt, 'MMMM d, yyyy') }}
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <app-order-status-badge [status]="o.status" />
+      </div>
+    </div>
+
+    <!-- Order Progress Tracking Card (Full Width) -->
+    <div class="mt-6 rounded-3xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 sm:p-7 shadow-sm space-y-4">
+      <h2 class="font-display text-base sm:text-lg font-semibold text-ink dark:text-white pb-3 border-b border-black/5 dark:border-white/10">
+        Order progress
+      </h2>
+      <div class="pt-2">
+        <app-order-progress
+          [status]="o.status"
+          [statusHistory]="o.statusHistory"
+          [cancellationReason]="o.cancellationReason"
+          [cancelledAt]="o.cancelledAt"
+        />
+      </div>
+    </div>
+
+    <!-- 2/3 + 1/3 Layout Grid -->
+    <div class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- Main Content Column (Items, Delivery, Payment) -->
+      <div class="lg:col-span-8 space-y-6">
+        <!-- 1. Purchased Items Card -->
+        <div class="rounded-3xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 sm:p-7 shadow-sm">
+          <h2 class="font-display text-lg sm:text-xl font-semibold text-ink dark:text-white mb-6">
+            Items in this order ({{ o.lines.length }})
+          </h2>
+
+          <div class="divide-y divide-black/5 dark:divide-white/10">
+            @for (line of o.lines; track line.productId + line.size + line.color) {
+              <div class="py-5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                  <!-- Product Image -->
+                  <div class="size-20 sm:size-24 rounded-2xl overflow-hidden bg-sand/30 dark:bg-white/10 border border-black/10 dark:border-white/10 shrink-0">
+                    <img
+                      [src]="line.productImage"
+                      [alt]="line.productName"
+                      class="size-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  <!-- Product Information -->
+                  <div class="min-w-0">
+                    @if (line.productSlug) {
+                      <a
+                        [routerLink]="['/product', line.productSlug]"
+                        class="font-display font-semibold text-base sm:text-lg text-ink dark:text-white hover:text-clay dark:hover:text-sand transition-colors block truncate"
+                      >
+                        {{ line.productName }}
+                      </a>
+                    } @else {
+                      <h3 class="font-display font-semibold text-base sm:text-lg text-ink dark:text-white truncate">
+                        {{ line.productName }}
+                      </h3>
+                    }
+
+                    <!-- Variant Details (only when defined) -->
+                    <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm text-stone dark:text-white/60">
+                      @if (line.size && line.size !== 'undefined') {
+                        <span>Size: <strong class="text-ink/80 dark:text-white/80 font-medium">{{ line.size }}</strong></span>
+                      }
+                      @if (line.color && line.color !== 'undefined') {
+                        @if (line.size && line.size !== 'undefined') { <span>·</span> }
+                        <span>Color: <strong class="text-ink/80 dark:text-white/80 font-medium">{{ line.color }}</strong></span>
+                      }
+                    </div>
+
+                    <!-- Quantity & Unit Price -->
+                    <p class="mt-1.5 text-xs text-stone dark:text-white/50">
+                      Qty: {{ line.quantity }} &times; ${{ line.price }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Line Item Total -->
+                <div class="text-left sm:text-right shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-black/5 dark:border-white/5 flex sm:flex-col justify-between items-center sm:items-end">
+                  <span class="text-xs text-stone dark:text-white/50 sm:hidden">Item total:</span>
+                  <p class="font-display text-base sm:text-lg font-bold text-ink dark:text-white">
+                    ${{ line.price * line.quantity }}
+                  </p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- 2. Delivery & Payment Details Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Delivery Details Card -->
+          <div class="rounded-3xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-sm">
+            <div class="flex items-center gap-2.5 text-clay mb-4">
+              <lucide-icon [img]="icons.MapPin" class="size-5" aria-hidden="true" />
+              <h2 class="font-display text-base sm:text-lg font-semibold text-ink dark:text-white">
+                Delivery details
+              </h2>
+            </div>
+
+            <div class="space-y-1.5 text-sm text-stone dark:text-white/70">
+              @if (o.recipientName) {
+                <p class="font-semibold text-ink dark:text-white">{{ o.recipientName }}</p>
+              } @else if (auth.user()?.name) {
+                <p class="font-semibold text-ink dark:text-white">{{ auth.user()?.name }}</p>
+              }
+
+              @if (o.phoneNumber) {
+                <p class="text-xs">{{ o.phoneNumber }}</p>
+              }
+
+              <p class="pt-1 leading-relaxed">{{ o.shippingAddress }}</p>
+            </div>
+          </div>
+
+          <!-- Payment Details Card -->
+          <div class="rounded-3xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 shadow-sm">
+            <div class="flex items-center gap-2.5 text-clay mb-4">
+              <lucide-icon [img]="icons.CreditCard" class="size-5" aria-hidden="true" />
+              <h2 class="font-display text-base sm:text-lg font-semibold text-ink dark:text-white">
+                Payment
+              </h2>
+            </div>
+
+            <div class="space-y-2 text-sm text-stone dark:text-white/70">
+              <p class="font-medium text-ink dark:text-white">
+                {{ o.paymentMethod || 'Credit / Debit Card' }}
+              </p>
+              <p class="text-xs text-stone dark:text-white/50 leading-relaxed">
+                Payment was processed securely at purchase.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Sticky Order Summary Card -->
+      <div class="lg:col-span-4 lg:sticky lg:top-24">
+        <div class="rounded-3xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 p-6 sm:p-7 shadow-sm">
+          <h2 class="font-display text-lg font-semibold text-ink dark:text-white pb-4 border-b border-black/5 dark:border-white/10">
+            Order summary
+          </h2>
+
+          <div class="mt-4 space-y-3 text-sm">
+            <div class="flex justify-between text-stone dark:text-white/70">
+              <span>Subtotal</span>
+              <span class="text-ink dark:text-white font-medium">${{ o.subtotal }}</span>
+            </div>
+
+            <div class="flex justify-between text-stone dark:text-white/70">
+              <span>Shipping</span>
+              <span class="text-ink dark:text-white font-medium">
+                @if (o.shipping === 0) {
+                  <span class="text-moss dark:text-[#88a58d] font-semibold">Free</span>
+                } @else {
+                  ${{ o.shipping }}
+                }
+              </span>
+            </div>
+
+            <div class="border-t border-black/10 dark:border-white/10 pt-3 flex justify-between items-baseline">
+              <span class="font-display text-base font-bold text-ink dark:text-white">Total</span>
+              <span class="font-display text-xl sm:text-2xl font-bold text-ink dark:text-white">
+                ${{ o.total }}
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-6 border-t border-black/5 dark:border-white/10">
+            <a
+              routerLink="/category"
+              class="btn-primary w-full py-3 text-center text-sm font-bold block cursor-pointer"
+            >
+              Continue shopping
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <!-- Not Found State -->
+    <div class="order-not-found py-16 text-center max-w-md mx-auto">
+      <div class="size-16 rounded-2xl bg-sand/40 dark:bg-white/10 border border-black/10 dark:border-white/10 mx-auto flex items-center justify-center text-stone shadow-sm">
+        <lucide-icon [img]="icons.Package" class="size-8 text-clay" aria-hidden="true" />
+      </div>
+      <h2 class="mt-6 font-display text-2xl font-bold text-ink dark:text-white">
+        Order not found
+      </h2>
+      <p class="mt-2 text-sm text-stone dark:text-white/60">
+        We couldn't find the requested order. Please check your order history.
+      </p>
+      <a
+        routerLink="/orders"
+        class="btn-primary mt-6 inline-block cursor-pointer"
+      >
+        View all orders
+      </a>
     </div>
   }
 </section>

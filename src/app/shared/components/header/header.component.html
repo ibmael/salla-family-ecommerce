@@ -185,31 +185,25 @@
     </div>
 
     <!-- Actions / Icons (Right) -->
-    <nav class="ml-auto flex items-center gap-1 sm:gap-2" aria-label="User Actions">
-      <!-- Mobile Links -->
+    <nav class="ml-auto flex items-center gap-0.5 sm:gap-1.5 shrink-0" aria-label="User Actions">
+      <!-- Mobile Categories Link -->
       <a
         routerLink="/categories"
         class="lg:hidden rounded-full px-2.5 py-1.5 text-xs font-medium text-ink/80 hover:bg-black/5 dark:text-white/80 dark:hover:bg-white/10 transition-colors cursor-pointer"
       >
         Categories
       </a>
-      <a
-        routerLink="/category"
-        class="sm:hidden rounded-full px-2.5 py-1.5 text-xs font-medium text-ink/80 hover:bg-black/5 dark:text-white/80 dark:hover:bg-white/10 transition-colors cursor-pointer"
-      >
-        Shop
-      </a>
 
-      <!-- Wishlist -->
+      <!-- Wishlist (Desktop md+ only, accessible on mobile via profile/account) -->
       <a
         routerLink="/wishlist"
-        class="relative rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+        class="hidden md:inline-flex relative size-9 sm:size-10 rounded-full items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
         aria-label="Wishlist"
       >
         <lucide-icon [img]="icons.Heart" class="size-5" />
         @if (auth.isLoggedIn() && wishlist.count() > 0) {
           <span
-            class="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white shadow-sm"
+            class="absolute 1 top-1 right-1 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white shadow-sm pointer-events-none"
           >
             {{ wishlist.count() }}
           </span>
@@ -219,14 +213,14 @@
       <!-- Cart -->
       <a
         routerLink="/cart"
-        class="header-cart-btn relative rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10 transition-transform cursor-pointer"
+        class="header-cart-btn relative size-9 sm:size-10 rounded-full inline-flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-transform cursor-pointer"
         [class.cart-bump]="isCartBumping()"
         aria-label="Cart"
       >
         <lucide-icon [img]="icons.ShoppingBag" class="size-5" />
         @if (auth.isLoggedIn() && cart.count() > 0) {
           <span
-            class="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white shadow-sm"
+            class="absolute top-1 right-1 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white shadow-sm pointer-events-none"
           >
             {{ cart.count() }}
           </span>
@@ -236,7 +230,7 @@
       <!-- Theme Switcher -->
       <button
         type="button"
-        class="rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+        class="size-9 sm:size-10 rounded-full inline-flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
         (click)="theme.toggle()"
         [attr.aria-label]="theme.isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
       >

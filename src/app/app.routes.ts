@@ -3,6 +3,69 @@ import { adminGuard, authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
+    path: 'admin',
+    title: 'Admin',
+    loadComponent: () =>
+      import('./features/admin/layout/admin-layout.component').then((m) => m.AdminLayoutComponent),
+    canActivate: [adminGuard],
+    children: [
+      {
+        path: '',
+        title: 'Dashboard',
+        loadComponent: () =>
+          import('./features/admin/dashboard/admin-dashboard.component').then(
+            (m) => m.AdminDashboardComponent,
+          ),
+      },
+      {
+        path: 'products',
+        title: 'Products',
+        loadComponent: () =>
+          import('./features/admin/products/products.component').then(
+            (m) => m.AdminProductsComponent,
+          ),
+      },
+      {
+        path: 'orders',
+        title: 'Orders',
+        loadComponent: () =>
+          import('./features/admin/orders/orders.component').then((m) => m.AdminOrdersComponent),
+      },
+      {
+        path: 'orders/:id',
+        title: 'Order Details',
+        loadComponent: () =>
+          import('./features/admin/orders/admin-order-detail.component').then(
+            (m) => m.AdminOrderDetailComponent,
+          ),
+      },
+      {
+        path: 'customers',
+        title: 'Customers',
+        loadComponent: () =>
+          import('./features/admin/customers/customers.component').then(
+            (m) => m.AdminCustomersComponent,
+          ),
+      },
+      {
+        path: 'categories',
+        title: 'Categories',
+        loadComponent: () =>
+          import('./features/admin/categories/categories.component').then(
+            (m) => m.AdminCategoriesComponent,
+          ),
+      },
+      {
+        path: 'audit-logs',
+        title: 'Audit Logs',
+        loadComponent: () =>
+          import('./features/admin/audit-logs/audit-logs.component').then(
+            (m) => m.AdminAuditLogsComponent,
+          ),
+      },
+    ],
+  },
+  {
     path: '',
     loadComponent: () =>
       import('./layouts/store-layout/store-layout.component').then((m) => m.StoreLayoutComponent),
@@ -109,54 +172,14 @@ export const routes: Routes = [
           ),
         canActivate: [authGuard],
       },
-    ],
-  },
-  {
-    path: 'admin',
-    title: 'Admin',
-    loadComponent: () =>
-      import('./layouts/admin-layout/admin-layout.component').then((m) => m.AdminLayoutComponent),
-    canActivate: [adminGuard],
-    children: [
       {
-        path: '',
-        title: 'Dashboard',
+        path: '**',
+        title: 'Page Not Found',
         loadComponent: () =>
-          import('./features/admin/dashboard/dashboard.component').then(
-            (m) => m.AdminDashboardComponent,
-          ),
-      },
-      {
-        path: 'products',
-        title: 'Products',
-        loadComponent: () =>
-          import('./features/admin/products/products.component').then(
-            (m) => m.AdminProductsComponent,
-          ),
-      },
-      {
-        path: 'orders',
-        title: 'Orders',
-        loadComponent: () =>
-          import('./features/admin/orders/orders.component').then((m) => m.AdminOrdersComponent),
-      },
-      {
-        path: 'customers',
-        title: 'Customers',
-        loadComponent: () =>
-          import('./features/admin/customers/customers.component').then(
-            (m) => m.AdminCustomersComponent,
-          ),
-      },
-      {
-        path: 'audit-logs',
-        title: 'Audit Logs',
-        loadComponent: () =>
-          import('./features/admin/audit-logs/audit-logs.component').then(
-            (m) => m.AdminAuditLogsComponent,
+          import('./features/storefront/not-found/not-found.component').then(
+            (m) => m.NotFoundComponent,
           ),
       },
     ],
   },
-  { path: '**', redirectTo: '' },
 ];

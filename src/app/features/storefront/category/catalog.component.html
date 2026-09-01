@@ -2,25 +2,93 @@
   <app-breadcrumbs [items]="breadcrumbs()" class="mb-4" />
 
   <p class="eyebrow text-clay">Browse the collection</p>
-  <h1 class="font-display text-3xl sm:text-4xl font-semibold text-ink dark:text-white mt-1">{{ title() }}</h1>
+  <h1 id="catalog-heading" class="font-display text-3xl sm:text-4xl font-semibold text-ink dark:text-white mt-1">
+    {{ title() }}
+  </h1>
   @if (category(); as cat) {
-    <p class="mt-2 max-w-xl text-sm sm:text-base text-black/60 dark:text-white/60 leading-relaxed">{{ cat.description }}</p>
+    <p class="mt-2 max-w-xl text-sm sm:text-base text-black/60 dark:text-white/60 leading-relaxed">
+      {{ cat.description }}
+    </p>
   }
 
-  <div class="mt-8 flex flex-wrap gap-3 border-y border-black/10 py-4 dark:border-white/10 items-center">
-    <label class="filter-chip cursor-pointer">
-      Sort
-      <select class="ml-2 bg-transparent outline-none cursor-pointer" [ngModel]="sort()" (ngModelChange)="sort.set($event); reload()">
-        <option value="featured">Featured</option>
-        <option value="price-asc">Price: low to high</option>
-        <option value="price-desc">Price: high to low</option>
-        <option value="rating">Top rated</option>
-      </select>
-    </label>
-    <button type="button" class="filter-chip cursor-pointer" (click)="saleOnly.update((v) => !v); reload()">
-      Deals only {{ saleOnly() ? '✓' : '' }}
-    </button>
-    <span class="ml-auto self-center text-xs sm:text-sm text-stone dark:text-white/55 font-medium">
+  <div
+    class="mt-8 flex flex-wrap gap-3 border-y border-black/10 py-4 dark:border-white/10 items-center justify-between"
+  >
+    <div class="flex flex-wrap items-center gap-3">
+      <!-- Custom Polished Sort Dropdown -->
+      <div class="relative">
+        <button
+          type="button"
+          (click)="toggleSort()"
+          (keydown)="onSortKeydown($event)"
+          [attr.aria-expanded]="isSortOpen()"
+          aria-haspopup="listbox"
+          aria-label="Sort products"
+          class="sort-trigger-btn inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/80 px-4 py-2 text-sm font-medium text-ink backdrop-blur transition-all hover:bg-white hover:border-black/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 cursor-pointer shadow-xs"
+        >
+          <span class="text-stone dark:text-white/60">Sort:</span>
+          <span class="font-semibold">{{ currentSortLabel() }}</span>
+          <lucide-icon
+            [img]="icons.ChevronDown"
+            class="size-4 text-stone transition-transform duration-150 ml-0.5"
+            [class.rotate-180]="isSortOpen()"
+          />
+        </button>
+
+        @if (isSortOpen()) {
+          <div
+            class="sort-menu-panel absolute left-0 top-full mt-2 w-48 rounded-2xl border border-black/10 bg-white/95 p-1.5 shadow-xl backdrop-blur-md dark:border-white/15 dark:bg-ink/95 z-40"
+            role="listbox"
+            aria-label="Sort options"
+          >
+            @for (opt of sortOptions; track opt.value; let idx = $index) {
+              <button
+                type="button"
+                role="option"
+                [attr.aria-selected]="sort() === opt.value"
+                (click)="selectSort(opt.value)"
+                class="sort-option-btn w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl text-left transition-colors cursor-pointer"
+                [class.active-option]="sort() === opt.value"
+                [class.focused-option]="focusedSortIndex() === idx && sort() !== opt.value"
+                [class.inactive-option]="sort() !== opt.value && focusedSortIndex() !== idx"
+              >
+                <span>{{ opt.label }}</span>
+                @if (sort() === opt.value) {
+                  <lucide-icon [img]="icons.Check" class="size-3.5 text-clay shrink-0" />
+                }
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Custom Polished Deals Only Control -->
+      <button
+        type="button"
+        role="switch"
+        [attr.aria-checked]="saleOnly()"
+        (click)="toggleSaleOnly()"
+        class="deals-toggle-chip inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay"
+        [class.active]="saleOnly()"
+        [class.inactive]="!saleOnly()"
+      >
+        <lucide-icon [img]="icons.Percent" class="size-3.5 text-stone transition-colors" [class.text-clay]="saleOnly()" />
+        <span>Deals only</span>
+        <span
+          class="deals-switch-track relative inline-block h-4 w-7 rounded-full transition-colors ml-1"
+          [class.track-active]="saleOnly()"
+          [class.track-inactive]="!saleOnly()"
+        >
+          <span
+            class="deals-switch-thumb absolute top-0.5 size-3 rounded-full bg-white transition-all shadow-xs"
+            [class.thumb-active]="saleOnly()"
+            [class.thumb-inactive]="!saleOnly()"
+          ></span>
+        </span>
+      </button>
+    </div>
+
+    <span class="text-xs sm:text-sm text-stone dark:text-white/55 font-medium">
       {{ result().total }} pieces
     </span>
   </div>
@@ -47,7 +115,9 @@
   } @else {
     <div class="empty-state py-16 text-center">
       <h2 class="font-display text-2xl font-bold text-ink dark:text-white">Nothing here yet</h2>
-      <p class="mt-2 text-sm text-stone dark:text-white/60">Try removing a filter or explore another collection.</p>
+      <p class="mt-2 text-sm text-stone dark:text-white/60">
+        Try removing a filter or explore another collection.
+      </p>
       <a routerLink="/" class="btn-primary mt-6 inline-block">Return home</a>
     </div>
   }

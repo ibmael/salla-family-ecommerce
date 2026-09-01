@@ -1,11 +1,11 @@
-.order-row {
-  display: flex;
-  justify-content: space-between;
-  border-radius: var(--radius-card);
-  background: white;
-  padding: 1rem 1.25rem;
+:host {
+  display: block;
 }
 
-:host-context(.dark) .order-row {
-  background: rgb(255 255 255 / 0.05);
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

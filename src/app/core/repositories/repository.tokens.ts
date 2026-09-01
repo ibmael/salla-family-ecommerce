@@ -1,7 +1,7 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Category, PagedResult, Product, ProductFilters, Review } from '../models/product.model';
-import { Order } from '../models/order.model';
+import { Order, OrderStatus } from '../models/order.model';
 import {
   AuditLog,
   ChangePasswordPayload,
@@ -21,17 +21,25 @@ export interface ProductRepository {
   deals(): Observable<Product[]>;
   related(productId: string): Observable<Product[]>;
   reviews(productId: string): Observable<Review[]>;
+  create(product: Omit<Product, 'id' | 'rating' | 'reviews'>): Observable<Product>;
+  update(id: string, updates: Partial<Product>): Observable<Product>;
+  delete(id: string): Observable<boolean>;
 }
 
 export interface CategoryRepository {
   list(): Observable<Category[]>;
   bySlug(slug: string): Observable<Category | undefined>;
+  create(category: Omit<Category, 'id' | 'productCount'>): Observable<Category>;
+  update(id: string, updates: Partial<Category>): Observable<Category>;
+  delete(id: string): Observable<boolean>;
 }
 
 export interface OrderRepository {
   list(userId?: string): Observable<Order[]>;
   byId(id: string): Observable<Order | undefined>;
   create(order: Omit<Order, 'id' | 'createdAt'>): Observable<Order>;
+  updateStatus(id: string, status: OrderStatus, note?: string): Observable<Order>;
+  cancelOrder(id: string, reason?: string): Observable<Order>;
 }
 
 export interface AuthRepository {

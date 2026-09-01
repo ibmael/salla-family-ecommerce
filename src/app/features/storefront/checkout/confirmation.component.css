@@ -1,11 +1,112 @@
-.check-icon {
-  margin-inline: auto;
-  display: grid;
-  width: 4rem;
-  height: 4rem;
-  place-items: center;
+:host {
+  display: block;
+}
+
+/* ── Success Icon Composition ── */
+.success-icon-wrapper {
+  position: relative;
+  width: 5rem;
+  height: 5rem;
+}
+
+.success-circle {
+  width: 5rem;
+  height: 5rem;
   border-radius: 9999px;
-  background: #4a5d4e;
+  background-color: var(--color-moss, #4a5d4e);
   color: white;
-  font-size: 1.875rem;
+  display: grid;
+  place-items: center;
+  animation: circleAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.success-check {
+  width: 1.75rem;
+  height: 1.75rem;
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: checkDraw 0.4s 0.35s ease-out forwards;
+}
+
+.success-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  border: 2px solid var(--color-moss, #4a5d4e);
+  opacity: 0;
+  animation: ringPulse 0.5s 0.6s ease-out forwards;
+}
+
+@keyframes circleAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes checkDraw {
+  0% {
+    stroke-dashoffset: 30;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ringPulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+/* ── Staggered Content Entrance ── */
+.confirm-heading {
+  animation: contentFadeUp 0.45s 0.3s ease-out both;
+}
+
+.confirm-details {
+  animation: contentFadeUp 0.45s 0.45s ease-out both;
+}
+
+.confirm-actions {
+  animation: contentFadeUp 0.45s 0.55s ease-out both;
+}
+
+@keyframes contentFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .success-circle,
+  .success-check,
+  .success-ring,
+  .confirm-heading,
+  .confirm-details,
+  .confirm-actions {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    stroke-dashoffset: 0;
+  }
+
+  .success-ring {
+    display: none;
+  }
 }

@@ -2,21 +2,20 @@
   display: block;
 }
 
-.order-card {
-  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+.kpi-card {
+  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.2s;
 }
 
-.order-card:hover {
+.kpi-card:hover {
   transform: translateY(-2px);
 }
 
-.view-order-btn {
-  transition: all 0.15s ease;
+.bar-group:hover .bar-tooltip {
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .order-card,
-  .view-order-btn {
+  .kpi-card {
     transition: none !important;
     transform: none !important;
   }

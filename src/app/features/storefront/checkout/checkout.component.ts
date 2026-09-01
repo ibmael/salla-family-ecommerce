@@ -139,6 +139,7 @@ export class CheckoutComponent implements OnInit {
     const lines = this.cart.lines().map((l) => ({
       productId: l.product.id,
       productName: l.product.name,
+      productSlug: l.product.slug,
       productImage: l.product.image,
       price: l.product.price,
       quantity: l.quantity,
@@ -150,19 +151,24 @@ export class CheckoutComponent implements OnInit {
     this.orderRepo
       .create({
         userId: this.auth.user()?.id ?? 'user-1',
-        status: 'pending',
+        status: 'placed',
         lines,
         subtotal: this.cart.total(),
         shipping: this.shippingCost(),
         total: this.orderTotal(),
         shippingAddress,
+        recipientName: formVal.name || this.auth.user()?.name,
+        phoneNumber: formVal.phoneNumber || this.auth.user()?.phoneNumber,
+        paymentMethod: this.paymentMethod() === 'card' ? 'Credit / Debit Card' : 'Cash on Delivery',
       })
       .subscribe({
-        next: () => {
+        next: (created) => {
           this.cart.clear();
           this.isSubmitting.set(false);
           this.toast.success('Your order has been placed successfully.', 'Order Placed');
-          this.router.navigate(['/order/confirmed']);
+          this.router.navigate(['/order/confirmed'], {
+            queryParams: created?.id ? { id: created.id } : undefined,
+          });
         },
         error: () => {
           this.cart.clear();

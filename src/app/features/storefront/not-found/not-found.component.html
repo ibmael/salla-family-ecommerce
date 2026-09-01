@@ -1,0 +1,65 @@
+<section class="page not-found-page py-16 sm:py-24 text-center">
+  <!-- 404 Visual Header -->
+  <div class="not-found-number-wrapper select-none">
+    <p class="not-found-number font-display font-bold leading-none tracking-tight">
+      404
+    </p>
+  </div>
+
+  <!-- Heading & Editorial Copy -->
+  <div class="not-found-copy mt-6">
+    <p class="eyebrow text-clay tracking-widest text-xs font-bold uppercase mb-2">
+      Missing piece
+    </p>
+    <h1 class="font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-ink dark:text-white tracking-tight">
+      This page wandered off.
+    </h1>
+    <p class="mt-4 text-base sm:text-lg text-stone dark:text-white/70 max-w-lg mx-auto leading-relaxed">
+      The piece you're looking for isn't here, but there's plenty more to discover in the collection.
+    </p>
+  </div>
+
+  <!-- Action CTAs -->
+  <div class="not-found-actions mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+    <a
+      routerLink="/"
+      class="btn-primary inline-flex items-center gap-2 px-6 py-3 text-sm font-bold cursor-pointer shadow-sm hover:shadow transition-all"
+    >
+      <lucide-icon [img]="icons.ArrowLeft" class="size-4" aria-hidden="true" />
+      <span>Back home</span>
+    </a>
+    <a
+      routerLink="/category"
+      class="btn-secondary inline-flex items-center gap-2 px-6 py-3 text-sm font-bold cursor-pointer transition-all"
+    >
+      <span>Explore shop</span>
+      <lucide-icon [img]="icons.ArrowRight" class="size-4" aria-hidden="true" />
+    </a>
+  </div>
+
+  <!-- Tasteful Editorial Shopping Visual Composition -->
+  <div class="not-found-visual-container mt-14 sm:mt-16 mx-auto" aria-hidden="true">
+    <div class="visual-card relative mx-auto p-6 sm:p-8 rounded-3xl bg-sand/30 dark:bg-white/[0.04] border border-black/10 dark:border-white/10 max-w-xs sm:max-w-sm">
+      <div class="visual-art relative w-28 h-28 mx-auto flex items-center justify-center">
+        <!-- Floating Bag -->
+        <div class="floating-bag size-20 rounded-2xl bg-white dark:bg-ink shadow-md border border-black/10 dark:border-white/10 flex items-center justify-center text-ink dark:text-sand">
+          <lucide-icon [img]="icons.ShoppingBag" class="size-9 text-clay dark:text-[#df8c6d]" />
+        </div>
+
+        <!-- Floating Searching Glass Badge -->
+        <div class="floating-search-badge absolute -top-2 -right-2 size-10 rounded-full bg-sand dark:bg-white/15 border border-black/10 dark:border-white/20 shadow-sm flex items-center justify-center text-ink dark:text-white">
+          <lucide-icon [img]="icons.Search" class="size-4 text-stone dark:text-sand" />
+        </div>
+
+        <!-- Floating Package Accent Badge -->
+        <div class="floating-package-badge absolute -bottom-2 -left-2 size-9 rounded-full bg-moss/10 dark:bg-moss/30 border border-moss/20 dark:border-moss/40 flex items-center justify-center text-moss dark:text-[#88a58d]">
+          <lucide-icon [img]="icons.Package" class="size-4" />
+        </div>
+      </div>
+
+      <p class="mt-4 font-display text-xs sm:text-sm font-medium text-stone dark:text-white/50 tracking-wide">
+        Curated editions & timeless essentials
+      </p>
+    </div>
+  </div>
+</section>

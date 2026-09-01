@@ -1,15 +1,31 @@
 import { Product } from './product.model';
 
-export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+export type OrderStatus =
+  | 'placed'
+  | 'confirmed'
+  | 'processing'
+  | 'packed'
+  | 'shipped'
+  | 'out_for_delivery'
+  | 'delivered'
+  | 'cancelled'
+  | 'pending'; // backwards-compatible alias for placed
+
+export interface OrderStatusHistoryItem {
+  status: OrderStatus;
+  at: string;
+  note?: string;
+}
 
 export interface OrderLine {
   productId: string;
   productName: string;
   productImage: string;
+  productSlug?: string;
   price: number;
   quantity: number;
-  size: string;
-  color: string;
+  size?: string;
+  color?: string;
 }
 
 export interface Order {
@@ -22,6 +38,14 @@ export interface Order {
   total: number;
   createdAt: string;
   shippingAddress: string;
+  recipientName?: string;
+  phoneNumber?: string;
+  paymentMethod?: string;
+  estimatedDelivery?: string;
+  deliveredDate?: string;
+  cancelledAt?: string;
+  cancellationReason?: string;
+  statusHistory?: OrderStatusHistoryItem[];
 }
 
 export interface CartLine {

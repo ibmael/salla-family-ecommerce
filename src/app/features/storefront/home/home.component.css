@@ -2,6 +2,7 @@
   display: block;
 }
 
+/* ── Embla Core ── */
 .embla-viewport {
   overflow: hidden;
   user-select: none;
@@ -17,11 +18,107 @@
   min-width: 0;
 }
 
+/* ── Hero Media / Responsive Height ── */
+.hero-media {
+  height: 420px;
+}
+
+@media (min-width: 640px) {
+  .hero-media { height: 480px; }
+}
+
+@media (min-width: 768px) {
+  .hero-media { height: 540px; }
+}
+
+@media (min-width: 1024px) {
+  .hero-media { height: 600px; }
+}
+
+.hero-img {
+  transition: none; /* no transition on img — Embla handles */
+}
+
+/* ── Overlay: Desktop left-gradient, Mobile bottom-gradient for text readability ── */
+.hero-overlay {
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0.45) 40%,
+    transparent 75%
+  );
+}
+
+@media (max-width: 639px) {
+  .hero-overlay {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.82) 0%,
+      rgba(0, 0, 0, 0.5) 45%,
+      rgba(0, 0, 0, 0.15) 80%,
+      transparent 100%
+    );
+  }
+}
+
+/* ── Hero Content ── */
+.hero-content {
+  padding: 1.5rem;
+  max-width: 36rem;
+}
+
+@media (min-width: 640px) {
+  .hero-content { padding: 2.5rem; }
+}
+
+@media (min-width: 768px) {
+  .hero-content { padding: 3.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .hero-content { padding: 4rem; }
+}
+
+/* ── Responsive Hero Typography ── */
+.hero-heading {
+  font-size: clamp(1.65rem, 4vw + 0.5rem, 3.75rem);
+  line-height: 1.1;
+}
+
+.hero-desc {
+  font-size: clamp(0.8rem, 1vw + 0.25rem, 1rem);
+}
+
+.hero-cta-btn {
+  padding: 0.75rem 1.5rem;
+}
+
+@media (max-width: 639px) {
+  .hero-cta-btn {
+    padding: 0.875rem 1.75rem;
+    min-height: 44px;
+  }
+}
+
+/* ── Navigation Arrows ── */
 .hero-nav-btn {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
   transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .hero-nav-btn:hover {
+  background-color: rgba(255, 255, 255, 0.35);
   transform: scale(1.06);
 }
 
@@ -29,20 +126,90 @@
   transform: scale(0.95);
 }
 
-/* Indicators & Synchronized Progress Bar */
+.hero-nav-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px white;
+}
+
+/* Desktop: vertically centered at safe edges */
+.hero-nav-prev {
+  width: 2.75rem;
+  height: 2.75rem;
+  top: 50%;
+  left: 0.75rem;
+  transform: translateY(-50%);
+}
+
+.hero-nav-next {
+  width: 2.75rem;
+  height: 2.75rem;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+}
+
+.hero-nav-prev:hover { transform: translateY(-50%) scale(1.06); }
+.hero-nav-next:hover { transform: translateY(-50%) scale(1.06); }
+.hero-nav-prev:active { transform: translateY(-50%) scale(0.95); }
+.hero-nav-next:active { transform: translateY(-50%) scale(0.95); }
+
+/* Mobile: smaller, bottom corners so they don't overlap content */
+@media (max-width: 639px) {
+  .hero-nav-prev,
+  .hero-nav-next {
+    width: 2.5rem;
+    height: 2.5rem;
+    top: auto;
+    bottom: 0.75rem;
+    transform: none;
+  }
+
+  .hero-nav-prev { left: 0.75rem; }
+  .hero-nav-next { right: 0.75rem; }
+
+  .hero-nav-prev:hover,
+  .hero-nav-next:hover { transform: scale(1.06); }
+  .hero-nav-prev:active,
+  .hero-nav-next:active { transform: scale(0.95); }
+}
+
+/* ── Indicators Bar ── */
 .hero-indicators-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  /* Centered at bottom */
+  bottom: 1.25rem;
+  left: 50%;
   transform: translateX(-50%);
 }
 
+@media (max-width: 639px) {
+  .hero-indicators-bar {
+    bottom: 0.875rem;
+  }
+}
+
+/* ── Progress Track & Fill ── */
 .hero-progress-track {
-  width: 3rem;
+  width: 2.5rem;
   height: 0.375rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.25);
 }
 
 .hero-progress-fill {
+  background-color: white;
+  border-radius: 9999px;
   width: 0%;
   animation: heroProgress 5s linear forwards;
-  transform-origin: left;
 }
 
 .hero-progress-fill.paused {
@@ -50,14 +217,31 @@
 }
 
 @keyframes heroProgress {
-  0% {
-    width: 0%;
-  }
-  100% {
-    width: 100%;
-  }
+  0% { width: 0%; }
+  100% { width: 100%; }
 }
 
+/* ── Inactive Dot ── */
+.hero-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.35);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.hero-dot:hover {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.hero-dot:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px white;
+}
+
+/* ── Quiz CTA ── */
 .quiz-cta {
   background: var(--color-moss);
   color: #f7f4ef;
@@ -78,6 +262,7 @@
   background: #ffffff;
 }
 
+/* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
   .hero-nav-btn,
   .hero-dot,

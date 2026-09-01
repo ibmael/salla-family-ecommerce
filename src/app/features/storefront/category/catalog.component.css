@@ -1,15 +1,134 @@
-.filter-chip {
-  border-radius: 9999px;
-  border: 1px solid rgb(0 0 0 / 0.15);
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+:host {
+  display: block;
 }
 
-:host-context(.dark) .filter-chip {
-  border-color: rgb(255 255 255 / 0.2);
+/* Custom Sort Dropdown */
+.sort-trigger-btn {
+  min-height: 2.625rem;
+  transition: all 0.15s ease-out;
+}
+
+.sort-menu-panel {
+  transform-origin: top left;
+  animation: sortDropdownFadeIn 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes sortDropdownFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.sort-option-btn.active-option {
+  background-color: rgba(184, 111, 82, 0.08);
+  color: var(--color-clay);
+  font-weight: 600;
+}
+
+:host-context(.dark) .sort-option-btn.active-option {
+  background-color: rgba(184, 111, 82, 0.18);
+  color: #df9e84;
+}
+
+.sort-option-btn.focused-option,
+.sort-option-btn.inactive-option:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--color-ink);
+}
+
+:host-context(.dark) .sort-option-btn.focused-option,
+:host-context(.dark) .sort-option-btn.inactive-option:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-paper);
+}
+
+.sort-option-btn.inactive-option {
+  color: var(--color-ink);
+}
+
+:host-context(.dark) .sort-option-btn.inactive-option {
+  color: var(--color-paper);
+}
+
+/* Deals Only Filter Toggle Chip */
+.deals-toggle-chip {
+  min-height: 2.625rem;
+  transition: all 0.15s ease-out;
+}
+
+.deals-toggle-chip.inactive {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--color-ink);
+}
+
+.deals-toggle-chip.inactive:hover {
+  background-color: #ffffff;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+:host-context(.dark) .deals-toggle-chip.inactive {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--color-paper);
+}
+
+:host-context(.dark) .deals-toggle-chip.inactive:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.deals-toggle-chip.active {
+  background-color: rgba(184, 111, 82, 0.08);
+  border-color: var(--color-clay);
+  color: var(--color-clay);
+  font-weight: 600;
+  box-shadow: 0 0 0 1px rgba(184, 111, 82, 0.15);
+}
+
+:host-context(.dark) .deals-toggle-chip.active {
+  background-color: rgba(184, 111, 82, 0.18);
+  border-color: var(--color-clay);
+  color: #df9e84;
+}
+
+/* Switch track and thumb */
+.deals-switch-track.track-inactive {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+:host-context(.dark) .deals-switch-track.track-inactive {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.deals-switch-track.track-active {
+  background-color: var(--color-clay);
+}
+
+.deals-switch-thumb.thumb-inactive {
+  left: 2px;
+}
+
+.deals-switch-thumb.thumb-active {
+  left: 14px;
 }
 
 .empty-state {
   padding: 6rem 0;
   text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sort-trigger-btn,
+  .sort-menu-panel,
+  .deals-toggle-chip,
+  .deals-switch-thumb {
+    transition: none !important;
+    animation: none !important;
+  }
 }

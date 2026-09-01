@@ -1,0 +1,125 @@
+<aside class="admin-sidebar flex flex-col h-full bg-paper dark:bg-ink border-r border-black/10 dark:border-white/10 p-5">
+  <!-- Brand Header -->
+  <div class="flex items-center justify-between pb-6 border-b border-black/5 dark:border-white/10">
+    <a routerLink="/admin" class="flex items-center gap-2.5 group" (click)="onNavClick()">
+      <span class="font-display text-xl font-bold tracking-tight text-ink dark:text-white">
+        Salla
+      </span>
+      <span class="admin-badge px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-clay/10 text-clay border border-clay/20 dark:bg-clay/20 dark:text-[#df8c6d]">
+        ADMIN
+      </span>
+    </a>
+
+    <!-- Mobile Drawer Close Button -->
+    <button
+      type="button"
+      (click)="closeDrawer.emit()"
+      class="lg:hidden size-8 rounded-lg flex items-center justify-center text-stone hover:text-ink dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+      aria-label="Close navigation sidebar"
+    >
+      <lucide-icon [img]="icons.X" class="size-5" aria-hidden="true" />
+    </button>
+  </div>
+
+  <!-- Primary Navigation Links -->
+  <nav class="mt-6 flex-1 space-y-1.5" aria-label="Admin primary navigation">
+    <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-stone dark:text-white/40 mb-2">
+      Operations
+    </p>
+
+    <a
+      routerLink="/admin"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      (click)="onNavClick()"
+      class="sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone dark:text-white/70 hover:text-ink dark:hover:text-white hover:bg-sand/40 dark:hover:bg-white/5 transition-colors cursor-pointer"
+    >
+      <lucide-icon [img]="icons.LayoutDashboard" class="size-4 shrink-0" aria-hidden="true" />
+      <span>Dashboard</span>
+    </a>
+
+    <a
+      routerLink="/admin/products"
+      routerLinkActive="active"
+      (click)="onNavClick()"
+      class="sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone dark:text-white/70 hover:text-ink dark:hover:text-white hover:bg-sand/40 dark:hover:bg-white/5 transition-colors cursor-pointer"
+    >
+      <lucide-icon [img]="icons.Package" class="size-4 shrink-0" aria-hidden="true" />
+      <span>Products</span>
+    </a>
+
+    <a
+      routerLink="/admin/orders"
+      routerLinkActive="active"
+      (click)="onNavClick()"
+      class="sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone dark:text-white/70 hover:text-ink dark:hover:text-white hover:bg-sand/40 dark:hover:bg-white/5 transition-colors cursor-pointer"
+    >
+      <lucide-icon [img]="icons.ShoppingBag" class="size-4 shrink-0" aria-hidden="true" />
+      <span>Orders</span>
+    </a>
+
+    <a
+      routerLink="/admin/customers"
+      routerLinkActive="active"
+      (click)="onNavClick()"
+      class="sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone dark:text-white/70 hover:text-ink dark:hover:text-white hover:bg-sand/40 dark:hover:bg-white/5 transition-colors cursor-pointer"
+    >
+      <lucide-icon [img]="icons.Users" class="size-4 shrink-0" aria-hidden="true" />
+      <span>Customers</span>
+    </a>
+
+    <a
+      routerLink="/admin/categories"
+      routerLinkActive="active"
+      (click)="onNavClick()"
+      class="sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone dark:text-white/70 hover:text-ink dark:hover:text-white hover:bg-sand/40 dark:hover:bg-white/5 transition-colors cursor-pointer"
+    >
+      <lucide-icon [img]="icons.Tags" class="size-4 shrink-0" aria-hidden="true" />
+      <span>Categories</span>
+    </a>
+
+    <a
+      routerLink="/admin/audit-logs"
+      routerLinkActive="active"
+      (click)="onNavClick()"
+      class="sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone dark:text-white/70 hover:text-ink dark:hover:text-white hover:bg-sand/40 dark:hover:bg-white/5 transition-colors cursor-pointer"
+    >
+      <lucide-icon [img]="icons.FileText" class="size-4 shrink-0" aria-hidden="true" />
+      <span>Audit Logs</span>
+    </a>
+  </nav>
+
+  <!-- Bottom Secondary Actions -->
+  <div class="pt-5 mt-auto border-t border-black/5 dark:border-white/10 space-y-1.5">
+    <p class="px-3 text-[11px] font-bold uppercase tracking-wider text-stone dark:text-white/40 mb-2">
+      Shortcuts
+    </p>
+
+    <a
+      routerLink="/"
+      (click)="onNavClick()"
+      class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-semibold text-stone hover:text-clay dark:text-white/70 dark:hover:text-white hover:bg-sand/40 dark:hover:bg-white/5 transition-colors cursor-pointer"
+    >
+      <lucide-icon [img]="icons.Store" class="size-4 shrink-0" aria-hidden="true" />
+      <span>View storefront</span>
+    </a>
+
+    <a
+      routerLink="/account"
+      (click)="onNavClick()"
+      class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-semibold text-stone hover:text-clay dark:text-white/70 dark:hover:text-white hover:bg-sand/40 dark:hover:bg-white/5 transition-colors cursor-pointer"
+    >
+      <lucide-icon [img]="icons.User" class="size-4 shrink-0" aria-hidden="true" />
+      <span>My profile</span>
+    </a>
+
+    <button
+      type="button"
+      (click)="onSignOut()"
+      class="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-semibold text-red-600/80 hover:text-red-700 dark:text-red-400/80 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+    >
+      <lucide-icon [img]="icons.LogOut" class="size-4 shrink-0" aria-hidden="true" />
+      <span>Sign out</span>
+    </button>
+  </div>
+</aside>

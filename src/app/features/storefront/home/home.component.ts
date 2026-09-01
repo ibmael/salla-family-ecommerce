@@ -36,6 +36,7 @@ export interface HeroSlide {
   description: string;
   ctaText: string;
   ctaLink: string;
+  objectPosition: string;
 }
 
 @Component({
@@ -70,6 +71,7 @@ export class HomeComponent {
       description: 'Discover pieces that feel as good as they look.',
       ctaText: 'Shop the edit',
       ctaLink: '/category',
+      objectPosition: 'center',
     },
     {
       id: 'slide-2',
@@ -79,6 +81,7 @@ export class HomeComponent {
       description: 'Warm textures and thoughtful details for the home you love.',
       ctaText: 'Explore home',
       ctaLink: '/category/home',
+      objectPosition: 'center 60%',
     },
     {
       id: 'slide-3',
@@ -88,14 +91,18 @@ export class HomeComponent {
       description: 'From refined essentials to statement wardrobe pieces.',
       ctaText: 'Shop apparel',
       ctaLink: '/category/apparel',
+      objectPosition: 'center 35%',
     },
   ];
 
   readonly activeIndex = signal<number>(0);
   readonly isPaused = signal<boolean>(false);
 
-  private autoplayTimer?: ReturnType<typeof setInterval>;
-  private readonly AUTOPLAY_INTERVAL = 5000;
+  /** CSS animation key — increments on every slide change to force progress restart */
+  readonly progressKey = signal<number>(0);
+
+  private autoplayTimer?: ReturnType<typeof setTimeout>;
+  private readonly AUTOPLAY_MS = 5000;
   private prefersReducedMotion = false;
 
   readonly data = toSignal(
@@ -126,51 +133,55 @@ export class HomeComponent {
       this.emblaApi.on('select', () => {
         if (!this.emblaApi) return;
         this.activeIndex.set(this.emblaApi.selectedScrollSnap());
+        // Bump progressKey so CSS animation restarts from 0%
+        this.progressKey.update((k) => k + 1);
       });
 
-      // Start initial autoplay if reduced motion is disabled
       if (!this.prefersReducedMotion) {
-        this.startAutoplay();
+        this.scheduleNext();
       }
 
-      // Visibility change listener to pause when tab is hidden
-      const handleVisibilityChange = () => {
+      // Pause/resume on document visibility
+      const handleVisibility = () => {
         if (document.hidden) {
-          this.stopAutoplay();
+          this.clearScheduled();
         } else if (!this.isPaused() && !this.prefersReducedMotion) {
-          this.startAutoplay();
+          this.scheduleNext();
         }
       };
-      document.addEventListener('visibilitychange', handleVisibilityChange);
+      document.addEventListener('visibilitychange', handleVisibility);
 
       this.destroyRef.onDestroy(() => {
-        this.stopAutoplay();
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        this.clearScheduled();
+        document.removeEventListener('visibilitychange', handleVisibility);
         this.emblaApi?.destroy();
       });
     });
   }
 
-  // --- Strict Single-Timer Autoplay Engine ---
-  private stopAutoplay(): void {
-    if (this.autoplayTimer) {
-      clearInterval(this.autoplayTimer);
+  // ── Single-timer autoplay: setTimeout (not setInterval) ──
+  private clearScheduled(): void {
+    if (this.autoplayTimer != null) {
+      clearTimeout(this.autoplayTimer);
       this.autoplayTimer = undefined;
     }
   }
 
-  private startAutoplay(): void {
-    this.stopAutoplay(); // Guarantees exactly ONE active timer at all times
+  private scheduleNext(): void {
+    this.clearScheduled();
     if (this.prefersReducedMotion) return;
 
-    this.autoplayTimer = setInterval(() => {
+    this.autoplayTimer = setTimeout(() => {
       if (this.emblaApi && !this.isPaused() && !document.hidden) {
         this.emblaApi.scrollNext();
+        // After scrollNext triggers 'select', scheduleNext is called again
+        // via the restartAutoplay path — but we also call it here defensively
+        this.scheduleNext();
       }
-    }, this.AUTOPLAY_INTERVAL);
+    }, this.AUTOPLAY_MS);
   }
 
-  // Navigation handlers with timer reset
+  // ── Navigation handlers ──
   scrollPrev(): void {
     if (!this.emblaApi) return;
     this.emblaApi.scrollPrev();
@@ -191,28 +202,28 @@ export class HomeComponent {
 
   private restartAutoplay(): void {
     if (!this.isPaused()) {
-      this.startAutoplay();
+      this.scheduleNext();
     }
   }
 
-  // Hover & Focus management
+  // ── Hover & Focus ──
   onHeroMouseEnter(): void {
     this.isPaused.set(true);
-    this.stopAutoplay();
+    this.clearScheduled();
   }
 
   onHeroMouseLeave(): void {
     this.isPaused.set(false);
-    this.startAutoplay();
+    this.scheduleNext();
   }
 
   onHeroFocusIn(): void {
     this.isPaused.set(true);
-    this.stopAutoplay();
+    this.clearScheduled();
   }
 
   onHeroFocusOut(): void {
     this.isPaused.set(false);
-    this.startAutoplay();
+    this.scheduleNext();
   }
 }

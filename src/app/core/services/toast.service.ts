@@ -3,6 +3,7 @@ import { Injectable, signal } from '@angular/core';
 export interface ToastMessage {
   id: number;
   key?: string;
+  type?: 'success' | 'error' | 'info';
   title: string;
   message: string;
   exiting?: boolean;
@@ -14,14 +15,33 @@ export class ToastService {
   readonly messages = signal<ToastMessage[]>([]);
 
   success(message: string, title = 'Success', key?: string): void {
-    // Deduplicate: if a toast with the same key is already visible, skip
     if (key && this.messages().some((t) => t.key === key && !t.exiting)) {
       return;
     }
 
     const id = ++this.counter;
-    this.messages.update((items) => [...items, { id, key, title, message }]);
+    this.messages.update((items) => [...items, { id, key, type: 'success', title, message }]);
     setTimeout(() => this.animateOut(id), 3000);
+  }
+
+  error(message: string, title = 'Error', key?: string): void {
+    if (key && this.messages().some((t) => t.key === key && !t.exiting)) {
+      return;
+    }
+
+    const id = ++this.counter;
+    this.messages.update((items) => [...items, { id, key, type: 'error', title, message }]);
+    setTimeout(() => this.animateOut(id), 4000);
+  }
+
+  info(message: string, title = 'Notice', key?: string): void {
+    if (key && this.messages().some((t) => t.key === key && !t.exiting)) {
+      return;
+    }
+
+    const id = ++this.counter;
+    this.messages.update((items) => [...items, { id, key, type: 'info', title, message }]);
+    setTimeout(() => this.animateOut(id), 3500);
   }
 
   dismiss(id: number): void {
@@ -29,7 +49,6 @@ export class ToastService {
   }
 
   private animateOut(id: number): void {
-    // Mark as exiting for exit animation
     const current = this.messages();
     if (!current.find((t) => t.id === id)) return;
 
@@ -37,7 +56,6 @@ export class ToastService {
       items.map((t) => (t.id === id ? { ...t, exiting: true } : t))
     );
 
-    // Remove after exit animation completes
     setTimeout(() => {
       this.messages.update((items) => items.filter((t) => t.id !== id));
     }, 220);

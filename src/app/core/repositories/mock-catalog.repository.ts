@@ -1,8 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { MOCK_CATEGORIES, MOCK_PRODUCTS, MOCK_REVIEWS } from '../../data/mocks/catalog.mock';
 import { Category, PagedResult, Product, ProductFilters, Review } from '../models/product.model';
 import { CategoryRepository, ProductRepository } from './repository.tokens';
+import { BrowserStorageService } from '../services/browser-storage.service';
+
+const CATEGORIES_STORAGE_KEY = 'salla-mock-categories';
+const PRODUCTS_STORAGE_KEY = 'salla-mock-products';
 
 function applyFilters(products: Product[], filters: ProductFilters = {}): Product[] {
   let result = [...products];
@@ -22,7 +26,7 @@ function applyFilters(products: Product[], filters: ProductFilters = {}): Produc
   }
 
   if (filters.onSale) {
-    result = result.filter((p) => !!p.originalPrice);
+    result = result.filter((p) => p.originalPrice != null && p.originalPrice > p.price);
   }
 
   if (filters.minPrice != null) {
@@ -68,51 +72,174 @@ function paginate<T>(items: T[], page = 1, pageSize = 12): PagedResult<T> {
 
 @Injectable({ providedIn: 'root' })
 export class MockProductRepository implements ProductRepository {
+  private readonly storage = inject(BrowserStorageService);
+  private products: Product[] = this.loadProducts();
+
+  private loadProducts(): Product[] {
+    const saved = this.storage.read<Product[] | null>(PRODUCTS_STORAGE_KEY, null);
+    if (saved && Array.isArray(saved) && saved.length > 0) {
+      return saved;
+    }
+    this.storage.write(PRODUCTS_STORAGE_KEY, MOCK_PRODUCTS);
+    return [...MOCK_PRODUCTS];
+  }
+
+  private save(): void {
+    this.storage.write(PRODUCTS_STORAGE_KEY, this.products);
+  }
+
   list(filters: ProductFilters = {}): Observable<PagedResult<Product>> {
-    const filtered = applyFilters(MOCK_PRODUCTS, filters);
+    const filtered = applyFilters(this.products, filters);
     return of(paginate(filtered, filters.page ?? 1, filters.pageSize ?? 12));
   }
 
   byId(id: string): Observable<Product | undefined> {
-    return of(MOCK_PRODUCTS.find((p) => p.id === id));
+    return of(this.products.find((p) => p.id === id));
   }
 
   bySlug(slug: string): Observable<Product | undefined> {
-    return of(MOCK_PRODUCTS.find((p) => p.slug === slug));
+    return of(this.products.find((p) => p.slug === slug));
   }
 
   featured(): Observable<Product[]> {
-    return of(MOCK_PRODUCTS.filter((p) => p.featured));
+    return of(this.products.filter((p) => p.featured));
   }
 
   trending(): Observable<Product[]> {
-    return of(MOCK_PRODUCTS.filter((p) => p.trending));
+    return of(this.products.filter((p) => p.trending));
   }
 
   deals(): Observable<Product[]> {
-    return of(MOCK_PRODUCTS.filter((p) => p.originalPrice));
+    return of(this.products.filter((p) => p.originalPrice != null && p.originalPrice > p.price));
   }
 
   related(productId: string): Observable<Product[]> {
-    const product = MOCK_PRODUCTS.find((p) => p.id === productId);
+    const product = this.products.find((p) => p.id === productId);
     if (!product) return of([]);
     return of(
-      MOCK_PRODUCTS.filter((p) => p.id !== productId && p.categoryId === product.categoryId).slice(0, 4),
+      this.products.filter((p) => p.id !== productId && p.categoryId === product.categoryId).slice(0, 4),
     );
   }
 
   reviews(productId: string): Observable<Review[]> {
     return of(MOCK_REVIEWS.filter((r) => r.productId === productId));
   }
+
+  create(product: Omit<Product, 'id' | 'rating' | 'reviews'>): Observable<Product> {
+    const newProduct: Product = {
+      ...product,
+      id: `p-${Date.now()}`,
+      rating: 5.0,
+      reviews: 0,
+    };
+    this.products = [newProduct, ...this.products];
+    this.save();
+    return of(newProduct);
+  }
+
+  update(id: string, updates: Partial<Product>): Observable<Product> {
+    const index = this.products.findIndex((p) => p.id === id);
+    if (index === -1) {
+      throw new Error(`Product #${id} not found.`);
+    }
+    const updated: Product = {
+      ...this.products[index],
+      ...updates,
+      id,
+    };
+    this.products[index] = updated;
+    this.save();
+    return of(updated);
+  }
+
+  delete(id: string): Observable<boolean> {
+    const initLen = this.products.length;
+    this.products = this.products.filter((p) => p.id !== id);
+    if (this.products.length !== initLen) {
+      this.save();
+      return of(true);
+    }
+    return of(false);
+  }
 }
 
 @Injectable({ providedIn: 'root' })
 export class MockCategoryRepository implements CategoryRepository {
+  private readonly storage = inject(BrowserStorageService);
+  private categories: Category[] = this.loadCategories();
+
+  private loadCategories(): Category[] {
+    const saved = this.storage.read<Category[] | null>(CATEGORIES_STORAGE_KEY, null);
+    if (saved && Array.isArray(saved) && saved.length > 0) {
+      return saved;
+    }
+    this.storage.write(CATEGORIES_STORAGE_KEY, MOCK_CATEGORIES);
+    return [...MOCK_CATEGORIES];
+  }
+
+  private save(): void {
+    this.storage.write(CATEGORIES_STORAGE_KEY, this.categories);
+  }
+
+  private getLiveProducts(): Product[] {
+    const saved = this.storage.read<Product[] | null>(PRODUCTS_STORAGE_KEY, null);
+    return saved && Array.isArray(saved) ? saved : MOCK_PRODUCTS;
+  }
+
   list(): Observable<Category[]> {
-    return of(MOCK_CATEGORIES);
+    const products = this.getLiveProducts();
+    const items = this.categories.map((c) => {
+      const count = products.filter(
+        (p) => p.categoryId === c.id || p.category.toLowerCase() === c.name.toLowerCase(),
+      ).length;
+      return { ...c, productCount: count };
+    });
+    return of(items);
   }
 
   bySlug(slug: string): Observable<Category | undefined> {
-    return of(MOCK_CATEGORIES.find((c) => c.slug === slug));
+    const found = this.categories.find((c) => c.slug === slug);
+    if (!found) return of(undefined);
+    const products = this.getLiveProducts();
+    const count = products.filter(
+      (p) => p.categoryId === found.id || p.category.toLowerCase() === found.name.toLowerCase(),
+    ).length;
+    return of({ ...found, productCount: count });
+  }
+
+  create(category: Omit<Category, 'id' | 'productCount'>): Observable<Category> {
+    const newCat: Category = {
+      ...category,
+      id: `cat-${Date.now()}`,
+      productCount: 0,
+    };
+    this.categories = [...this.categories, newCat];
+    this.save();
+    return of(newCat);
+  }
+
+  update(id: string, updates: Partial<Category>): Observable<Category> {
+    const index = this.categories.findIndex((c) => c.id === id);
+    if (index === -1) {
+      throw new Error(`Category with ID ${id} not found.`);
+    }
+    const updated: Category = {
+      ...this.categories[index],
+      ...updates,
+      id,
+    };
+    this.categories[index] = updated;
+    this.save();
+    return of(updated);
+  }
+
+  delete(id: string): Observable<boolean> {
+    const initialLen = this.categories.length;
+    this.categories = this.categories.filter((c) => c.id !== id);
+    if (this.categories.length !== initialLen) {
+      this.save();
+      return of(true);
+    }
+    return of(false);
   }
 }

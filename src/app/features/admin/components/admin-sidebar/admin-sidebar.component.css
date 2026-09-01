@@ -1,0 +1,19 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.sidebar-nav-item.active {
+  background-color: var(--color-sand, #eae5dd);
+  color: var(--color-ink, #1a1714);
+  font-weight: 600;
+}
+
+:host-context(.dark) .sidebar-nav-item.active {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: white;
+}
+
+.sidebar-nav-item.active lucide-icon {
+  color: var(--color-clay, #c86d51);
+}

@@ -1,14 +1,234 @@
-<div>
-  <h1 class="font-display text-3xl font-semibold">Orders</h1>
-  <div class="mt-8 space-y-3">
-    @for (order of orders(); track order.id) {
-      <div class="order-row">
-        <div>
-          <p class="font-semibold">{{ order.id }}</p>
-          <p class="text-sm opacity-60">{{ order.createdAt }} · {{ order.status }}</p>
-        </div>
-        <p class="font-bold">${{ order.total }}</p>
-      </div>
-    }
+<div class="admin-orders space-y-6">
+  <!-- Page Header -->
+  <div>
+    <p class="eyebrow text-clay">Operations</p>
+    <h1 class="mt-1 font-display text-2xl sm:text-3xl font-semibold text-ink dark:text-white">
+      Orders
+    </h1>
+    <p class="mt-1 text-xs sm:text-sm text-stone dark:text-white/60">
+      Manage purchases, fulfillment and order status.
+    </p>
   </div>
+
+  <!-- Status Filter Tabs / Chips (High-level grouping) -->
+  <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" role="tablist" aria-label="Order quick filters">
+    <button
+      type="button"
+      (click)="setTab('all')"
+      class="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer shadow-2xs border"
+      [class]="selectedTab() === 'all' && specificStatus() === 'all' ? 'bg-ink text-white dark:bg-white dark:text-ink border-transparent' : 'bg-white dark:bg-white/5 text-stone dark:text-white/70 border-black/10 dark:border-white/10 hover:border-clay/40'"
+    >
+      All ({{ tabCounts().all }})
+    </button>
+
+    <button
+      type="button"
+      (click)="setTab('active')"
+      class="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer shadow-2xs border"
+      [class]="selectedTab() === 'active' && specificStatus() === 'all' ? 'bg-amber-600 text-white border-transparent' : 'bg-white dark:bg-white/5 text-stone dark:text-white/70 border-black/10 dark:border-white/10 hover:border-amber-500/40'"
+    >
+      Active / In Transit ({{ tabCounts().active }})
+    </button>
+
+    <button
+      type="button"
+      (click)="setTab('delivered')"
+      class="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer shadow-2xs border"
+      [class]="selectedTab() === 'delivered' && specificStatus() === 'all' ? 'bg-moss text-white border-transparent' : 'bg-white dark:bg-white/5 text-stone dark:text-white/70 border-black/10 dark:border-white/10 hover:border-moss/40'"
+    >
+      Delivered ({{ tabCounts().delivered }})
+    </button>
+
+    <button
+      type="button"
+      (click)="setTab('cancelled')"
+      class="px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer shadow-2xs border"
+      [class]="selectedTab() === 'cancelled' && specificStatus() === 'all' ? 'bg-red-600 text-white border-transparent' : 'bg-white dark:bg-white/5 text-stone dark:text-white/70 border-black/10 dark:border-white/10 hover:border-red-500/40'"
+    >
+      Cancelled ({{ tabCounts().cancelled }})
+    </button>
+  </div>
+
+  <!-- Search, Exact Status Filter and Sort Toolbar -->
+  <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-2xs">
+    <!-- Search Field -->
+    <div class="relative flex-1 max-w-md">
+      <lucide-icon
+        [img]="icons.Search"
+        class="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-stone dark:text-white/40"
+        aria-hidden="true"
+      />
+      <input
+        type="text"
+        [value]="searchQuery()"
+        (input)="onSearch($event)"
+        placeholder="Search orders by number, customer, item..."
+        class="w-full pl-10 pr-4 py-2 rounded-xl bg-sand/40 dark:bg-white/5 border border-black/10 dark:border-white/15 text-xs sm:text-sm text-ink dark:text-white placeholder:text-stone/60 dark:placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-clay/50"
+      />
+    </div>
+
+    <!-- Filters & Sort -->
+    <div class="flex flex-wrap items-center gap-3">
+      <!-- Specific Status Dropdown -->
+      <div class="relative">
+        <select
+          [value]="specificStatus()"
+          (change)="setSpecificStatus($event)"
+          aria-label="Filter by specific lifecycle status"
+          class="appearance-none pl-3.5 pr-8 py-2 rounded-xl bg-sand/40 dark:bg-white/5 border border-black/10 dark:border-white/15 text-xs sm:text-sm font-semibold text-ink dark:text-white focus:outline-none focus:ring-2 focus:ring-clay/50 cursor-pointer"
+        >
+          <option value="all">All statuses</option>
+          <option value="placed">Order Placed</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="processing">Processing</option>
+          <option value="packed">Packed</option>
+          <option value="shipped">Shipped</option>
+          <option value="out_for_delivery">Out for Delivery</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <lucide-icon
+          [img]="icons.ChevronDown"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 text-stone pointer-events-none"
+        />
+      </div>
+
+      <!-- Sort Dropdown -->
+      <div class="relative">
+        <select
+          [value]="selectedSort()"
+          (change)="setSort($event)"
+          aria-label="Sort orders"
+          class="appearance-none pl-3.5 pr-8 py-2 rounded-xl bg-sand/40 dark:bg-white/5 border border-black/10 dark:border-white/15 text-xs sm:text-sm font-semibold text-ink dark:text-white focus:outline-none focus:ring-2 focus:ring-clay/50 cursor-pointer"
+        >
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="total-desc">Highest total</option>
+          <option value="total-asc">Lowest total</option>
+        </select>
+        <lucide-icon
+          [img]="icons.ChevronDown"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 text-stone pointer-events-none"
+        />
+      </div>
+
+      <span class="text-xs font-semibold text-stone dark:text-white/60 ml-1">
+        {{ filteredOrders().length }} {{ filteredOrders().length === 1 ? 'order' : 'orders' }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Orders Table (Desktop) / Cards (Mobile) -->
+  @if (filteredOrders().length) {
+    <!-- Desktop Table View (>= 768px) -->
+    <div class="hidden md:block overflow-hidden rounded-3xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-2xs">
+      <table class="w-full text-left text-sm" aria-label="Customer orders list">
+        <thead>
+          <tr class="text-[11px] uppercase tracking-wider text-stone dark:text-white/40 border-b border-black/5 dark:border-white/5 bg-sand/20 dark:bg-white/[0.02]">
+            <th scope="col" class="py-3.5 px-6 font-semibold">Order</th>
+            <th scope="col" class="py-3.5 px-6 font-semibold">Customer</th>
+            <th scope="col" class="py-3.5 px-6 font-semibold">Items</th>
+            <th scope="col" class="py-3.5 px-6 font-semibold">Date</th>
+            <th scope="col" class="py-3.5 px-6 font-semibold">Status</th>
+            <th scope="col" class="py-3.5 px-6 font-semibold">Total</th>
+            <th scope="col" class="py-3.5 px-6 font-semibold text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-black/5 dark:divide-white/5">
+          @for (order of filteredOrders(); track order.id) {
+            <tr class="hover:bg-black/[0.015] dark:hover:bg-white/[0.015] transition-colors">
+              <td class="py-4 px-6 font-display font-semibold text-ink dark:text-white">
+                #{{ order.id }}
+              </td>
+              <td class="py-4 px-6 text-sm text-stone dark:text-white/80 font-medium">
+                {{ getCustomerName(order) }}
+              </td>
+              <td class="py-4 px-6 text-xs text-stone dark:text-white/60">
+                {{ getItemCount(order) }} {{ getItemCount(order) === 1 ? 'item' : 'items' }}
+              </td>
+              <td class="py-4 px-6 text-xs text-stone dark:text-white/50">
+                {{ formatDate(order.createdAt, 'MMM d, yyyy') }}
+              </td>
+              <td class="py-4 px-6">
+                <app-order-status-badge [status]="order.status" />
+              </td>
+              <td class="py-4 px-6 font-bold text-ink dark:text-white">
+                ${{ order.total }}
+              </td>
+              <td class="py-4 px-6 text-right">
+                <a
+                  [routerLink]="['/admin/orders', order.id]"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-black/10 dark:border-white/15 text-xs font-semibold text-clay hover:bg-clay/5 hover:border-clay/40 transition-colors cursor-pointer"
+                  [attr.aria-label]="'Manage order #' + order.id"
+                >
+                  <span>Manage</span>
+                  <lucide-icon [img]="icons.ArrowRight" class="size-3" aria-hidden="true" />
+                </a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Card List (< 768px) -->
+    <div class="md:hidden space-y-3">
+      @for (order of filteredOrders(); track order.id) {
+        <div class="p-4 rounded-2xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 space-y-3 shadow-2xs">
+          <div class="flex items-center justify-between">
+            <span class="font-display font-bold text-sm text-ink dark:text-white">
+              #{{ order.id }}
+            </span>
+            <app-order-status-badge [status]="order.status" />
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-stone dark:text-white/70">
+            <span>{{ getCustomerName(order) }}</span>
+            <span>{{ formatDate(order.createdAt, 'MMM d, yyyy') }}</span>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-black/5 dark:border-white/5">
+            <div>
+              <p class="text-[11px] text-stone dark:text-white/50">
+                {{ getItemCount(order) }} {{ getItemCount(order) === 1 ? 'item' : 'items' }}
+              </p>
+              <p class="font-bold text-ink dark:text-white text-base mt-0.5">
+                ${{ order.total }}
+              </p>
+            </div>
+
+            <a
+              [routerLink]="['/admin/orders', order.id]"
+              class="inline-flex items-center gap-1 px-4 py-2 rounded-full bg-sand/60 dark:bg-white/10 text-xs font-semibold text-ink dark:text-white hover:bg-sand transition-colors cursor-pointer"
+            >
+              <span>Manage</span>
+              <lucide-icon [img]="icons.ArrowRight" class="size-3.5" />
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Empty Orders State -->
+    <div class="py-16 sm:py-20 px-6 rounded-3xl bg-sand/30 dark:bg-white/[0.03] border border-black/10 dark:border-white/10 text-center max-w-md mx-auto">
+      <div class="size-14 rounded-2xl bg-white dark:bg-white/10 border border-black/10 dark:border-white/10 mx-auto flex items-center justify-center text-clay shadow-sm">
+        <lucide-icon [img]="icons.ShoppingBag" class="size-7" aria-hidden="true" />
+      </div>
+      <h2 class="mt-4 font-display text-xl font-semibold text-ink dark:text-white">
+        No orders found
+      </h2>
+      <p class="mt-1 text-xs sm:text-sm text-stone dark:text-white/60">
+        {{ searchQuery() || selectedTab() !== 'all' || specificStatus() !== 'all' ? 'No orders match your selected filters.' : 'No customer orders have been recorded in the system yet.' }}
+      </p>
+      @if (searchQuery() || selectedTab() !== 'all' || specificStatus() !== 'all') {
+        <button
+          type="button"
+          (click)="setTab('all'); specificStatus.set('all'); searchQuery.set('')"
+          class="mt-5 px-4 py-2 rounded-full border border-black/15 dark:border-white/20 text-xs font-semibold text-ink dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+        >
+          Reset filters
+        </button>
+      }
+    </div>
+  }
 </div>

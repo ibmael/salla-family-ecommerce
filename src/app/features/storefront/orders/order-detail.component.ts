@@ -1,15 +1,42 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+} from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, switchMap } from 'rxjs';
+import { format } from 'date-fns';
+import {
+  LucideAngularModule,
+  MapPin,
+  CreditCard,
+  Package,
+  ArrowLeft,
+  ArrowRight,
+  Truck,
+  CheckCircle2,
+  Clock,
+} from 'lucide-angular';
 import { ORDER_REPOSITORY } from '../../../core/repositories/repository.tokens';
 import { PageTitleService } from '../../../core/services/page-title.service';
+import { MockAuthStore } from '../../../core/state/auth.store';
 import { BreadcrumbsComponent, BreadcrumbItem } from '../../../shared/ui/breadcrumbs/breadcrumbs.component';
-import { format } from 'date-fns';
+import { OrderStatusBadgeComponent } from '../../../shared/ui/order-status-badge/order-status-badge.component';
+import { OrderProgressComponent } from '../../../shared/ui/order-progress/order-progress.component';
 
 @Component({
   selector: 'app-order-detail',
-  imports: [BreadcrumbsComponent],
+  standalone: true,
+  imports: [
+    RouterLink,
+    BreadcrumbsComponent,
+    OrderStatusBadgeComponent,
+    OrderProgressComponent,
+    LucideAngularModule,
+  ],
   templateUrl: './order-detail.component.html',
   styleUrl: './order-detail.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,6 +45,7 @@ export class OrderDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly orderRepo = inject(ORDER_REPOSITORY);
   private readonly pageTitle = inject(PageTitleService);
+  readonly auth = inject(MockAuthStore);
 
   readonly order = toSignal(
     this.route.paramMap.pipe(
@@ -37,6 +65,17 @@ export class OrderDetailComponent {
     ];
   });
 
+  readonly icons = {
+    MapPin,
+    CreditCard,
+    Package,
+    ArrowLeft,
+    ArrowRight,
+    Truck,
+    CheckCircle2,
+    Clock,
+  };
+
   constructor() {
     effect(() => {
       const order = this.order();
@@ -44,7 +83,12 @@ export class OrderDetailComponent {
     });
   }
 
-  formatDate(value: string, pattern: string): string {
-    return format(new Date(value), pattern);
+  formatDate(value: string | undefined, pattern: string): string {
+    if (!value) return '';
+    try {
+      return format(new Date(value), pattern);
+    } catch {
+      return value;
+    }
   }
 }

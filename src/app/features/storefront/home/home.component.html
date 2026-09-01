@@ -20,32 +20,34 @@
             aria-roledescription="slide"
             [attr.aria-label]="'Slide ' + (idx + 1) + ' of ' + slides.length + ': ' + slide.heading"
           >
-            <!-- Background Media -->
-            <div class="hero-media relative w-full h-[420px] sm:h-[480px] md:h-[540px] lg:h-[600px] overflow-hidden">
+            <!-- Background Image -->
+            <div class="hero-media relative w-full overflow-hidden">
               <img
                 [src]="slide.image"
                 [alt]="slide.heading"
-                class="w-full h-full object-cover object-center"
+                class="hero-img w-full h-full object-cover"
+                [style.object-position]="slide.objectPosition"
                 [loading]="idx === 0 ? 'eager' : 'lazy'"
               />
-              <!-- Editorial Ambient Overlay -->
-              <div class="hero-overlay absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-transparent sm:w-3/4"></div>
 
-              <!-- Content Area -->
-              <div class="hero-content absolute inset-0 flex flex-col justify-end p-6 sm:p-10 md:p-14 lg:p-16 text-white max-w-2xl">
+              <!-- Gradient overlay — stronger on mobile for text readability -->
+              <div class="hero-overlay absolute inset-0"></div>
+
+              <!-- Content -->
+              <div class="hero-content absolute inset-0 flex flex-col justify-end text-white">
                 <p class="eyebrow text-clay tracking-widest text-xs font-bold uppercase mb-2">
                   {{ slide.eyebrow }}
                 </p>
-                <h1 class="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight sm:leading-none">
+                <h1 class="hero-heading font-display font-bold tracking-tight leading-tight sm:leading-none">
                   {{ slide.heading }}
                 </h1>
-                <p class="mt-3 sm:mt-4 text-sm sm:text-base text-white/85 max-w-lg leading-relaxed">
+                <p class="hero-desc mt-3 sm:mt-4 text-white/85 max-w-lg leading-relaxed">
                   {{ slide.description }}
                 </p>
-                <div class="mt-6 sm:mt-8">
+                <div class="mt-5 sm:mt-7">
                   <a
                     [routerLink]="slide.ctaLink"
-                    class="btn-primary inline-flex items-center gap-2 px-6 py-3 text-sm font-bold shadow-lg hover:shadow-xl transition-all cursor-pointer"
+                    class="btn-primary inline-flex items-center gap-2 hero-cta-btn text-sm font-bold shadow-lg hover:shadow-xl transition-all cursor-pointer"
                   >
                     <span>{{ slide.ctaText }}</span>
                     <lucide-icon [img]="icons.ArrowRight" class="size-4" />
@@ -58,55 +60,54 @@
       </div>
     </div>
 
-    <!-- Navigation Controls (Prev / Next Buttons) -->
-    <div class="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 flex items-center gap-2.5 z-20">
-      <button
-        type="button"
-        (click)="scrollPrev()"
-        class="hero-nav-btn size-10 sm:size-11 rounded-full bg-white/20 hover:bg-white/35 dark:bg-black/30 dark:hover:bg-black/50 backdrop-blur-md text-white border border-white/20 flex items-center justify-center transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
-        aria-label="Previous slide"
-      >
-        <lucide-icon [img]="icons.ChevronLeft" class="size-5" />
-      </button>
+    <!-- Desktop Navigation Arrows (hidden on small mobile) -->
+    <button
+      type="button"
+      (click)="scrollPrev()"
+      class="hero-nav-btn hero-nav-prev"
+      aria-label="Previous slide"
+    >
+      <lucide-icon [img]="icons.ChevronLeft" class="size-5" />
+    </button>
 
-      <button
-        type="button"
-        (click)="scrollNext()"
-        class="hero-nav-btn size-10 sm:size-11 rounded-full bg-white/20 hover:bg-white/35 dark:bg-black/30 dark:hover:bg-black/50 backdrop-blur-md text-white border border-white/20 flex items-center justify-center transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
-        aria-label="Next slide"
-      >
-        <lucide-icon [img]="icons.ChevronRight" class="size-5" />
-      </button>
-    </div>
+    <button
+      type="button"
+      (click)="scrollNext()"
+      class="hero-nav-btn hero-nav-next"
+      aria-label="Next slide"
+    >
+      <lucide-icon [img]="icons.ChevronRight" class="size-5" />
+    </button>
 
-    <!-- Slide Indicators / Dots (Bottom Center with Progress) -->
+    <!-- Indicators with Progress (Bottom Center) -->
     <div
-      class="hero-indicators-bar absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 dark:bg-black/60 backdrop-blur-md border border-white/15 z-20 shadow-md"
+      class="hero-indicators-bar absolute z-20"
       role="tablist"
       aria-label="Slide selection"
     >
       @for (slide of slides; track slide.id; let idx = $index) {
         @if (activeIndex() === idx) {
-          <!-- Active Slide Indicator with 5-Second Progress Fill -->
+          <!-- Active indicator with CSS-driven 5s progress -->
           <button
             type="button"
             (click)="scrollTo(idx)"
-            class="hero-progress-track relative w-12 h-2 rounded-full bg-white/30 overflow-hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            [attr.aria-label]="'Current slide ' + (idx + 1) + ' (playing)'"
+            class="hero-progress-track relative overflow-hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            [attr.aria-label]="'Current slide ' + (idx + 1)"
             aria-selected="true"
             role="tab"
           >
             <span
-              class="hero-progress-fill absolute inset-0 bg-white rounded-full"
+              class="hero-progress-fill absolute inset-0 rounded-full"
               [class.paused]="isPaused()"
+              [attr.data-key]="progressKey()"
             ></span>
           </button>
         } @else {
-          <!-- Inactive Slide Dot -->
+          <!-- Inactive dot -->
           <button
             type="button"
             (click)="scrollTo(idx)"
-            class="hero-dot size-2 rounded-full bg-white/40 hover:bg-white/70 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            class="hero-dot"
             [attr.aria-label]="'Go to slide ' + (idx + 1)"
             aria-selected="false"
             role="tab"

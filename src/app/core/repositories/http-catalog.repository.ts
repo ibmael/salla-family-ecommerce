@@ -40,15 +40,39 @@ export class HttpProductRepository implements ProductRepository {
   reviews(_productId: string): Observable<Review[]> {
     return throwError(() => new Error('HttpProductRepository not implemented'));
   }
+
+  create(_product: Omit<Product, 'id' | 'rating' | 'reviews'>): Observable<Product> {
+    return throwError(() => new Error('HttpProductRepository not implemented'));
+  }
+
+  update(_id: string, _updates: Partial<Product>): Observable<Product> {
+    return throwError(() => new Error('HttpProductRepository not implemented'));
+  }
+
+  delete(_id: string): Observable<boolean> {
+    return throwError(() => new Error('HttpProductRepository not implemented'));
+  }
 }
 
 @Injectable()
 export class HttpCategoryRepository implements CategoryRepository {
-  list(): Observable<import('../models/product.model').Category[]> {
+  list(): Observable<Category[]> {
     return throwError(() => new Error('HttpCategoryRepository not implemented'));
   }
 
-  bySlug(_slug: string): Observable<import('../models/product.model').Category | undefined> {
+  bySlug(_slug: string): Observable<Category | undefined> {
+    return throwError(() => new Error('HttpCategoryRepository not implemented'));
+  }
+
+  create(_category: Omit<Category, 'id' | 'productCount'>): Observable<Category> {
+    return throwError(() => new Error('HttpCategoryRepository not implemented'));
+  }
+
+  update(_id: string, _updates: Partial<Category>): Observable<Category> {
+    return throwError(() => new Error('HttpCategoryRepository not implemented'));
+  }
+
+  delete(_id: string): Observable<boolean> {
     return throwError(() => new Error('HttpCategoryRepository not implemented'));
   }
 }

@@ -1,11 +1,3 @@
-.line {
-  display: flex;
-  justify-content: space-between;
-  border-radius: var(--radius-card);
-  background: white;
-  padding: 1rem;
-}
-
-:host-context(.dark) .line {
-  background: rgb(255 255 255 / 0.05);
+:host {
+  display: block;
 }
