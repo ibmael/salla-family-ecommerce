@@ -1,14 +1,257 @@
-<section class="page py-14">
-  <h1 class="font-display text-4xl">{{ auth.user()?.name ?? 'Your account' }}</h1>
-  <p class="mt-3 opacity-60">{{ auth.user()?.email ?? 'Sign in to view orders and preferences.' }}</p>
-  <div class="mt-7 flex flex-wrap gap-3">
-    <a routerLink="/orders" class="btn-secondary">Orders</a>
-    <a routerLink="/wishlist" class="btn-secondary">Wishlist</a>
-    @if (auth.isLoggedIn()) {
-      <a routerLink="/admin" class="btn-secondary">Admin</a>
-      <button type="button" class="btn-secondary" (click)="signOut()">Sign out</button>
-    } @else {
-      <a routerLink="/auth" class="btn-secondary">Sign in</a>
-    }
-  </div>
+<section class="page py-12 max-w-4xl">
+  @if (auth.isLoggedIn()) {
+    <!-- Account Header & Navigation -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-8 border-b border-black/10 dark:border-white/10">
+      <div class="flex items-center gap-4">
+        <!-- Avatar / Picture with upload trigger -->
+        <div class="relative group">
+          @if (auth.user()?.avatar) {
+            <img
+              [src]="auth.user()?.avatar"
+              alt="Profile avatar"
+              class="size-16 rounded-full object-cover border-2 border-black/10 dark:border-white/20 shadow-sm"
+            />
+          } @else {
+            <div class="size-16 rounded-full bg-sand dark:bg-white/10 text-ink dark:text-white flex items-center justify-center font-display text-xl font-bold border border-black/10 dark:border-white/20 shadow-sm">
+              {{ userInitials }}
+            </div>
+          }
+          <label
+            for="avatar-upload"
+            class="absolute -bottom-1 -right-1 size-7 bg-ink dark:bg-white text-paper dark:text-ink rounded-full flex items-center justify-center shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+            title="Upload profile picture"
+          >
+            <lucide-icon [img]="icons.Camera" class="size-3.5" />
+            <input
+              id="avatar-upload"
+              type="file"
+              accept="image/*"
+              class="sr-only"
+              (change)="onAvatarSelected($event)"
+            />
+          </label>
+        </div>
+
+        <div>
+          <h1 class="font-display text-3xl font-bold">{{ auth.user()?.name }}</h1>
+          <p class="text-sm opacity-60">@{{ auth.user()?.username }} · {{ auth.user()?.email }}</p>
+          @if (auth.user()?.avatar) {
+            <button
+              type="button"
+              (click)="removeAvatar()"
+              class="mt-1 text-xs text-red-500 hover:text-red-700 flex items-center gap-1 font-medium transition-colors"
+            >
+              <lucide-icon [img]="icons.Trash2" class="size-3" />
+              Remove photo
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+      <!-- Profile Information -->
+      <div class="bg-white dark:bg-white/5 rounded-2xl p-6 border border-black/10 dark:border-white/10 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-display text-lg font-bold flex items-center gap-2">
+            <lucide-icon [img]="icons.User" class="size-4 text-clay" />
+            Personal Information
+          </h2>
+          @if (profileSuccess()) {
+            <span class="text-xs text-moss flex items-center gap-1 font-medium">
+              <lucide-icon [img]="icons.CheckCircle2" class="size-3.5" /> Saved
+            </span>
+          }
+        </div>
+
+        @if (profileError()) {
+          <div class="mb-4 flex items-start gap-2 rounded-xl bg-red-50 p-3 text-xs text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-800">
+            <lucide-icon [img]="icons.AlertCircle" class="size-4 shrink-0 mt-0.5" />
+            <span>{{ profileError() }}</span>
+          </div>
+        }
+
+        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="profile-name">
+              Full Name
+            </label>
+            <input
+              id="profile-name"
+              formControlName="name"
+              type="text"
+              class="account-input mt-1"
+              [class.border-red-400]="profileForm.get('name')?.invalid && profileForm.get('name')?.touched"
+            />
+            @if (profileForm.get('name')?.invalid && profileForm.get('name')?.touched) {
+              <p class="mt-1 text-xs text-red-500">Name is required (min 2 characters).</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="profile-username">
+              Username
+            </label>
+            <input
+              id="profile-username"
+              formControlName="username"
+              type="text"
+              class="account-input mt-1"
+              [class.border-red-400]="profileForm.get('username')?.invalid && profileForm.get('username')?.touched"
+            />
+            @if (profileForm.get('username')?.invalid && profileForm.get('username')?.touched) {
+              <p class="mt-1 text-xs text-red-500">Valid username required (letters, numbers, _, -, .).</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="profile-email">
+              Email Address
+            </label>
+            <input
+              id="profile-email"
+              formControlName="email"
+              type="email"
+              class="account-input mt-1"
+              [class.border-red-400]="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
+            />
+            @if (profileForm.get('email')?.invalid && profileForm.get('email')?.touched) {
+              <p class="mt-1 text-xs text-red-500">Valid email address required.</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="profile-phone">
+              Phone Number
+            </label>
+            <input
+              id="profile-phone"
+              formControlName="phoneNumber"
+              type="tel"
+              placeholder="+1 (555) 000-0000"
+              class="account-input mt-1"
+              [class.border-red-400]="profileForm.get('phoneNumber')?.invalid && profileForm.get('phoneNumber')?.touched"
+            />
+            @if (profileForm.get('phoneNumber')?.invalid && profileForm.get('phoneNumber')?.touched) {
+              <p class="mt-1 text-xs text-red-500">Please enter a valid phone number.</p>
+            }
+          </div>
+
+          <button
+            type="submit"
+            class="btn-primary w-full mt-2"
+            [disabled]="isSavingProfile() || profileForm.invalid"
+          >
+            @if (isSavingProfile()) {
+              Saving changes...
+            } @else {
+              Save Changes
+            }
+          </button>
+        </form>
+      </div>
+
+      <!-- Security & Password -->
+      <div class="bg-white dark:bg-white/5 rounded-2xl p-6 border border-black/10 dark:border-white/10 shadow-sm flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-display text-lg font-bold flex items-center gap-2">
+              <lucide-icon [img]="icons.Lock" class="size-4 text-clay" />
+              Security & Password
+            </h2>
+            @if (passwordSuccess()) {
+              <span class="text-xs text-moss flex items-center gap-1 font-medium">
+                <lucide-icon [img]="icons.CheckCircle2" class="size-3.5" /> Updated
+              </span>
+            }
+          </div>
+
+          @if (passwordError()) {
+            <div class="mb-4 flex items-start gap-2 rounded-xl bg-red-50 p-3 text-xs text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-800">
+              <lucide-icon [img]="icons.AlertCircle" class="size-4 shrink-0 mt-0.5" />
+              <span>{{ passwordError() }}</span>
+            </div>
+          }
+
+          <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" novalidate class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="current-pwd">
+                Current Password
+              </label>
+              <input
+                id="current-pwd"
+                formControlName="currentPassword"
+                type="password"
+                placeholder="••••••••"
+                class="account-input mt-1"
+                [class.border-red-400]="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched"
+              />
+              @if (passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched) {
+                <p class="mt-1 text-xs text-red-500">Current password is required (min 8 characters).</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="new-pwd">
+                New Password (min 8 characters)
+              </label>
+              <input
+                id="new-pwd"
+                formControlName="newPassword"
+                type="password"
+                placeholder="••••••••"
+                class="account-input mt-1"
+                [class.border-red-400]="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched"
+              />
+              @if (passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched) {
+                <p class="mt-1 text-xs text-red-500">New password must be at least 8 characters.</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="confirm-new-pwd">
+                Confirm New Password
+              </label>
+              <input
+                id="confirm-new-pwd"
+                formControlName="confirmNewPassword"
+                type="password"
+                placeholder="••••••••"
+                class="account-input mt-1"
+                [class.border-red-400]="(passwordForm.get('confirmNewPassword')?.invalid || passwordForm.hasError('passwordMismatch')) && passwordForm.get('confirmNewPassword')?.touched"
+              />
+              @if (passwordForm.hasError('passwordMismatch') && passwordForm.get('confirmNewPassword')?.touched) {
+                <p class="mt-1 text-xs text-red-500">Passwords do not match.</p>
+              }
+            </div>
+
+            <button
+              type="submit"
+              class="btn-primary w-full mt-2"
+              [disabled]="isChangingPassword() || passwordForm.invalid"
+            >
+              @if (isChangingPassword()) {
+                Updating password...
+              } @else {
+                Update Password
+              }
+            </button>
+          </form>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-black/10 dark:border-white/10 text-xs opacity-60">
+          <p>Account created: {{ auth.user()?.createdAt || 'N/A' }} · Role: {{ auth.user()?.role }}</p>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="text-center py-20 bg-white dark:bg-white/5 rounded-2xl border border-black/10 dark:border-white/10 p-8">
+      <h1 class="font-display text-3xl font-bold">Your Account</h1>
+      <p class="mt-2 text-stone">Sign in to manage your profile, orders, and security preferences.</p>
+      <div class="mt-6">
+        <a routerLink="/auth" class="btn-primary">Sign in or Create Account</a>
+      </div>
+    </div>
+  }
 </section>

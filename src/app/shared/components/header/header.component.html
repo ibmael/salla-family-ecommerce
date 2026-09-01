@@ -24,13 +24,13 @@
       <a routerLink="/category" class="hidden rounded-full px-3 py-2 text-sm font-medium hover:bg-black/5 dark:hover:bg-white/10 sm:inline-block">Shop</a>
       <a routerLink="/wishlist" class="relative rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Wishlist">
         <lucide-icon [img]="icons.Heart" class="size-5" />
-        @if (wishlist.count() > 0) {
+        @if (auth.isLoggedIn() && wishlist.count() > 0) {
           <span class="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white">{{ wishlist.count() }}</span>
         }
       </a>
       <a routerLink="/cart" class="relative rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Cart">
         <lucide-icon [img]="icons.ShoppingBag" class="size-5" />
-        @if (cart.count() > 0) {
+        @if (auth.isLoggedIn() && cart.count() > 0) {
           <span class="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white">{{ cart.count() }}</span>
         }
       </a>
@@ -46,9 +46,117 @@
           <lucide-icon [img]="icons.Moon" class="size-5" />
         }
       </button>
-      <a [routerLink]="auth.isLoggedIn() ? '/account' : '/auth'" class="rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10" aria-label="Account">
-        <lucide-icon [img]="icons.User" class="size-5" />
-      </a>
+
+      <!-- Authenticated Profile Dropdown & Unauthenticated Login Button -->
+      @if (auth.isLoggedIn()) {
+        <div class="relative">
+          <button
+            type="button"
+            class="flex items-center justify-center rounded-full p-1 hover:ring-2 hover:ring-clay/50 focus:outline-none focus:ring-2 focus:ring-clay transition-all"
+            (click)="toggleDropdown()"
+            [attr.aria-expanded]="isDropdownOpen()"
+            aria-haspopup="true"
+            aria-label="User profile menu"
+          >
+            @if (auth.user()?.avatar) {
+              <img
+                [src]="auth.user()?.avatar"
+                alt=""
+                class="size-7 rounded-full object-cover border border-clay/60"
+              />
+            } @else {
+              <div class="size-7 rounded-full bg-sand dark:bg-white/15 text-ink dark:text-white flex items-center justify-center text-xs font-bold border border-black/10 dark:border-white/20">
+                {{ userInitials() }}
+              </div>
+            }
+          </button>
+
+          @if (isDropdownOpen()) {
+            <div
+              class="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-black/10 bg-white/95 p-2 shadow-xl backdrop-blur-md dark:border-white/15 dark:bg-ink/95 z-50 animate-in fade-in zoom-in-95 duration-100"
+              role="menu"
+              aria-orientation="vertical"
+            >
+              <!-- User Info header -->
+              <div class="px-3 py-2 border-b border-black/5 dark:border-white/10 mb-1">
+                <p class="text-xs font-bold text-ink dark:text-white truncate">{{ auth.user()?.name }}</p>
+                <p class="text-[11px] text-stone truncate">&#64;{{ auth.user()?.username }}</p>
+              </div>
+
+              <!-- Orders -->
+              <a
+                routerLink="/orders"
+                (click)="closeDropdown()"
+                class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors"
+                routerLinkActive="bg-black/5 dark:bg-white/10 text-ink dark:text-white font-semibold"
+                role="menuitem"
+              >
+                <lucide-icon [img]="icons.Package" class="size-4 text-stone" />
+                Orders
+              </a>
+
+              <!-- Wishlist -->
+              <a
+                routerLink="/wishlist"
+                (click)="closeDropdown()"
+                class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors"
+                routerLinkActive="bg-black/5 dark:bg-white/10 text-ink dark:text-white font-semibold"
+                role="menuitem"
+              >
+                <lucide-icon [img]="icons.Heart" class="size-4 text-stone" />
+                Wishlist
+              </a>
+
+              <!-- Account -->
+              <a
+                routerLink="/account"
+                (click)="closeDropdown()"
+                class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors"
+                routerLinkActive="bg-clay/10 text-clay dark:bg-clay/20 font-semibold"
+                role="menuitem"
+              >
+                <lucide-icon [img]="icons.User" class="size-4 text-stone" />
+                Account
+              </a>
+
+              @if (auth.isAdmin()) {
+                <a
+                  routerLink="/admin"
+                  (click)="closeDropdown()"
+                  class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors"
+                  routerLinkActive="bg-black/5 dark:bg-white/10 text-ink dark:text-white font-semibold"
+                  role="menuitem"
+                >
+                  <lucide-icon [img]="icons.ShieldCheck" class="size-4 text-stone" />
+                  Admin Dashboard
+                </a>
+              }
+
+              <!-- Divider -->
+              <div class="my-1 border-t border-black/10 dark:border-white/10"></div>
+
+              <!-- Sign out -->
+              <button
+                type="button"
+                (click)="signOut()"
+                class="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30 transition-colors"
+                role="menuitem"
+              >
+                <lucide-icon [img]="icons.LogOut" class="size-4 text-red-500" />
+                Sign out
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <a
+          routerLink="/auth"
+          class="flex items-center justify-center rounded-full p-2 hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+          aria-label="Sign in"
+        >
+          <lucide-icon [img]="icons.User" class="size-5" />
+        </a>
+      }
     </nav>
   </div>
 </header>

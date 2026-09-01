@@ -2,7 +2,15 @@ import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Category, PagedResult, Product, ProductFilters, Review } from '../models/product.model';
 import { Order } from '../models/order.model';
-import { AuditLog, Customer, User } from '../models/user.model';
+import {
+  AuditLog,
+  ChangePasswordPayload,
+  Customer,
+  LoginCredentials,
+  ProfileUpdatePayload,
+  SignUpPayload,
+  User,
+} from '../models/user.model';
 
 export interface ProductRepository {
   list(filters?: ProductFilters): Observable<PagedResult<Product>>;
@@ -27,7 +35,10 @@ export interface OrderRepository {
 }
 
 export interface AuthRepository {
-  login(email: string): Observable<User>;
+  login(credentials: LoginCredentials): Observable<User>;
+  signUp(payload: SignUpPayload): Observable<User>;
+  updateProfile(userId: string, payload: ProfileUpdatePayload): Observable<User>;
+  changePassword(userId: string, payload: ChangePasswordPayload): Observable<void>;
   logout(): Observable<void>;
   currentUser(): Observable<User | null>;
 }

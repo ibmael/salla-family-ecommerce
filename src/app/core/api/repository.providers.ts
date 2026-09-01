@@ -1,6 +1,7 @@
 import { EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 import { MockCategoryRepository, MockProductRepository } from '../repositories/mock-catalog.repository';
-import { MockAdminRepository, MockAuthRepository, MockOrderRepository } from '../repositories/mock-orders.repository';
+import { MockAuthRepository } from '../repositories/mock-auth.repository';
+import { MockAdminRepository, MockOrderRepository } from '../repositories/mock-orders.repository';
 import {
   ADMIN_REPOSITORY,
   AUTH_REPOSITORY,

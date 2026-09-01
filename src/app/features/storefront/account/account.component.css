@@ -1,0 +1,19 @@
+.account-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  background: transparent;
+  padding: 0.65rem 0.875rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+:host-context(.dark) .account-input {
+  border-color: rgb(255 255 255 / 0.15);
+}
+
+.account-input:focus {
+  border-color: var(--color-clay);
+  box-shadow: 0 0 0 1px var(--color-clay);
+}

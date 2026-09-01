@@ -1,9 +1,382 @@
-<section class="page py-20">
-  <div class="auth-card">
-    <h1 class="font-display text-3xl">Welcome back</h1>
-    <p class="mt-2 text-sm opacity-60">Use any email. Include "admin" to access the admin workspace.</p>
-    <label class="mt-6 block text-sm" for="email">Email</label>
-    <input id="email" [(ngModel)]="email" class="auth-input" type="email" placeholder="you@example.com" />
-    <button type="button" class="btn-primary mt-4 w-full" (click)="continue()">Continue</button>
+<section class="auth-page-wrapper relative py-12 sm:py-16 lg:py-20">
+  <!-- Subtle tactile backdrop & diffused warmth layer behind content -->
+  <div class="auth-backdrop pointer-events-none absolute inset-0 -z-10 select-none" aria-hidden="true">
+    <div class="auth-ambient-warmth"></div>
+    <div class="auth-grain"></div>
+  </div>
+
+  <div class="page relative z-10">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+      
+      <!-- LEFT SIDE: Editorial Brand Visual & Content -->
+      <div class="lg:col-span-6 xl:col-span-7 flex flex-col justify-center">
+        <!-- Tasteful lifestyle visual blended naturally into the background -->
+        <div class="editorial-visual-wrapper mb-8 overflow-hidden rounded-3xl relative hidden md:block border border-black/5 dark:border-white/10">
+          <img
+            [src]="heroImage"
+            alt="Salla curated lifestyle collection"
+            class="editorial-image w-full h-[20rem] lg:h-[24rem] xl:h-[26rem] object-cover object-center"
+          />
+          <div class="editorial-gradient-overlay pointer-events-none absolute inset-0"></div>
+        </div>
+
+        <!-- Editorial Content -->
+        <div class="max-w-xl">
+          <p class="eyebrow text-clay tracking-widest uppercase text-xs font-semibold mb-2">The Salla Experience</p>
+          <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-ink dark:text-white leading-[1.15]">
+            Curated for everyday living.
+          </h1>
+          <p class="mt-4 text-base sm:text-lg text-ink/75 dark:text-white/75 leading-relaxed">
+            Thoughtfully chosen pieces that bring warmth, beauty, and meaning to your space.
+          </p>
+
+          <!-- 3 Benefit Items with Lucide Icons -->
+          <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-black/10 dark:border-white/10">
+            <div class="flex items-center gap-3">
+              <div class="size-9 rounded-full bg-clay/10 dark:bg-clay/20 flex items-center justify-center shrink-0">
+                <lucide-icon [img]="icons.Sparkles" class="size-4 text-clay" />
+              </div>
+              <div>
+                <p class="text-xs font-bold text-ink dark:text-white">Quality materials</p>
+                <p class="text-[11px] text-stone">Artisanal craft</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="size-9 rounded-full bg-clay/10 dark:bg-clay/20 flex items-center justify-center shrink-0">
+                <lucide-icon [img]="icons.Clock" class="size-4 text-clay" />
+              </div>
+              <div>
+                <p class="text-xs font-bold text-ink dark:text-white">Timeless design</p>
+                <p class="text-[11px] text-stone">Considered aesthetic</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="size-9 rounded-full bg-clay/10 dark:bg-clay/20 flex items-center justify-center shrink-0">
+                <lucide-icon [img]="icons.ShieldCheck" class="size-4 text-clay" />
+              </div>
+              <div>
+                <p class="text-xs font-bold text-ink dark:text-white">Secure shopping</p>
+                <p class="text-[11px] text-stone">Protected & private</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDE: Auth Card -->
+      <div class="lg:col-span-6 xl:col-span-5 w-full flex justify-center lg:justify-end">
+        <div class="auth-card w-full max-w-md border border-black/10 dark:border-white/10">
+          <!-- Smooth Sliding Tab Switcher -->
+          <div class="tab-header">
+            <button
+              type="button"
+              class="tab-btn"
+              [class.text-ink]="activeTab() === 'signin'"
+              [class.dark:text-white]="activeTab() === 'signin'"
+              [class.text-stone]="activeTab() !== 'signin'"
+              (click)="switchTab('signin')"
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              [class.text-ink]="activeTab() === 'signup'"
+              [class.dark:text-white]="activeTab() === 'signup'"
+              [class.text-stone]="activeTab() !== 'signup'"
+              (click)="switchTab('signup')"
+            >
+              Create Account
+            </button>
+            <!-- Smoothly Sliding Indicator Bar -->
+            <div
+              class="tab-slider-indicator"
+              [class.signin]="activeTab() === 'signin'"
+              [class.signup]="activeTab() === 'signup'"
+            ></div>
+          </div>
+
+          <!-- Auth Card Content -->
+          <div class="auth-card-body">
+            <!-- SIGN IN TAB PANE -->
+            @if (activeTab() === 'signin') {
+              <div class="tab-pane">
+                <!-- Error Alert -->
+                @if (errorMessage()) {
+                  <div class="mb-5 flex items-start gap-2.5 rounded-xl bg-red-50 p-3.5 text-xs text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-800">
+                    <lucide-icon [img]="icons.AlertCircle" class="size-4 shrink-0 mt-0.5" />
+                    <span class="leading-relaxed">{{ errorMessage() }}</span>
+                  </div>
+                }
+
+                <form [formGroup]="loginForm" (ngSubmit)="onLogin()" novalidate>
+                  <h2 class="font-display text-2xl font-bold">Welcome back</h2>
+                  <p class="mt-1 text-xs opacity-60">Enter your email address or username and password.</p>
+
+                  <!-- Identifier (Email or Username) -->
+                  <div class="mt-5">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="login-identifier">
+                      Email or Username
+                    </label>
+                    <div class="relative mt-1.5">
+                      <input
+                        id="login-identifier"
+                        formControlName="identifier"
+                        type="text"
+                        autocomplete="username"
+                        placeholder="e.g. sarah or hello@salla.studio"
+                        class="auth-input"
+                        [class.border-red-400]="loginForm.get('identifier')?.invalid && loginForm.get('identifier')?.touched"
+                      />
+                    </div>
+                    @if (loginForm.get('identifier')?.invalid && loginForm.get('identifier')?.touched) {
+                      <p class="mt-1 text-xs text-red-500">Please enter your email or username.</p>
+                    }
+                  </div>
+
+                  <!-- Password -->
+                  <div class="mt-4">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="login-password">
+                      Password
+                    </label>
+                    <div class="relative mt-1.5">
+                      <input
+                        id="login-password"
+                        formControlName="password"
+                        [type]="showLoginPassword() ? 'text' : 'password'"
+                        autocomplete="current-password"
+                        placeholder="••••••••"
+                        class="auth-input pr-10"
+                        [class.border-red-400]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                      />
+                      <button
+                        type="button"
+                        (click)="toggleLoginPassword()"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-stone hover:text-ink dark:hover:text-white"
+                        aria-label="Toggle password visibility"
+                      >
+                        @if (showLoginPassword()) {
+                          <lucide-icon [img]="icons.EyeOff" class="size-4" />
+                        } @else {
+                          <lucide-icon [img]="icons.Eye" class="size-4" />
+                        }
+                      </button>
+                    </div>
+                    @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+                      <p class="mt-1 text-xs text-red-500">Password is required (min 8 characters).</p>
+                    }
+                  </div>
+
+                  <!-- Submit Button -->
+                  <button
+                    type="submit"
+                    class="btn-primary mt-6 w-full py-3"
+                    [disabled]="isLoading()"
+                  >
+                    @if (isLoading()) {
+                      <span>Signing in...</span>
+                    } @else {
+                      <span>Sign In</span>
+                    }
+                  </button>
+
+                  <!-- Demo Accounts Quick Fill with Comfortable Spacing -->
+                  <div class="mt-6 pt-5 pb-1 border-t border-black/10 dark:border-white/10">
+                    <p class="text-xs font-medium text-stone mb-2.5 text-center">Quick Demo Access</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <button
+                        type="button"
+                        (click)="fillDemo('customer')"
+                        class="w-full h-9 rounded-xl border border-black/10 px-3 text-xs font-medium hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/5 transition-colors flex items-center justify-center text-center"
+                      >
+                        Demo Customer
+                      </button>
+                      <button
+                        type="button"
+                        (click)="fillDemo('admin')"
+                        class="w-full h-9 rounded-xl border border-black/10 px-3 text-xs font-medium hover:bg-black/5 dark:border-white/15 dark:hover:bg-white/5 transition-colors flex items-center justify-center text-center"
+                      >
+                        Demo Admin
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            }
+
+            <!-- SIGN UP TAB PANE -->
+            @if (activeTab() === 'signup') {
+              <div class="tab-pane">
+                <!-- Error Alert -->
+                @if (errorMessage()) {
+                  <div class="mb-5 flex items-start gap-2.5 rounded-xl bg-red-50 p-3.5 text-xs text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-800">
+                    <lucide-icon [img]="icons.AlertCircle" class="size-4 shrink-0 mt-0.5" />
+                    <span class="leading-relaxed">{{ errorMessage() }}</span>
+                  </div>
+                }
+
+                <form [formGroup]="signUpForm" (ngSubmit)="onSignUp()" novalidate>
+                  <h2 class="font-display text-2xl font-bold">Create Account</h2>
+                  <p class="mt-1 text-xs opacity-60">Join Salla for curated artisanal collections and seamless ordering.</p>
+
+                  <!-- Full Name -->
+                  <div class="mt-4">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="signup-name">
+                      Full Name
+                    </label>
+                    <input
+                      id="signup-name"
+                      formControlName="name"
+                      type="text"
+                      placeholder="Sarah Mitchell"
+                      class="auth-input mt-1.5"
+                      [class.border-red-400]="signUpForm.get('name')?.invalid && signUpForm.get('name')?.touched"
+                    />
+                    @if (signUpForm.get('name')?.invalid && signUpForm.get('name')?.touched) {
+                      <p class="mt-1 text-xs text-red-500">Name is required (at least 2 characters).</p>
+                    }
+                  </div>
+
+                  <!-- Username -->
+                  <div class="mt-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="signup-username">
+                      Username
+                    </label>
+                    <input
+                      id="signup-username"
+                      formControlName="username"
+                      type="text"
+                      placeholder="sarah"
+                      class="auth-input mt-1.5"
+                      [class.border-red-400]="signUpForm.get('username')?.invalid && signUpForm.get('username')?.touched"
+                    />
+                    @if (signUpForm.get('username')?.invalid && signUpForm.get('username')?.touched) {
+                      <p class="mt-1 text-xs text-red-500">Username must be at least 3 alphanumeric characters.</p>
+                    }
+                  </div>
+
+                  <!-- Email -->
+                  <div class="mt-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="signup-email">
+                      Email Address
+                    </label>
+                    <input
+                      id="signup-email"
+                      formControlName="email"
+                      type="email"
+                      placeholder="sarah@example.com"
+                      class="auth-input mt-1.5"
+                      [class.border-red-400]="signUpForm.get('email')?.invalid && signUpForm.get('email')?.touched"
+                    />
+                    @if (signUpForm.get('email')?.invalid && signUpForm.get('email')?.touched) {
+                      <p class="mt-1 text-xs text-red-500">Please enter a valid email address.</p>
+                    }
+                  </div>
+
+                  <!-- Phone Number -->
+                  <div class="mt-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="signup-phone">
+                      Phone Number
+                    </label>
+                    <input
+                      id="signup-phone"
+                      formControlName="phoneNumber"
+                      type="tel"
+                      placeholder="+1 (555) 012-3456"
+                      class="auth-input mt-1.5"
+                      [class.border-red-400]="signUpForm.get('phoneNumber')?.invalid && signUpForm.get('phoneNumber')?.touched"
+                    />
+                    @if (signUpForm.get('phoneNumber')?.invalid && signUpForm.get('phoneNumber')?.touched) {
+                      <p class="mt-1 text-xs text-red-500">Please enter a valid phone number.</p>
+                    }
+                  </div>
+
+                  <!-- Password -->
+                  <div class="mt-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="signup-password">
+                      Password (min 8 characters)
+                    </label>
+                    <div class="relative mt-1.5">
+                      <input
+                        id="signup-password"
+                        formControlName="password"
+                        [type]="showSignUpPassword() ? 'text' : 'password'"
+                        placeholder="••••••••"
+                        class="auth-input pr-10"
+                        [class.border-red-400]="signUpForm.get('password')?.invalid && signUpForm.get('password')?.touched"
+                      />
+                      <button
+                        type="button"
+                        (click)="toggleSignUpPassword()"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-stone hover:text-ink dark:hover:text-white"
+                        aria-label="Toggle password visibility"
+                      >
+                        @if (showSignUpPassword()) {
+                          <lucide-icon [img]="icons.EyeOff" class="size-4" />
+                        } @else {
+                          <lucide-icon [img]="icons.Eye" class="size-4" />
+                        }
+                      </button>
+                    </div>
+                    @if (signUpForm.get('password')?.invalid && signUpForm.get('password')?.touched) {
+                      <p class="mt-1 text-xs text-red-500">Password must be at least 8 characters long.</p>
+                    }
+                  </div>
+
+                  <!-- Confirm Password -->
+                  <div class="mt-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-stone" for="signup-confirm-password">
+                      Confirm Password
+                    </label>
+                    <div class="relative mt-1.5">
+                      <input
+                        id="signup-confirm-password"
+                        formControlName="confirmPassword"
+                        [type]="showSignUpConfirmPassword() ? 'text' : 'password'"
+                        placeholder="••••••••"
+                        class="auth-input pr-10"
+                        [class.border-red-400]="(signUpForm.get('confirmPassword')?.invalid || signUpForm.hasError('passwordMismatch')) && signUpForm.get('confirmPassword')?.touched"
+                      />
+                      <button
+                        type="button"
+                        (click)="toggleSignUpConfirmPassword()"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-stone hover:text-ink dark:hover:text-white"
+                        aria-label="Toggle confirm password visibility"
+                      >
+                        @if (showSignUpConfirmPassword()) {
+                          <lucide-icon [img]="icons.EyeOff" class="size-4" />
+                        } @else {
+                          <lucide-icon [img]="icons.Eye" class="size-4" />
+                        }
+                      </button>
+                    </div>
+                    @if (signUpForm.hasError('passwordMismatch') && signUpForm.get('confirmPassword')?.touched) {
+                      <p class="mt-1 text-xs text-red-500">Passwords do not match.</p>
+                    }
+                  </div>
+
+                  <!-- Submit Button -->
+                  <button
+                    type="submit"
+                    class="btn-primary mt-6 w-full py-3"
+                    [disabled]="isLoading()"
+                  >
+                    @if (isLoading()) {
+                      <span>Creating account...</span>
+                    } @else {
+                      <span>Create Account</span>
+                    }
+                  </button>
+                </form>
+              </div>
+            }
+          </div>
+
+        </div>
+      </div>
+
+    </div>
   </div>
 </section>

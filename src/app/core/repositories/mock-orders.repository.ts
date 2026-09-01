@@ -3,8 +3,8 @@ import { Observable, of } from 'rxjs';
 import { MOCK_AUDIT_LOGS, MOCK_CUSTOMERS, MOCK_ORDERS } from '../../data/mocks/orders.mock';
 import { MOCK_PRODUCTS } from '../../data/mocks/catalog.mock';
 import { Order } from '../models/order.model';
-import { AdminRepository, AuthRepository, OrderRepository } from './repository.tokens';
-import { AuditLog, Customer, User } from '../models/user.model';
+import { AdminRepository, OrderRepository } from './repository.tokens';
+import { AuditLog, Customer } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class MockOrderRepository implements OrderRepository {
@@ -27,31 +27,6 @@ export class MockOrderRepository implements OrderRepository {
     };
     this.orders = [created, ...this.orders];
     return of(created);
-  }
-}
-
-@Injectable({ providedIn: 'root' })
-export class MockAuthRepository implements AuthRepository {
-  private user: User | null = null;
-
-  login(email: string): Observable<User> {
-    const isAdmin = email.toLowerCase().includes('admin');
-    this.user = {
-      id: isAdmin ? 'admin-1' : 'user-1',
-      email,
-      name: isAdmin ? 'Admin User' : email.split('@')[0],
-      role: isAdmin ? 'admin' : 'customer',
-    };
-    return of(this.user);
-  }
-
-  logout(): Observable<void> {
-    this.user = null;
-    return of(void 0);
-  }
-
-  currentUser(): Observable<User | null> {
-    return of(this.user);
   }
 }
 
