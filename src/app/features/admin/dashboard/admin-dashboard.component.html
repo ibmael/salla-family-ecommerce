@@ -81,13 +81,13 @@
   </div>
 
   <!-- ── Main Grid: Left (8) / Right (4) ───────────────────────────────── -->
-  <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start w-full min-w-0">
 
     <!-- LEFT COLUMN ─────────────────────────────────────────────────────── -->
-    <div class="xl:col-span-8 space-y-6">
+    <div class="xl:col-span-8 space-y-6 w-full min-w-0">
 
       <!-- ── Sales Overview ─────────────────────────────────────────────── -->
-      <div class="p-6 sm:p-7 rounded-3xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-2xs">
+      <div class="p-6 sm:p-7 rounded-3xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-2xs w-full min-w-0 overflow-hidden">
         <!-- Header row -->
         <div class="flex flex-wrap items-start justify-between gap-3 pb-5 border-b border-black/5 dark:border-white/10">
           <div>
@@ -156,9 +156,9 @@
         </div>
 
         <!-- Bar chart area -->
-        <div class="mt-5 relative">
+        <div class="mt-5 relative w-full min-w-0">
           <!-- Y-axis grid lines + labels -->
-          <div class="absolute inset-y-0 left-0 flex flex-col justify-between pointer-events-none" aria-hidden="true">
+          <div class="absolute inset-y-0 left-0 flex flex-col justify-between pointer-events-none pb-6" aria-hidden="true">
             @for (tick of yAxisTicks(); track tick) {
               <span class="text-[10px] text-stone/60 dark:text-white/35 font-semibold leading-none pr-2 w-10 text-right">
                 {{ tick }}
@@ -167,34 +167,41 @@
           </div>
 
           <!-- Chart bars -->
-          <div class="pl-11 relative">
+          <div class="pl-11 relative w-full min-w-0">
             <!-- Horizontal grid lines -->
-            <div class="absolute inset-y-0 left-11 right-0 flex flex-col justify-between pointer-events-none" aria-hidden="true">
+            <div class="absolute inset-y-0 left-11 right-0 flex flex-col justify-between pointer-events-none pb-6" aria-hidden="true">
               @for (tick of yAxisTicks(); track tick) {
                 <div class="border-t border-dashed border-black/[0.06] dark:border-white/[0.06]"></div>
               }
             </div>
 
             <div
-              class="chart-bars relative flex items-end gap-1 sm:gap-2"
+              class="chart-bars relative flex items-end w-full min-w-0"
+              [class.gap-2]="selectedPeriod() === 7"
+              [class.sm:gap-3]="selectedPeriod() === 7"
+              [class.gap-0.5]="selectedPeriod() === 30"
+              [class.sm:gap-1]="selectedPeriod() === 30"
               [class.h-44]="selectedPeriod() === 7"
               [class.h-48]="selectedPeriod() === 30"
             >
               @for (bar of salesData(); track bar.label) {
                 <div
-                  class="bar-col flex-1 flex flex-col items-center justify-end h-full group relative cursor-default"
+                  class="bar-col flex-1 min-w-0 flex flex-col items-center justify-end h-full group relative cursor-default"
                   role="img"
                   [attr.aria-label]="bar.label + ': ' + formatMoney(bar.amount) + ', ' + bar.orderCount + ' orders'"
                 >
                   <!-- Tooltip -->
-                  <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-ink dark:bg-white text-white dark:text-ink text-[11px] font-semibold py-1.5 px-2.5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg z-20">
-                    <span class="block font-bold">{{ formatMoney(bar.amount) }}</span>
+                  <div class="absolute -top-12 left-1/2 -translate-x-1/2 bg-ink dark:bg-white text-white dark:text-ink text-[11px] font-semibold py-1.5 px-2.5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg z-30">
+                    <span class="block font-bold">{{ bar.label }}</span>
+                    <span class="block text-clay dark:text-[#df8c6d] font-bold">{{ formatMoney(bar.amount) }}</span>
                     <span class="block text-white/70 dark:text-ink/60 text-[10px]">{{ bar.orderCount }} {{ bar.orderCount === 1 ? 'order' : 'orders' }}</span>
                   </div>
 
                   <!-- Bar fill -->
                   <div
-                    class="w-full rounded-t-lg transition-all duration-300"
+                    class="w-full rounded-t-md transition-all duration-300"
+                    [class.max-w-[44px]]="selectedPeriod() === 7"
+                    [class.max-w-[16px]]="selectedPeriod() === 30"
                     [style.height.%]="bar.heightPercent"
                     [class.bg-moss]="bar.isPeak && !bar.isToday"
                     [class.dark:bg-[#88a58d]]="bar.isPeak && !bar.isToday"
@@ -208,13 +215,18 @@
                     [class.dark:group-hover:bg-[#df8c6d]]="!bar.isToday"
                   ></div>
 
-                  <!-- X-axis label -->
-                  <span class="mt-2 text-[10px] font-semibold text-stone/70 dark:text-white/45 truncate max-w-full px-0.5"
-                    [class.text-clay]="bar.isToday"
-                    [class.dark:text-[#df8c6d]]="bar.isToday"
-                  >
-                    {{ bar.shortLabel }}
-                  </span>
+                  <!-- X-axis label container -->
+                  <div class="h-6 flex items-center justify-center w-full min-w-0 mt-1">
+                    @if (bar.showLabel) {
+                      <span
+                        class="text-[10px] font-semibold text-stone/70 dark:text-white/45 truncate max-w-full text-center leading-none"
+                        [class.text-clay]="bar.isToday"
+                        [class.dark:text-[#df8c6d]]="bar.isToday"
+                      >
+                        {{ bar.shortLabel }}
+                      </span>
+                    }
+                  </div>
                 </div>
               }
             </div>
@@ -319,7 +331,7 @@
     </div>
 
     <!-- RIGHT COLUMN ─────────────────────────────────────────────────────── -->
-    <div class="xl:col-span-4 space-y-6">
+    <div class="xl:col-span-4 space-y-6 w-full min-w-0">
 
       <!-- ── Top Products ───────────────────────────────────────────────── -->
       <div class="p-6 rounded-3xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 shadow-2xs">

@@ -6,13 +6,13 @@ import { AuditLog, Customer } from '../../core/models/user.model';
 // DATA VERSION — bump this number whenever MOCK_ORDERS or MOCK_CUSTOMERS change
 // The repository will auto-reseed localStorage if stored version is older.
 // ─────────────────────────────────────────────────────────────────────────────
-export const MOCK_DATA_VERSION = 3;
+export const MOCK_DATA_VERSION = 4;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CUSTOMERS (10 accounts)
 // ─────────────────────────────────────────────────────────────────────────────
 export const MOCK_CUSTOMERS: Customer[] = [
-  { id: 'cust-1', name: 'Sarah Mitchell', email: 'sarah@example.com', ordersCount: 7, totalSpent: 1892, joinedAt: '2025-11-10', status: 'active' },
+  { id: 'user-1', name: 'Sarah Mitchell', email: 'hello@salla.studio', ordersCount: 7, totalSpent: 1892, joinedAt: '2025-11-10', status: 'active' },
   { id: 'cust-2', name: 'James Liu', email: 'james@example.com', ordersCount: 5, totalSpent: 745, joinedAt: '2026-01-22', status: 'active' },
   { id: 'cust-3', name: 'Emma Klein', email: 'emma@example.com', ordersCount: 9, totalSpent: 2140, joinedAt: '2025-06-05', status: 'active' },
   { id: 'cust-4', name: 'Omar Hassan', email: 'omar@example.com', ordersCount: 2, totalSpent: 172, joinedAt: '2026-07-18', status: 'active' },
@@ -262,7 +262,7 @@ export const MOCK_ORDERS: Order[] = [
 
   {
     id: 'ord-1010',
-    userId: 'cust-1',
+    userId: 'user-1',
     status: 'delivered',
     subtotal: 462, shipping: 0, total: 462,
     createdAt: '2026-08-23',
@@ -452,7 +452,7 @@ export const MOCK_ORDERS: Order[] = [
 
   {
     id: 'ord-1018',
-    userId: 'cust-1',
+    userId: 'user-1',
     status: 'processing',
     subtotal: 328, shipping: 0, total: 328,
     createdAt: '2026-08-31',
@@ -590,7 +590,7 @@ export const MOCK_ORDERS: Order[] = [
 
   {
     id: 'ord-1025',
-    userId: 'cust-1',
+    userId: 'user-1',
     status: 'placed',
     subtotal: 342, shipping: 0, total: 342,
     createdAt: '2026-09-01',

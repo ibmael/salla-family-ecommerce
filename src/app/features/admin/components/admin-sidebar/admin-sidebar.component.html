@@ -61,6 +61,7 @@
     <a
       routerLink="/admin/customers"
       routerLinkActive="active"
+      [routerLinkActiveOptions]="{ paths: 'subset', queryParams: 'ignored', fragment: 'ignored', matrixParams: 'ignored' }"
       (click)="onNavClick()"
       class="sidebar-nav-item flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-stone dark:text-white/70 hover:text-ink dark:hover:text-white hover:bg-sand/40 dark:hover:bg-white/5 transition-colors cursor-pointer"
     >

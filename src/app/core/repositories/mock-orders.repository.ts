@@ -208,10 +208,18 @@ export class MockAdminRepository implements AdminRepository {
         .reduce((sum, o) => sum + o.total, 0);
     });
 
-    const savedProducts = this.storage.read<any[] | null>('salla-mock-products', null);
-    const productCount  = savedProducts && Array.isArray(savedProducts) ? savedProducts.length : MOCK_PRODUCTS.length;
+    const savedProducts  = this.storage.read<any[] | null>('salla-mock-products', null);
+    const productCount   = savedProducts && Array.isArray(savedProducts) ? savedProducts.length : MOCK_PRODUCTS.length;
 
-    return of({ revenue, orders: orderCount, customers: MOCK_CUSTOMERS.length, products: productCount });
+    // Customer count: auth customers + MOCK_CUSTOMERS supplement (deduplicated by email)
+    const storedUsers = this.storage.read<Array<{ email: string; role: string }>>('salla-mock-users', []);
+    const authEmails  = new Set(
+      storedUsers.filter((u) => u.role === 'customer').map((u) => u.email.toLowerCase())
+    );
+    const mockExtrasCount = MOCK_CUSTOMERS.filter((c) => !authEmails.has(c.email.toLowerCase())).length;
+    const customerCount   = storedUsers.filter((u) => u.role === 'customer').length + mockExtrasCount;
+
+    return of({ revenue, orders: orderCount, customers: customerCount, products: productCount });
   }
 
   customers(): Observable<Customer[]> {
@@ -222,3 +230,4 @@ export class MockAdminRepository implements AdminRepository {
     return of(MOCK_AUDIT_LOGS);
   }
 }
+

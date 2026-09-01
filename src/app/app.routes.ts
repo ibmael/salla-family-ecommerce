@@ -48,6 +48,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'customers/:id',
+        title: 'Customer Details',
+        loadComponent: () =>
+          import('./features/admin/customers/customer-detail.component').then(
+            (m) => m.AdminCustomerDetailComponent,
+          ),
+      },
+      {
         path: 'categories',
         title: 'Categories',
         loadComponent: () =>

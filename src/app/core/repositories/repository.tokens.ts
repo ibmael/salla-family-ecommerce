@@ -12,6 +12,29 @@ import {
   User,
 } from '../models/user.model';
 
+/**
+ * Sanitized customer profile for Admin views.
+ * Never includes auth credentials (passwordHash, tokens etc.)
+ * All order metrics are DERIVED in-memory from OrderRepository data.
+ */
+export interface CustomerProfile {
+  id:           string;
+  name:         string;
+  email:        string;
+  username:     string;
+  phoneNumber?: string;
+  avatar?:      string;
+  createdAt?:   string;
+  /** Derived segment based on order count — NOT persisted */
+  segment:      'new' | 'repeat';
+  /** All historical orders count (including cancelled) */
+  orderCount:   number;
+  /** Revenue from non-cancelled orders only */
+  totalSpent:   number;
+  /** ISO string of last order createdAt, or undefined */
+  lastOrderAt?: string;
+}
+
 export interface ProductRepository {
   list(filters?: ProductFilters): Observable<PagedResult<Product>>;
   byId(id: string): Observable<Product | undefined>;
@@ -57,8 +80,20 @@ export interface AdminRepository {
   auditLogs(): Observable<AuditLog[]>;
 }
 
-export const PRODUCT_REPOSITORY = new InjectionToken<ProductRepository>('ProductRepository');
+export interface CustomerRepository {
+  /** All customer profiles with derived order metrics */
+  list(): Observable<CustomerProfile[]>;
+  /** Single customer by ID with derived metrics */
+  byId(id: string): Observable<CustomerProfile | undefined>;
+  /** All orders belonging to a customer */
+  ordersByCustomer(customerId: string): Observable<Order[]>;
+  /** Total customer count — used by dashboard KPI */
+  count(): Observable<number>;
+}
+
+export const PRODUCT_REPOSITORY  = new InjectionToken<ProductRepository>('ProductRepository');
 export const CATEGORY_REPOSITORY = new InjectionToken<CategoryRepository>('CategoryRepository');
-export const ORDER_REPOSITORY = new InjectionToken<OrderRepository>('OrderRepository');
-export const AUTH_REPOSITORY = new InjectionToken<AuthRepository>('AuthRepository');
-export const ADMIN_REPOSITORY = new InjectionToken<AdminRepository>('AdminRepository');
+export const ORDER_REPOSITORY    = new InjectionToken<OrderRepository>('OrderRepository');
+export const AUTH_REPOSITORY     = new InjectionToken<AuthRepository>('AuthRepository');
+export const ADMIN_REPOSITORY    = new InjectionToken<AdminRepository>('AdminRepository');
+export const CUSTOMER_REPOSITORY = new InjectionToken<CustomerRepository>('CustomerRepository');

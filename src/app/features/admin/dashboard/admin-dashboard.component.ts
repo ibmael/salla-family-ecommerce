@@ -47,6 +47,7 @@ interface SalesBar {
   orderCount:    number;
   isToday:       boolean;
   isPeak:        boolean;
+  showLabel:     boolean;
 }
 
 interface KpiChange {
@@ -142,13 +143,15 @@ export class AdminDashboardComponent {
     const maxAmt  = Math.max(...entries.map(([, v]) => v.total), 1);
     const peakKey = entries.reduce((best, cur) => cur[1].total > (best?.[1]?.total ?? 0) ? cur : best, entries[0])?.[0];
 
-    return entries.map(([key, data]) => {
-      const label      = days <= 7
-        ? format(parseISO(key), 'EEE, MMM d')
-        : format(parseISO(key), 'MMM d');
-      const shortLabel = days <= 7
+    return entries.map(([key, data], index, arr) => {
+      const is7Days = days <= 7;
+      const label = format(parseISO(key), 'EEE, MMM d');
+      const shortLabel = is7Days
         ? format(parseISO(key), 'EEE')
         : format(parseISO(key), 'MMM d');
+
+      // For 30 days: show label every 5 days + last day
+      const showLabel = is7Days || index === 0 || index === 5 || index === 10 || index === 15 || index === 20 || index === 25 || index === arr.length - 1;
 
       return {
         label,
@@ -158,6 +161,7 @@ export class AdminDashboardComponent {
         orderCount:    data.count,
         isToday:       key === this.todayKey,
         isPeak:        key === peakKey && data.total > 0,
+        showLabel,
       };
     });
   });
