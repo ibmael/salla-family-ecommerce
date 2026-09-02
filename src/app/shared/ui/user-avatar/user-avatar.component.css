@@ -1,0 +1,105 @@
+:host {
+  display: inline-flex !important;
+  vertical-align: middle;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+  border-radius: 9999px !important;
+  box-sizing: border-box !important;
+}
+
+:host(.avatar-xs) {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  max-width: 24px !important;
+  max-height: 24px !important;
+  flex: 0 0 24px !important;
+}
+
+:host(.avatar-sm) {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
+  flex: 0 0 32px !important;
+}
+
+:host(.avatar-md) {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  max-width: 40px !important;
+  max-height: 40px !important;
+  flex: 0 0 40px !important;
+}
+
+:host(.avatar-lg) {
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  max-width: 56px !important;
+  max-height: 56px !important;
+  flex: 0 0 56px !important;
+}
+
+:host(.avatar-xl) {
+  width: 72px !important;
+  height: 72px !important;
+  min-width: 72px !important;
+  min-height: 72px !important;
+  max-width: 72px !important;
+  max-height: 72px !important;
+  flex: 0 0 72px !important;
+}
+
+.avatar-frame {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  position: relative;
+  overflow: hidden !important;
+  border-radius: 9999px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  user-select: none;
+  box-sizing: border-box !important;
+}
+
+.avatar-img {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 9999px !important;
+  display: block !important;
+}
+
+.avatar-initials {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-family: var(--font-display, inherit);
+  text-transform: uppercase;
+}
+
+:host(.avatar-xs) .avatar-initials { font-size: 10px; }
+:host(.avatar-sm) .avatar-initials { font-size: 11px; }
+:host(.avatar-md) .avatar-initials { font-size: 13px; }
+:host(.avatar-lg) .avatar-initials { font-size: 18px; }
+:host(.avatar-xl) .avatar-initials { font-size: 22px; }

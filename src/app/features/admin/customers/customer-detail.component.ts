@@ -26,6 +26,7 @@ import {
 import { CUSTOMER_REPOSITORY, CustomerProfile } from '../../../core/repositories/repository.tokens';
 import { Order } from '../../../core/models/order.model';
 import { OrderStatusBadgeComponent } from '../../../shared/ui/order-status-badge/order-status-badge.component';
+import { UserAvatarComponent } from '../../../shared/ui/user-avatar/user-avatar.component';
 
 interface PurchasedProduct {
   productId:    string;
@@ -33,10 +34,6 @@ interface PurchasedProduct {
   productImage: string;
   productSlug:  string;
   timesPurchased: number;
-}
-
-function initials(name: string): string {
-  return name.split(' ').filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
 }
 
 function formatDate(iso: string | undefined, pattern: string): string {
@@ -52,7 +49,7 @@ function formatMoney(n: number): string {
 @Component({
   selector: 'app-admin-customer-detail',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, OrderStatusBadgeComponent],
+  imports: [RouterLink, LucideAngularModule, OrderStatusBadgeComponent, UserAvatarComponent],
   templateUrl: './customer-detail.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -126,7 +123,6 @@ export class AdminCustomerDetailComponent implements OnInit {
     Calendar, ChevronRight, ArrowLeft, Package, MapPin, TrendingUp,
   };
 
-  initials    = initials;
   formatDate  = formatDate;
   formatMoney = formatMoney;
 

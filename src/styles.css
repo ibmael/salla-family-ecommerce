@@ -2,7 +2,7 @@
 
 @source './**/*.{html,ts}';
 
-@custom-variant dark (&:where(.dark, .dark *));
+@variant dark (.dark &);
 
 @theme {
   --font-display: 'Space Grotesk', system-ui, sans-serif;
@@ -29,9 +29,14 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  .dark body {
-    background-color: var(--color-ink);
-    color: var(--color-paper);
+  html.dark {
+    color-scheme: dark;
+  }
+
+  .dark body,
+  html.dark body {
+    background-color: #14120f;
+    color: #f7f4ef;
   }
 
   :focus-visible {
@@ -125,7 +130,8 @@
     transform: none;
   }
 
-  .dark .btn-primary {
+  .dark .btn-primary,
+  html.dark .btn-primary {
     background-color: var(--color-paper);
     color: var(--color-ink);
   }
@@ -160,11 +166,13 @@
     transform: none;
   }
 
-  .dark .btn-secondary {
+  .dark .btn-secondary,
+  html.dark .btn-secondary {
     border-color: rgb(255 255 255 / 0.2);
   }
 
-  .dark .btn-secondary:hover:not(:disabled) {
+  .dark .btn-secondary:hover:not(:disabled),
+  html.dark .btn-secondary:hover:not(:disabled) {
     background-color: rgb(255 255 255 / 0.1);
   }
 
@@ -181,7 +189,8 @@
     border-color: var(--color-clay);
   }
 
-  .dark .field {
+  .dark .field,
+  html.dark .field {
     border-color: rgb(255 255 255 / 0.2);
   }
 
@@ -190,8 +199,24 @@
     background-color: #fff;
   }
 
-  .dark .card {
-    background-color: rgb(255 255 255 / 0.05);
+  .dark .card,
+  html.dark .card {
+    background-color: #1c1916;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Admin Surfaces */
+  .dark .admin-card,
+  html.dark .admin-card {
+    background-color: #1c1916 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #f7f4ef !important;
+  }
+
+  .dark .admin-card-secondary,
+  html.dark .admin-card-secondary {
+    background-color: #24201c !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
   }
 
   /* Inline Spinner */

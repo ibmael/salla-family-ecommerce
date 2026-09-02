@@ -72,7 +72,7 @@ export class MockCustomerRepository implements CustomerRepository {
         email:       c.email,
         username:    c.email.split('@')[0],
         phoneNumber: undefined,
-        avatar:      undefined,
+        avatar:      c.avatar,
         createdAt:   c.joinedAt,
       }));
 

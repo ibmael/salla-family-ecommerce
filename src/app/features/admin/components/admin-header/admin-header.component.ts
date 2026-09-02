@@ -13,8 +13,11 @@ import {
   Store,
   ExternalLink,
   Shield,
+  Sun,
+  Moon,
 } from 'lucide-angular';
 import { MockAuthStore } from '../../../../core/state/auth.store';
+import { ThemeStore } from '../../../../core/state/theme.store';
 
 @Component({
   selector: 'app-admin-header',
@@ -25,7 +28,8 @@ import { MockAuthStore } from '../../../../core/state/auth.store';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminHeaderComponent {
-  readonly auth = inject(MockAuthStore);
+  readonly auth  = inject(MockAuthStore);
+  readonly theme = inject(ThemeStore);
   readonly toggleSidebar = output<void>();
 
   readonly icons = {
@@ -34,6 +38,8 @@ export class AdminHeaderComponent {
     Store,
     ExternalLink,
     Shield,
+    Sun,
+    Moon,
   };
 
   readonly userInitials = computed<string>(() => {

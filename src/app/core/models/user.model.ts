@@ -46,6 +46,7 @@ export interface Customer {
   totalSpent: number;
   joinedAt: string;
   status: 'active' | 'inactive';
+  avatar?: string;
 }
 
 export interface AuditLog {

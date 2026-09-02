@@ -15,27 +15,18 @@ import {
   Search,
   ChevronRight,
   ArrowRight,
-  RefreshCw,
   UserCheck,
   Repeat2,
   TrendingUp,
   Mail,
   Phone,
   ArrowUpDown,
+  X,
 } from 'lucide-angular';
-import { CUSTOMER_REPOSITORY } from '../../../core/repositories/repository.tokens';
-import { CustomerProfile } from '../../../core/repositories/repository.tokens';
+import { CUSTOMER_REPOSITORY, CustomerProfile } from '../../../core/repositories/repository.tokens';
+import { UserAvatarComponent } from '../../../shared/ui/user-avatar/user-avatar.component';
 
 type SortKey = 'newest' | 'most-orders' | 'highest-spend' | 'name-az';
-
-function initials(name: string): string {
-  return name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0].toUpperCase())
-    .join('');
-}
 
 function formatDate(iso: string | undefined, pattern: string): string {
   if (!iso) return '—';
@@ -50,7 +41,7 @@ function formatMoney(n: number): string {
 @Component({
   selector: 'app-admin-customers',
   standalone: true,
-  imports: [RouterLink, FormsModule, LucideAngularModule],
+  imports: [RouterLink, FormsModule, LucideAngularModule, UserAvatarComponent],
   templateUrl: './customers.component.html',
   styleUrl: './customers.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -105,13 +96,13 @@ export class AdminCustomersComponent {
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   readonly icons = {
-    Users, Search, ChevronRight, ArrowRight, RefreshCw,
-    UserCheck, Repeat2, TrendingUp, Mail, Phone, ArrowUpDown,
+    Users, Search, ChevronRight, ArrowRight,
+    UserCheck, Repeat2, TrendingUp, Mail, Phone, ArrowUpDown, X,
   };
 
-  initials   = initials;
   formatDate = formatDate;
   formatMoney = formatMoney;
 
   setSort(key: SortKey): void { this.sortKey.set(key); }
+  clearSearch(): void { this.searchQuery.set(''); }
 }
