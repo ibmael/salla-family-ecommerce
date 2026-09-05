@@ -75,6 +75,16 @@
             <div class="my-1.5 border-t border-black/5 dark:border-white/10"></div>
 
             <a
+              routerLink="/product-finder"
+              (click)="closeCategories()"
+              class="flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold text-ink/80 hover:bg-black/5 dark:text-white/80 dark:hover:bg-white/10 transition-colors cursor-pointer"
+              role="menuitem"
+            >
+              <span>Find Your Match</span>
+              <lucide-icon [img]="icons.ArrowRight" class="size-3.5 text-stone" />
+            </a>
+
+            <a
               routerLink="/categories"
               (click)="closeCategories()"
               class="flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold text-clay hover:bg-clay/10 transition-colors cursor-pointer"
@@ -198,37 +208,41 @@
       </a>
 
       <!-- Wishlist (Desktop md+ only, accessible on mobile via profile/account) -->
-      <a
-        routerLink="/wishlist"
-        class="hidden md:inline-flex relative size-9 sm:size-10 rounded-full items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
-        aria-label="Wishlist"
-      >
-        <lucide-icon [img]="icons.Heart" class="size-5" />
-        @if (auth.isLoggedIn() && wishlist.count() > 0) {
-          <span
-            class="absolute 1 top-1 right-1 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white shadow-sm pointer-events-none"
-          >
-            {{ wishlist.count() }}
-          </span>
-        }
-      </a>
+      @if (!auth.isAdmin()) {
+        <a
+          routerLink="/wishlist"
+          class="hidden md:inline-flex relative size-9 sm:size-10 rounded-full items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+          aria-label="Wishlist"
+        >
+          <lucide-icon [img]="icons.Heart" class="size-5" />
+          @if (auth.isLoggedIn() && wishlist.count() > 0) {
+            <span
+              class="absolute 1 top-1 right-1 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white shadow-sm pointer-events-none"
+            >
+              {{ wishlist.count() }}
+            </span>
+          }
+        </a>
+      }
 
       <!-- Cart -->
-      <a
-        routerLink="/cart"
-        class="header-cart-btn relative size-9 sm:size-10 rounded-full inline-flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-transform cursor-pointer"
-        [class.cart-bump]="isCartBumping()"
-        aria-label="Cart"
-      >
-        <lucide-icon [img]="icons.ShoppingBag" class="size-5" />
-        @if (auth.isLoggedIn() && cart.count() > 0) {
-          <span
-            class="absolute top-1 right-1 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white shadow-sm pointer-events-none"
-          >
-            {{ cart.count() }}
-          </span>
-        }
-      </a>
+      @if (!auth.isAdmin()) {
+        <a
+          routerLink="/cart"
+          class="header-cart-btn relative size-9 sm:size-10 rounded-full inline-flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 transition-transform cursor-pointer"
+          [class.cart-bump]="isCartBumping()"
+          aria-label="Cart"
+        >
+          <lucide-icon [img]="icons.ShoppingBag" class="size-5" />
+          @if (auth.isLoggedIn() && cart.count() > 0) {
+            <span
+              class="absolute top-1 right-1 grid size-4 place-items-center rounded-full bg-clay text-[10px] font-bold text-white shadow-sm pointer-events-none"
+            >
+              {{ cart.count() }}
+            </span>
+          }
+        </a>
+      }
 
       <!-- Theme Switcher -->
       <button
@@ -284,29 +298,31 @@
                 <p class="text-[11px] text-stone truncate">&#64;{{ auth.user()?.username }}</p>
               </div>
 
-              <!-- Orders -->
-              <a
-                routerLink="/orders"
-                (click)="closeProfile()"
-                class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors cursor-pointer"
-                routerLinkActive="bg-black/5 dark:bg-white/10 text-ink dark:text-white font-semibold"
-                role="menuitem"
-              >
-                <lucide-icon [img]="icons.Package" class="size-4 text-stone" />
-                Orders
-              </a>
+              @if (!auth.isAdmin()) {
+                <!-- Orders -->
+                <a
+                  routerLink="/orders"
+                  (click)="closeProfile()"
+                  class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors cursor-pointer"
+                  routerLinkActive="bg-black/5 dark:bg-white/10 text-ink dark:text-white font-semibold"
+                  role="menuitem"
+                >
+                  <lucide-icon [img]="icons.Package" class="size-4 text-stone" />
+                  Orders
+                </a>
 
-              <!-- Wishlist -->
-              <a
-                routerLink="/wishlist"
-                (click)="closeProfile()"
-                class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors cursor-pointer"
-                routerLinkActive="bg-black/5 dark:bg-white/10 text-ink dark:text-white font-semibold"
-                role="menuitem"
-              >
-                <lucide-icon [img]="icons.Heart" class="size-4 text-stone" />
-                Wishlist
-              </a>
+                <!-- Wishlist -->
+                <a
+                  routerLink="/wishlist"
+                  (click)="closeProfile()"
+                  class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-ink/80 hover:bg-black/5 hover:text-ink dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white transition-colors cursor-pointer"
+                  routerLinkActive="bg-black/5 dark:bg-white/10 text-ink dark:text-white font-semibold"
+                  role="menuitem"
+                >
+                  <lucide-icon [img]="icons.Heart" class="size-4 text-stone" />
+                  Wishlist
+                </a>
+              }
 
               <!-- Account -->
               <a

@@ -1,5 +1,10 @@
 import { Routes } from '@angular/router';
-import { adminGuard, authGuard } from './core/guards/auth.guard';
+import {
+  adminGuard,
+  authGuard,
+  customerAuthGuard,
+  customerOnlyGuard,
+} from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -115,6 +120,14 @@ export const routes: Routes = [
           import('./features/storefront/product/product.component').then((m) => m.ProductComponent),
       },
       {
+        path: 'product-finder',
+        title: 'Product Finder',
+        loadComponent: () =>
+          import('./features/storefront/product-finder/product-finder.component').then(
+            (m) => m.ProductFinderComponent,
+          ),
+      },
+      {
         path: 'search',
         title: 'Search',
         loadComponent: () =>
@@ -125,6 +138,7 @@ export const routes: Routes = [
         title: 'Cart',
         loadComponent: () =>
           import('./features/storefront/cart/cart.component').then((m) => m.CartComponent),
+        canActivate: [customerOnlyGuard],
       },
       {
         path: 'wishlist',
@@ -133,6 +147,7 @@ export const routes: Routes = [
           import('./features/storefront/wishlist/wishlist.component').then(
             (m) => m.WishlistComponent,
           ),
+        canActivate: [customerOnlyGuard],
       },
       {
         path: 'checkout',
@@ -141,7 +156,7 @@ export const routes: Routes = [
           import('./features/storefront/checkout/checkout.component').then(
             (m) => m.CheckoutComponent,
           ),
-        canActivate: [authGuard],
+        canActivate: [customerAuthGuard],
       },
       {
         path: 'order/confirmed',
@@ -150,6 +165,7 @@ export const routes: Routes = [
           import('./features/storefront/checkout/confirmation.component').then(
             (m) => m.ConfirmationComponent,
           ),
+        canActivate: [customerOnlyGuard],
       },
       {
         path: 'auth',
@@ -169,7 +185,7 @@ export const routes: Routes = [
         title: 'My Orders',
         loadComponent: () =>
           import('./features/storefront/orders/orders.component').then((m) => m.OrdersComponent),
-        canActivate: [authGuard],
+        canActivate: [customerAuthGuard],
       },
       {
         path: 'orders/:id',
@@ -178,7 +194,7 @@ export const routes: Routes = [
           import('./features/storefront/orders/order-detail.component').then(
             (m) => m.OrderDetailComponent,
           ),
-        canActivate: [authGuard],
+        canActivate: [customerAuthGuard],
       },
       {
         path: '**',

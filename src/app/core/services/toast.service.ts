@@ -15,33 +15,25 @@ export class ToastService {
   readonly messages = signal<ToastMessage[]>([]);
 
   success(message: string, title = 'Success', key?: string): void {
-    if (key && this.messages().some((t) => t.key === key && !t.exiting)) {
-      return;
-    }
-
-    const id = ++this.counter;
-    this.messages.update((items) => [...items, { id, key, type: 'success', title, message }]);
-    setTimeout(() => this.animateOut(id), 3000);
+    this.show('success', message, title, key, 3000);
   }
 
   error(message: string, title = 'Error', key?: string): void {
-    if (key && this.messages().some((t) => t.key === key && !t.exiting)) {
-      return;
-    }
-
-    const id = ++this.counter;
-    this.messages.update((items) => [...items, { id, key, type: 'error', title, message }]);
-    setTimeout(() => this.animateOut(id), 4000);
+    this.show('error', message, title, key, 4000);
   }
 
   info(message: string, title = 'Notice', key?: string): void {
+    this.show('info', message, title, key, 3500);
+  }
+
+  private show(type: 'success' | 'error' | 'info', message: string, title: string, key?: string, duration = 3000): void {
     if (key && this.messages().some((t) => t.key === key && !t.exiting)) {
       return;
     }
 
     const id = ++this.counter;
-    this.messages.update((items) => [...items, { id, key, type: 'info', title, message }]);
-    setTimeout(() => this.animateOut(id), 3500);
+    this.messages.update((items) => [...items, { id, key, type, title, message }]);
+    setTimeout(() => this.animateOut(id), duration);
   }
 
   dismiss(id: number): void {

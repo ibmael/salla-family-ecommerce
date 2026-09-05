@@ -45,6 +45,11 @@ export class CartStore {
     color: string,
     quantity = 1
   ): { action: 'added' | 'removed' } | false {
+    if (this.auth.isAdmin()) {
+      this.toast.info('Shopping cart actions are disabled for administrator accounts.', 'Admin Mode');
+      return false;
+    }
+
     if (!this.auth.isLoggedIn()) {
       this.toast.info(AUTH_TOAST_MSG, AUTH_TOAST_TITLE, AUTH_TOAST_KEY);
       return false;

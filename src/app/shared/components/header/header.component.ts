@@ -52,7 +52,6 @@ export class HeaderComponent {
   readonly auth = inject(MockAuthStore);
   readonly theme = inject(ThemeStore);
 
-  readonly logo = ASSETS.logo;
   readonly wordmark = ASSETS.wordmark;
   readonly icons = {
     Search,

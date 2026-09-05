@@ -1,0 +1,569 @@
+<div class="product-finder-page min-h-[calc(100vh-4rem)] py-8 sm:py-12">
+  <div class="page max-w-4xl mx-auto px-4 sm:px-6">
+
+    <!-- Header Section -->
+    <header class="text-center mb-8 sm:mb-12">
+      <div class="inline-flex items-center gap-2 rounded-full bg-clay/10 px-3.5 py-1 text-xs font-semibold text-clay mb-3">
+        <lucide-icon [img]="icons.Compass" class="size-3.5" />
+        <span>Personalized Recommendation</span>
+      </div>
+      <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-ink dark:text-white">
+        Find Your Perfect Match
+      </h1>
+      <p class="mt-3 text-sm sm:text-base text-stone dark:text-white/60 max-w-xl mx-auto">
+        Answer 5 quick questions and our recommendation engine will curate the finest pieces from our collection tailored to your lifestyle, style, and budget.
+      </p>
+    </header>
+
+    @if (!isCompleted()) {
+      <!-- Quiz Card Container -->
+      <section class="quiz-card rounded-3xl border border-black/8 bg-white/95 p-6 sm:p-10 shadow-xl backdrop-blur-md dark:border-white/10 dark:bg-white/[0.03]">
+
+        <!-- Progress Indicator -->
+        <div class="quiz-progress-section mb-8">
+          <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-stone dark:text-white/50 mb-2.5">
+            <span>Question {{ currentStep() }} of 5</span>
+            <span>{{ progressPercent() }}% Completed</span>
+          </div>
+          <div class="h-2 w-full rounded-full bg-black/5 dark:bg-white/10 overflow-hidden" role="progressbar" [attr.aria-valuenow]="currentStep()" aria-valuemin="1" aria-valuemax="5">
+            <div
+              class="h-full bg-clay rounded-full transition-all duration-300 ease-out"
+              [style.width.%]="progressPercent()"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Step 1: Recipient -->
+        @if (currentStep() === 1) {
+          <div class="step-content animate-in fade-in zoom-in-98 duration-200" role="radiogroup" aria-labelledby="step-1-heading">
+            <div class="mb-6">
+              <span class="text-xs font-bold uppercase tracking-wider text-clay">Step 1</span>
+              <h2 id="step-1-heading" class="font-display text-xl sm:text-2xl font-bold text-ink dark:text-white mt-1">
+                Who are you shopping for?
+              </h2>
+              <p class="text-xs sm:text-sm text-stone dark:text-white/60 mt-1">
+                Select the recipient so we can orient our sizing, aesthetics, and gift considerations.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              @for (opt of recipientOptions; track opt.value) {
+                <button
+                  type="button"
+                  role="radio"
+                  [attr.aria-checked]="answers().recipient === opt.value"
+                  (click)="selectRecipient(opt.value)"
+                  class="option-card flex items-start gap-4 rounded-2xl border p-4 sm:p-5 text-left transition-all cursor-pointer select-none"
+                  [class.border-clay]="answers().recipient === opt.value"
+                  [class.bg-clay/5]="answers().recipient === opt.value"
+                  [class.shadow-md]="answers().recipient === opt.value"
+                  [class.border-black/10]="answers().recipient !== opt.value"
+                  [class.dark:border-white/10]="answers().recipient !== opt.value"
+                  [class.hover:border-clay/40]="answers().recipient !== opt.value"
+                  [class.hover:bg-black/[0.02]]="answers().recipient !== opt.value"
+                  [class.dark:hover:bg-white/[0.02]]="answers().recipient !== opt.value"
+                >
+                  <div
+                    class="grid size-11 shrink-0 place-items-center rounded-xl transition-colors"
+                    [class.bg-clay]="answers().recipient === opt.value"
+                    [class.text-white]="answers().recipient === opt.value"
+                    [class.bg-sand]="answers().recipient !== opt.value"
+                    [class.dark:bg-white/10]="answers().recipient !== opt.value"
+                    [class.text-ink]="answers().recipient !== opt.value"
+                    [class.dark:text-white]="answers().recipient !== opt.value"
+                  >
+                    <lucide-icon [img]="opt.icon" class="size-5" />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                      <p class="text-sm sm:text-base font-bold text-ink dark:text-white">
+                        {{ opt.title }}
+                      </p>
+                      @if (answers().recipient === opt.value) {
+                        <span class="text-clay">
+                          <lucide-icon [img]="icons.CheckCircle2" class="size-5" />
+                        </span>
+                      }
+                    </div>
+                    <p class="text-xs text-stone dark:text-white/60 mt-1 leading-relaxed">
+                      {{ opt.description }}
+                    </p>
+                  </div>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Step 2: Category (Repository-driven) -->
+        @if (currentStep() === 2) {
+          <div class="step-content animate-in fade-in zoom-in-98 duration-200" role="radiogroup" aria-labelledby="step-2-heading">
+            <div class="mb-6">
+              <span class="text-xs font-bold uppercase tracking-wider text-clay">Step 2</span>
+              <h2 id="step-2-heading" class="font-display text-xl sm:text-2xl font-bold text-ink dark:text-white mt-1">
+                What are you looking for?
+              </h2>
+              <p class="text-xs sm:text-sm text-stone dark:text-white/60 mt-1">
+                Select a collection to explore or browse across all categories.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+              @for (opt of categoryOptions(); track opt.value) {
+                <button
+                  type="button"
+                  role="radio"
+                  [attr.aria-checked]="answers().category === opt.value"
+                  (click)="selectCategory(opt.value, opt.title)"
+                  class="option-card flex flex-col justify-between rounded-2xl border p-4 sm:p-5 text-left transition-all cursor-pointer select-none min-h-[140px]"
+                  [class.border-clay]="answers().category === opt.value"
+                  [class.bg-clay/5]="answers().category === opt.value"
+                  [class.shadow-md]="answers().category === opt.value"
+                  [class.border-black/10]="answers().category !== opt.value"
+                  [class.dark:border-white/10]="answers().category !== opt.value"
+                  [class.hover:border-clay/40]="answers().category !== opt.value"
+                  [class.hover:bg-black/[0.02]]="answers().category !== opt.value"
+                  [class.dark:hover:bg-white/[0.02]]="answers().category !== opt.value"
+                >
+                  <div class="flex items-start justify-between gap-3 w-full">
+                    @if (opt.image) {
+                      <img
+                        [src]="opt.image"
+                        [alt]="opt.title"
+                        class="size-10 rounded-xl object-cover bg-sand shrink-0 shadow-2xs"
+                      />
+                    } @else {
+                      <div class="grid size-10 place-items-center rounded-xl bg-sand dark:bg-white/10 text-ink dark:text-white shrink-0">
+                        <lucide-icon [img]="icons.Layers" class="size-5" />
+                      </div>
+                    }
+                    @if (answers().category === opt.value) {
+                      <span class="text-clay">
+                        <lucide-icon [img]="icons.CheckCircle2" class="size-5" />
+                      </span>
+                    }
+                  </div>
+                  <div class="mt-3">
+                    <p class="text-sm font-bold text-ink dark:text-white">
+                      {{ opt.title }}
+                    </p>
+                    <p class="text-xs text-stone dark:text-white/60 mt-0.5 line-clamp-2 leading-snug">
+                      {{ opt.description }}
+                    </p>
+                    <span class="inline-block text-[11px] font-semibold text-clay mt-2">
+                      {{ opt.productCount }} pieces
+                    </span>
+                  </div>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Step 3: Style -->
+        @if (currentStep() === 3) {
+          <div class="step-content animate-in fade-in zoom-in-98 duration-200" role="radiogroup" aria-labelledby="step-3-heading">
+            <div class="mb-6">
+              <span class="text-xs font-bold uppercase tracking-wider text-clay">Step 3</span>
+              <h2 id="step-3-heading" class="font-display text-xl sm:text-2xl font-bold text-ink dark:text-white mt-1">
+                What's your design aesthetic?
+              </h2>
+              <p class="text-xs sm:text-sm text-stone dark:text-white/60 mt-1">
+                We'll prioritize textures, materials, and silhouettes aligned with your visual preference.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              @for (opt of styleOptions; track opt.value) {
+                <button
+                  type="button"
+                  role="radio"
+                  [attr.aria-checked]="answers().style === opt.value"
+                  (click)="selectStyle(opt.value)"
+                  class="option-card flex items-start gap-4 rounded-2xl border p-4 sm:p-5 text-left transition-all cursor-pointer select-none"
+                  [class.border-clay]="answers().style === opt.value"
+                  [class.bg-clay/5]="answers().style === opt.value"
+                  [class.shadow-md]="answers().style === opt.value"
+                  [class.border-black/10]="answers().style !== opt.value"
+                  [class.dark:border-white/10]="answers().style !== opt.value"
+                  [class.hover:border-clay/40]="answers().style !== opt.value"
+                  [class.hover:bg-black/[0.02]]="answers().style !== opt.value"
+                  [class.dark:hover:bg-white/[0.02]]="answers().style !== opt.value"
+                >
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="flex items-center gap-2">
+                        <p class="text-sm sm:text-base font-bold text-ink dark:text-white">
+                          {{ opt.title }}
+                        </p>
+                        @if (opt.badge) {
+                          <span class="rounded-full bg-sand px-2 py-0.5 text-[10px] font-semibold text-stone dark:bg-white/10 dark:text-white/70">
+                            {{ opt.badge }}
+                          </span>
+                        }
+                      </div>
+                      @if (answers().style === opt.value) {
+                        <span class="text-clay">
+                          <lucide-icon [img]="icons.CheckCircle2" class="size-5" />
+                        </span>
+                      }
+                    </div>
+                    <p class="text-xs text-stone dark:text-white/60 mt-1.5 leading-relaxed">
+                      {{ opt.description }}
+                    </p>
+                  </div>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Step 4: Budget -->
+        @if (currentStep() === 4) {
+          <div class="step-content animate-in fade-in zoom-in-98 duration-200" role="radiogroup" aria-labelledby="step-4-heading">
+            <div class="mb-6">
+              <span class="text-xs font-bold uppercase tracking-wider text-clay">Step 4</span>
+              <h2 id="step-4-heading" class="font-display text-xl sm:text-2xl font-bold text-ink dark:text-white mt-1">
+                What's your comfortable budget?
+              </h2>
+              <p class="text-xs sm:text-sm text-stone dark:text-white/60 mt-1">
+                Ranges reflect our actual catalog items from accessible accents to heirloom investments.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              @for (opt of budgetOptions; track opt.value) {
+                <button
+                  type="button"
+                  role="radio"
+                  [attr.aria-checked]="answers().budget === opt.value"
+                  (click)="selectBudget(opt.value)"
+                  class="option-card flex items-start gap-4 rounded-2xl border p-4 sm:p-5 text-left transition-all cursor-pointer select-none"
+                  [class.border-clay]="answers().budget === opt.value"
+                  [class.bg-clay/5]="answers().budget === opt.value"
+                  [class.shadow-md]="answers().budget === opt.value"
+                  [class.border-black/10]="answers().budget !== opt.value"
+                  [class.dark:border-white/10]="answers().budget !== opt.value"
+                  [class.hover:border-clay/40]="answers().budget !== opt.value"
+                  [class.hover:bg-black/[0.02]]="answers().budget !== opt.value"
+                  [class.dark:hover:bg-white/[0.02]]="answers().budget !== opt.value"
+                >
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                      <p class="text-sm sm:text-base font-bold text-ink dark:text-white">
+                        {{ opt.title }}
+                      </p>
+                      @if (answers().budget === opt.value) {
+                        <span class="text-clay">
+                          <lucide-icon [img]="icons.CheckCircle2" class="size-5" />
+                        </span>
+                      }
+                    </div>
+                    <p class="text-xs text-stone dark:text-white/60 mt-1 leading-relaxed">
+                      {{ opt.description }}
+                    </p>
+                  </div>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Step 5: Priority -->
+        @if (currentStep() === 5) {
+          <div class="step-content animate-in fade-in zoom-in-98 duration-200" role="radiogroup" aria-labelledby="step-5-heading">
+            <div class="mb-6">
+              <span class="text-xs font-bold uppercase tracking-wider text-clay">Step 5</span>
+              <h2 id="step-5-heading" class="font-display text-xl sm:text-2xl font-bold text-ink dark:text-white mt-1">
+                What matters most to you?
+              </h2>
+              <p class="text-xs sm:text-sm text-stone dark:text-white/60 mt-1">
+                Select your deciding factor so we can weigh ratings, pricing, materials, or trends.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              @for (opt of priorityOptions; track opt.value) {
+                <button
+                  type="button"
+                  role="radio"
+                  [attr.aria-checked]="answers().priority === opt.value"
+                  (click)="selectPriority(opt.value)"
+                  class="option-card flex items-start gap-4 rounded-2xl border p-4 sm:p-5 text-left transition-all cursor-pointer select-none"
+                  [class.border-clay]="answers().priority === opt.value"
+                  [class.bg-clay/5]="answers().priority === opt.value"
+                  [class.shadow-md]="answers().priority === opt.value"
+                  [class.border-black/10]="answers().priority !== opt.value"
+                  [class.dark:border-white/10]="answers().priority !== opt.value"
+                  [class.hover:border-clay/40]="answers().priority !== opt.value"
+                  [class.hover:bg-black/[0.02]]="answers().priority !== opt.value"
+                  [class.dark:hover:bg-white/[0.02]]="answers().priority !== opt.value"
+                >
+                  <div
+                    class="grid size-11 shrink-0 place-items-center rounded-xl transition-colors"
+                    [class.bg-clay]="answers().priority === opt.value"
+                    [class.text-white]="answers().priority === opt.value"
+                    [class.bg-sand]="answers().priority !== opt.value"
+                    [class.dark:bg-white/10]="answers().priority !== opt.value"
+                    [class.text-ink]="answers().priority !== opt.value"
+                    [class.dark:text-white]="answers().priority !== opt.value"
+                  >
+                    <lucide-icon [img]="opt.icon" class="size-5" />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                      <p class="text-sm sm:text-base font-bold text-ink dark:text-white">
+                        {{ opt.title }}
+                      </p>
+                      @if (answers().priority === opt.value) {
+                        <span class="text-clay">
+                          <lucide-icon [img]="icons.CheckCircle2" class="size-5" />
+                        </span>
+                      }
+                    </div>
+                    <p class="text-xs text-stone dark:text-white/60 mt-1 leading-relaxed">
+                      {{ opt.description }}
+                    </p>
+                  </div>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Bottom Controls -->
+        <div class="mt-10 pt-6 border-t border-black/8 dark:border-white/10 flex items-center justify-between gap-4">
+          @if (currentStep() > 1) {
+            <button
+              type="button"
+              (click)="prev()"
+              class="inline-flex items-center gap-2 rounded-full border border-black/10 px-5 py-2.5 text-xs sm:text-sm font-semibold text-ink hover:bg-black/5 dark:border-white/15 dark:text-white dark:hover:bg-white/10 transition-colors cursor-pointer"
+            >
+              <lucide-icon [img]="icons.ArrowLeft" class="size-4" />
+              <span>Back</span>
+            </button>
+          } @else {
+            <div></div>
+          }
+
+          <button
+            type="button"
+            (click)="next()"
+            [disabled]="!canContinue()"
+            class="inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+            [class.bg-clay]="canContinue()"
+            [class.text-white]="canContinue()"
+            [class.hover:opacity-90]="canContinue()"
+            [class.bg-black/10]="!canContinue()"
+            [class.dark:bg-white/10]="!canContinue()"
+            [class.text-stone]="!canContinue()"
+          >
+            @if (currentStep() < 5) {
+              <span>Continue</span>
+              <lucide-icon [img]="icons.ArrowRight" class="size-4" />
+            } @else {
+              <lucide-icon [img]="icons.Sparkles" class="size-4" />
+              <span>Find My Products</span>
+            }
+          </button>
+        </div>
+      </section>
+    } @else {
+      <!-- Results Section -->
+      @if (results(); as res) {
+        <section class="results-section space-y-12 animate-in fade-in zoom-in-98 duration-300">
+
+          <!-- Results Header & Summary -->
+          <div class="rounded-3xl border border-black/8 bg-white/95 p-6 sm:p-8 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-white/[0.03]">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-clay">
+                  <lucide-icon [img]="icons.Sparkles" class="size-3.5" />
+                  Curated For You
+                </span>
+                <h2 class="font-display text-2xl sm:text-3xl font-bold text-ink dark:text-white mt-1">
+                  Your Matches
+                </h2>
+                <p class="text-xs sm:text-sm text-stone dark:text-white/60 mt-1.5 max-w-2xl leading-relaxed">
+                  {{ personalizedSummary() }}
+                </p>
+              </div>
+
+              <!-- Quick action to retake quiz -->
+              <div class="flex items-center gap-2.5 shrink-0">
+                <button
+                  type="button"
+                  (click)="retakeQuiz()"
+                  class="inline-flex items-center gap-2 rounded-full border border-black/10 px-4 py-2 text-xs font-semibold text-ink hover:bg-black/5 dark:border-white/15 dark:text-white dark:hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <lucide-icon [img]="icons.RotateCcw" class="size-3.5" />
+                  <span>Retake Quiz</span>
+                </button>
+                <button
+                  type="button"
+                  (click)="browseCatalog()"
+                  class="inline-flex items-center gap-2 rounded-full bg-clay px-4 py-2 text-xs font-bold text-white shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+                >
+                  <span>Browse All</span>
+                  <lucide-icon [img]="icons.ArrowRight" class="size-3.5" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Relaxation edge case alert if applied -->
+            @if (res.isRelaxed) {
+              <div class="mt-6 rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4 text-amber-900 dark:text-amber-200">
+                <div class="flex items-start gap-3">
+                  <lucide-icon [img]="icons.Sparkles" class="size-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                  <div>
+                    <p class="text-xs font-bold">Closest match alternatives</p>
+                    <p class="text-xs text-amber-800/80 dark:text-amber-300/80 mt-0.5">
+                      We couldn't find an exact match for every single constraint, so we relaxed secondary filters to showcase the closest top-rated options from our collection.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Highlighted Best Match Hero -->
+          @if (res.bestMatch; as best) {
+            <div class="best-match-card overflow-hidden rounded-3xl border border-clay/30 bg-gradient-to-br from-sand/40 via-white to-white p-6 sm:p-8 shadow-xl dark:from-white/[0.04] dark:via-white/[0.02] dark:to-transparent dark:border-clay/40">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-clay px-3 py-1 text-xs font-bold text-white shadow-sm">
+                  <lucide-icon [img]="icons.Crown" class="size-3.5" />
+                  <span>BEST MATCH</span>
+                </span>
+                <span class="text-xs font-semibold text-stone dark:text-white/60 uppercase tracking-wider">
+                  Top Recommended Pick
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-center">
+                <!-- Image -->
+                <div class="md:col-span-5 relative overflow-hidden rounded-2xl bg-sand dark:bg-white/10 aspect-square group">
+                  <img
+                    [src]="best.image"
+                    [alt]="best.name"
+                    class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  @if (best.originalPrice) {
+                    <span class="absolute left-3 top-3 rounded-full bg-clay px-2.5 py-0.5 text-xs font-bold text-white shadow-sm">
+                      Sale
+                    </span>
+                  }
+                </div>
+
+                <!-- Content -->
+                <div class="md:col-span-7 flex flex-col justify-between">
+                  <div>
+                    <p class="text-xs uppercase tracking-wider text-clay font-bold">
+                      {{ best.category }}
+                    </p>
+                    <h3 class="font-display text-2xl sm:text-3xl font-bold text-ink dark:text-white mt-1">
+                      {{ best.name }}
+                    </h3>
+
+                    <div class="flex items-center gap-3 mt-2.5">
+                      <div class="flex items-center gap-1 text-amber-500 font-bold text-xs">
+                        <lucide-icon [img]="icons.Star" class="size-4 fill-current" />
+                        <span>{{ best.rating }}</span>
+                      </div>
+                      <span class="text-stone dark:text-white/40 text-xs">·</span>
+                      <span class="text-stone dark:text-white/60 text-xs font-medium">
+                        {{ best.reviews }} customer reviews
+                      </span>
+                    </div>
+
+                    <p class="text-xs sm:text-sm text-stone dark:text-white/70 mt-3 leading-relaxed">
+                      {{ best.description }}
+                    </p>
+
+                    <div class="mt-4 flex items-baseline gap-3">
+                      <span class="text-2xl font-bold text-ink dark:text-white">
+                        ${{ best.price }}
+                      </span>
+                      @if (best.originalPrice) {
+                        <del class="text-sm text-stone line-through">
+                          ${{ best.originalPrice }}
+                        </del>
+                        <span class="text-xs font-bold text-clay">
+                          Save ${{ best.originalPrice - best.price }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="mt-6 pt-6 border-t border-black/8 dark:border-white/10 flex flex-wrap items-center gap-3">
+                    <a
+                      [routerLink]="['/product', best.slug]"
+                      class="inline-flex items-center gap-2 rounded-full bg-clay px-6 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:opacity-90 transition-opacity cursor-pointer"
+                    >
+                      <lucide-icon [img]="icons.ShoppingBag" class="size-4" />
+                      <span>View Product Details</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Additional Recommendations Grid -->
+          @if (res.recommendations.length > 0) {
+            <div>
+              <div class="flex items-center justify-between mb-6">
+                <div>
+                  <h3 class="font-display text-xl sm:text-2xl font-bold text-ink dark:text-white">
+                    More Recommendations for You
+                  </h3>
+                  <p class="text-xs sm:text-sm text-stone dark:text-white/60 mt-0.5">
+                    Other standout pieces that closely match your quiz preferences.
+                  </p>
+                </div>
+                <span class="text-xs font-semibold text-stone dark:text-white/50">
+                  {{ res.recommendations.length }} pieces
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @for (prod of res.recommendations; track prod.id) {
+                  <app-product-card [product]="prod" />
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Bottom Footer Navigation -->
+          <div class="rounded-3xl border border-black/8 bg-sand/40 dark:bg-white/[0.02] p-6 sm:p-8 text-center flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-left">
+              <p class="font-display text-base font-bold text-ink dark:text-white">
+                Want to explore different criteria?
+              </p>
+              <p class="text-xs text-stone dark:text-white/60 mt-0.5">
+                You can retake this quiz at any time or explore our full catalog.
+              </p>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+              <button
+                type="button"
+                (click)="retakeQuiz()"
+                class="inline-flex items-center gap-2 rounded-full border border-black/15 bg-white px-5 py-2.5 text-xs sm:text-sm font-semibold text-ink hover:bg-black/5 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/15 transition-colors cursor-pointer"
+              >
+                <lucide-icon [img]="icons.RotateCcw" class="size-4" />
+                <span>Retake Quiz</span>
+              </button>
+              <button
+                type="button"
+                (click)="browseCatalog()"
+                class="inline-flex items-center gap-2 rounded-full bg-clay px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+              >
+                <span>Shop All Products</span>
+                <lucide-icon [img]="icons.ArrowRight" class="size-4" />
+              </button>
+            </div>
+          </div>
+        </section>
+      }
+    }
+  </div>
+</div>

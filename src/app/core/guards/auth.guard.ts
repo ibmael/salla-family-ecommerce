@@ -19,3 +19,28 @@ export const authGuard: CanActivateFn = (route, state) => {
     queryParams: { returnUrl: state.url },
   });
 };
+
+export const customerOnlyGuard: CanActivateFn = (route, state) => {
+  const auth = inject(MockAuthStore);
+  const router = inject(Router);
+  if (auth.isAdmin()) {
+    return router.createUrlTree(['/admin']);
+  }
+  return true;
+};
+
+export const customerAuthGuard: CanActivateFn = (route, state) => {
+  const auth = inject(MockAuthStore);
+  const router = inject(Router);
+  if (auth.isAdmin()) {
+    return router.createUrlTree(['/admin']);
+  }
+  if (auth.isLoggedIn()) {
+    return true;
+  }
+  return router.createUrlTree(['/auth'], {
+    queryParams: { returnUrl: state.url },
+  });
+};
+
+

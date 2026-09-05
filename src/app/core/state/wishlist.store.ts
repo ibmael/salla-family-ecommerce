@@ -26,6 +26,11 @@ export class WishlistStore {
   }
 
   toggle(id: string): boolean {
+    if (this.auth.isAdmin()) {
+      this.toast.info('Wishlist actions are disabled for administrator accounts.', 'Admin Mode');
+      return false;
+    }
+
     if (!this.auth.isLoggedIn()) {
       this.toast.info(AUTH_TOAST_MSG, AUTH_TOAST_TITLE, AUTH_TOAST_KEY);
       return false;

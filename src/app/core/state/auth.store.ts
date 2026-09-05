@@ -102,3 +102,5 @@ export class MockAuthStore {
     });
   }
 }
+
+export { MockAuthStore as AuthStore };

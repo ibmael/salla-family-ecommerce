@@ -7,8 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map, switchMap } from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { map, of, switchMap } from 'rxjs';
 import { ToastService } from '../../../core/services/toast.service';
 import { PageTitleService } from '../../../core/services/page-title.service';
 import { PRODUCT_REPOSITORY } from '../../../core/repositories/repository.tokens';
@@ -49,25 +49,15 @@ export class ProductComponent {
   );
 
   readonly related = toSignal(
-    this.route.paramMap.pipe(
-      map((x) => x.get('slug') ?? ''),
-      switchMap((slug) =>
-        this.repo
-          .bySlug(slug)
-          .pipe(switchMap((p) => (p ? this.repo.related(p.id) : [])))
-      )
+    toObservable(this.product).pipe(
+      switchMap((p) => (p ? this.repo.related(p.id) : of([])))
     ),
     { initialValue: [] }
   );
 
   readonly reviews = toSignal(
-    this.route.paramMap.pipe(
-      map((x) => x.get('slug') ?? ''),
-      switchMap((slug) =>
-        this.repo
-          .bySlug(slug)
-          .pipe(switchMap((p) => (p ? this.repo.reviews(p.id) : [])))
-      )
+    toObservable(this.product).pipe(
+      switchMap((p) => (p ? this.repo.reviews(p.id) : of([])))
     ),
     { initialValue: [] }
   );
@@ -86,7 +76,14 @@ export class ProductComponent {
   readonly color = signal('');
   readonly quantity = signal(1);
   readonly showVideo = signal(false);
-  readonly Math = Math;
+
+  decreaseQuantity(): void {
+    this.quantity.update((q) => Math.max(1, q - 1));
+  }
+
+  increaseQuantity(): void {
+    this.quantity.update((q) => q + 1);
+  }
 
   readonly selectedSize = computed(
     () => this.size() || this.product()?.sizes[0] || ''
@@ -128,6 +125,7 @@ export class ProductComponent {
   }
 
   toggleCart(): void {
+    if (this.auth.isAdmin()) return;
     const p = this.product();
     if (!p) return;
     const size = this.selectedSize();

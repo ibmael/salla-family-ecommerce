@@ -29,19 +29,21 @@ export class ProductCardComponent {
 
   readonly isInCart = computed(() => {
     const p = this.product();
-    if (!p || !this.auth.isLoggedIn()) return false;
+    if (!p || !this.auth.isLoggedIn() || this.auth.isAdmin()) return false;
     return this.cart.has(p.id, p.sizes[0] ?? '', p.colors[0] ?? '');
   });
 
   toggleWishlist(event: Event, id: string): void {
     event.preventDefault();
     event.stopPropagation();
+    if (this.auth.isAdmin()) return;
     this.wishlist.toggle(id);
   }
 
   toggleCart(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
+    if (this.auth.isAdmin()) return;
     const p = this.product();
     this.cart.toggle(p, p.sizes[0] ?? '', p.colors[0] ?? '', 1);
   }
