@@ -160,12 +160,12 @@ export class AccountComponent {
 
     const file = input.files[0];
     if (!file.type.startsWith('image/')) {
-      this.toast.success('Please select a valid image file');
+      this.toast.info('Please select a valid image file');
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      this.toast.success('Image size should be under 2MB');
+      this.toast.info('Image size should be under 2MB');
       return;
     }
 
@@ -177,7 +177,7 @@ export class AccountComponent {
           this.toast.success('Profile picture updated successfully.');
         },
         error: (err) => {
-          this.toast.success(err.message || 'Failed to update avatar.');
+          this.toast.error(err.message || 'Failed to update avatar.');
         },
       });
     };
@@ -222,6 +222,7 @@ export class AccountComponent {
         error: (err) => {
           this.isSavingProfile.set(false);
           this.profileError.set(err.message || 'Failed to update profile.');
+          this.toast.error(err.message || 'Failed to update profile.');
         },
       });
   }
@@ -255,6 +256,7 @@ export class AccountComponent {
         error: (err) => {
           this.isChangingPassword.set(false);
           this.passwordError.set(err.message || 'Failed to change password.');
+          this.toast.error(err.message || 'Failed to change password.');
         },
       });
   }

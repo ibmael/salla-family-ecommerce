@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  NgZone,
   PLATFORM_ID,
   afterNextRender,
   inject,
@@ -28,6 +29,8 @@ import {
 import { ProductCardComponent } from '../../../shared/ui/product-card/product-card.component';
 import { RevealOnScrollDirective } from '../../../shared/directives/reveal-on-scroll.directive';
 
+export const HERO_AUTOPLAY_MS = 5000;
+
 export interface HeroSlide {
   id: string;
   image: string;
@@ -36,6 +39,8 @@ export interface HeroSlide {
   description: string;
   ctaText: string;
   ctaLink: string;
+  secondaryCtaText?: string;
+  secondaryCtaLink?: string;
   objectPosition: string;
 }
 
@@ -56,8 +61,10 @@ export class HomeComponent {
   private readonly categoryRepo = inject(CATEGORY_REPOSITORY);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
 
   readonly emblaViewport = viewChild<ElementRef<HTMLElement>>('emblaViewport');
+  readonly heroContainer = viewChild<ElementRef<HTMLElement>>('heroContainer');
   private emblaApi?: EmblaCarouselType;
 
   readonly icons = { ChevronLeft, ChevronRight, ArrowRight };
@@ -71,6 +78,8 @@ export class HomeComponent {
       description: 'Discover pieces that feel as good as they look.',
       ctaText: 'Shop the edit',
       ctaLink: '/category',
+      secondaryCtaText: 'View catalog',
+      secondaryCtaLink: '/categories',
       objectPosition: 'center',
     },
     {
@@ -81,6 +90,8 @@ export class HomeComponent {
       description: 'Warm textures and thoughtful details for the home you love.',
       ctaText: 'Explore home',
       ctaLink: '/category/home',
+      secondaryCtaText: 'All collections',
+      secondaryCtaLink: '/categories',
       objectPosition: 'center 60%',
     },
     {
@@ -91,19 +102,19 @@ export class HomeComponent {
       description: 'From refined essentials to statement wardrobe pieces.',
       ctaText: 'Shop apparel',
       ctaLink: '/category/apparel',
+      secondaryCtaText: 'Explore all',
+      secondaryCtaLink: '/categories',
       objectPosition: 'center 35%',
     },
   ];
 
   readonly activeIndex = signal<number>(0);
   readonly isPaused = signal<boolean>(false);
-
-  /** CSS animation key — increments on every slide change to force progress restart */
   readonly progressKey = signal<number>(0);
 
   private autoplayTimer?: ReturnType<typeof setTimeout>;
-  private readonly AUTOPLAY_MS = 5000;
   private prefersReducedMotion = false;
+  private rafId?: number;
 
   readonly data = toSignal(
     forkJoin({
@@ -133,15 +144,24 @@ export class HomeComponent {
       this.emblaApi.on('select', () => {
         if (!this.emblaApi) return;
         this.activeIndex.set(this.emblaApi.selectedScrollSnap());
-        // Bump progressKey so CSS animation restarts from 0%
         this.progressKey.update((k) => k + 1);
       });
 
-      if (!this.prefersReducedMotion) {
-        this.scheduleNext();
-      }
+      this.emblaApi.on('pointerDown', () => {
+        this.isPaused.set(true);
+        this.clearScheduled();
+      });
 
-      // Pause/resume on document visibility
+      this.emblaApi.on('pointerUp', () => {
+        this.isPaused.set(false);
+        this.scheduleNext();
+      });
+
+      // Autoplay: always schedule (even in reduced-motion mode)
+      // CSS handles the visual simplification; the carousel remains functional
+      this.scheduleNext();
+
+      // Page Visibility handling
       const handleVisibility = () => {
         if (document.hidden) {
           this.clearScheduled();
@@ -151,15 +171,47 @@ export class HomeComponent {
       };
       document.addEventListener('visibilitychange', handleVisibility);
 
+      // Subtle mouse parallax on desktop (outside Angular zone for 60fps performance)
+      const container = this.heroContainer()?.nativeElement;
+      if (container && !this.prefersReducedMotion && window.matchMedia('(pointer: fine)').matches) {
+        this.ngZone.runOutsideAngular(() => {
+          const handleMouseMove = (e: MouseEvent) => {
+            if (this.rafId) cancelAnimationFrame(this.rafId);
+            this.rafId = requestAnimationFrame(() => {
+              const rect = container.getBoundingClientRect();
+              const normX = ((e.clientX - rect.left) / rect.width - 0.5) * 2; // -1 to 1
+              const normY = ((e.clientY - rect.top) / rect.height - 0.5) * 2; // -1 to 1
+              container.style.setProperty('--mouse-x', normX.toFixed(3));
+              container.style.setProperty('--mouse-y', normY.toFixed(3));
+            });
+          };
+
+          const handleMouseLeave = () => {
+            if (this.rafId) cancelAnimationFrame(this.rafId);
+            container.style.setProperty('--mouse-x', '0');
+            container.style.setProperty('--mouse-y', '0');
+          };
+
+          container.addEventListener('mousemove', handleMouseMove, { passive: true });
+          container.addEventListener('mouseleave', handleMouseLeave, { passive: true });
+
+          this.destroyRef.onDestroy(() => {
+            container.removeEventListener('mousemove', handleMouseMove);
+            container.removeEventListener('mouseleave', handleMouseLeave);
+          });
+        });
+      }
+
       this.destroyRef.onDestroy(() => {
         this.clearScheduled();
+        if (this.rafId) cancelAnimationFrame(this.rafId);
         document.removeEventListener('visibilitychange', handleVisibility);
         this.emblaApi?.destroy();
       });
     });
   }
 
-  // ── Single-timer autoplay: setTimeout (not setInterval) ──
+  // ── Autoplay Scheduling ──
   private clearScheduled(): void {
     if (this.autoplayTimer != null) {
       clearTimeout(this.autoplayTimer);
@@ -169,19 +221,15 @@ export class HomeComponent {
 
   private scheduleNext(): void {
     this.clearScheduled();
-    if (this.prefersReducedMotion) return;
-
     this.autoplayTimer = setTimeout(() => {
       if (this.emblaApi && !this.isPaused() && !document.hidden) {
         this.emblaApi.scrollNext();
-        // After scrollNext triggers 'select', scheduleNext is called again
-        // via the restartAutoplay path — but we also call it here defensively
         this.scheduleNext();
       }
-    }, this.AUTOPLAY_MS);
+    }, HERO_AUTOPLAY_MS);
   }
 
-  // ── Navigation handlers ──
+  // ── Manual Navigation Handlers ──
   scrollPrev(): void {
     if (!this.emblaApi) return;
     this.emblaApi.scrollPrev();
@@ -206,7 +254,7 @@ export class HomeComponent {
     }
   }
 
-  // ── Hover & Focus ──
+  // ── Hover & Focus Listeners ──
   onHeroMouseEnter(): void {
     this.isPaused.set(true);
     this.clearScheduled();

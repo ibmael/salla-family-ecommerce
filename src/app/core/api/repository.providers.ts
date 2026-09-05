@@ -3,8 +3,10 @@ import { MockCategoryRepository, MockProductRepository } from '../repositories/m
 import { MockAuthRepository } from '../repositories/mock-auth.repository';
 import { MockAdminRepository, MockOrderRepository } from '../repositories/mock-orders.repository';
 import { MockCustomerRepository } from '../repositories/mock-customer.repository';
+import { AuditLogService } from '../services/audit-log.service';
 import {
   ADMIN_REPOSITORY,
+  AUDIT_LOG_REPOSITORY,
   AUTH_REPOSITORY,
   CATEGORY_REPOSITORY,
   CUSTOMER_REPOSITORY,
@@ -14,11 +16,12 @@ import {
 
 export function provideRepositories(): EnvironmentProviders {
   return makeEnvironmentProviders([
-    { provide: PRODUCT_REPOSITORY,  useExisting: MockProductRepository },
-    { provide: CATEGORY_REPOSITORY, useExisting: MockCategoryRepository },
-    { provide: ORDER_REPOSITORY,    useExisting: MockOrderRepository },
-    { provide: AUTH_REPOSITORY,     useExisting: MockAuthRepository },
-    { provide: ADMIN_REPOSITORY,    useExisting: MockAdminRepository },
-    { provide: CUSTOMER_REPOSITORY, useExisting: MockCustomerRepository },
+    { provide: PRODUCT_REPOSITORY,   useExisting: MockProductRepository },
+    { provide: CATEGORY_REPOSITORY,  useExisting: MockCategoryRepository },
+    { provide: ORDER_REPOSITORY,     useExisting: MockOrderRepository },
+    { provide: AUTH_REPOSITORY,      useExisting: MockAuthRepository },
+    { provide: ADMIN_REPOSITORY,     useExisting: MockAdminRepository },
+    { provide: CUSTOMER_REPOSITORY,  useExisting: MockCustomerRepository },
+    { provide: AUDIT_LOG_REPOSITORY, useExisting: AuditLogService },
   ]);
 }

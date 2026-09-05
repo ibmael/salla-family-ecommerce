@@ -3,6 +3,8 @@ import { Observable } from 'rxjs';
 import { Category, PagedResult, Product, ProductFilters, Review } from '../models/product.model';
 import { Order, OrderStatus } from '../models/order.model';
 import {
+  AuditAction,
+  AuditEntityType,
   AuditLog,
   ChangePasswordPayload,
   Customer,
@@ -91,9 +93,21 @@ export interface CustomerRepository {
   count(): Observable<number>;
 }
 
-export const PRODUCT_REPOSITORY  = new InjectionToken<ProductRepository>('ProductRepository');
-export const CATEGORY_REPOSITORY = new InjectionToken<CategoryRepository>('CategoryRepository');
-export const ORDER_REPOSITORY    = new InjectionToken<OrderRepository>('OrderRepository');
-export const AUTH_REPOSITORY     = new InjectionToken<AuthRepository>('AuthRepository');
-export const ADMIN_REPOSITORY    = new InjectionToken<AdminRepository>('AdminRepository');
-export const CUSTOMER_REPOSITORY = new InjectionToken<CustomerRepository>('CustomerRepository');
+export interface AuditLogRepository {
+  list(): Observable<AuditLog[]>;
+  record(params: {
+    action: AuditAction;
+    entityType: AuditEntityType;
+    entityId: string;
+    entityLabel?: string;
+    metadata?: Record<string, string | number | boolean>;
+  }): void;
+}
+
+export const PRODUCT_REPOSITORY   = new InjectionToken<ProductRepository>('ProductRepository');
+export const CATEGORY_REPOSITORY  = new InjectionToken<CategoryRepository>('CategoryRepository');
+export const ORDER_REPOSITORY     = new InjectionToken<OrderRepository>('OrderRepository');
+export const AUTH_REPOSITORY      = new InjectionToken<AuthRepository>('AuthRepository');
+export const ADMIN_REPOSITORY     = new InjectionToken<AdminRepository>('AdminRepository');
+export const CUSTOMER_REPOSITORY  = new InjectionToken<CustomerRepository>('CustomerRepository');
+export const AUDIT_LOG_REPOSITORY = new InjectionToken<AuditLogRepository>('AuditLogRepository');

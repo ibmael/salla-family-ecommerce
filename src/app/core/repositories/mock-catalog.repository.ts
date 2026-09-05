@@ -4,6 +4,7 @@ import { MOCK_CATEGORIES, MOCK_PRODUCTS, MOCK_REVIEWS } from '../../data/mocks/c
 import { Category, PagedResult, Product, ProductFilters, Review } from '../models/product.model';
 import { CategoryRepository, ProductRepository } from './repository.tokens';
 import { BrowserStorageService } from '../services/browser-storage.service';
+import { AuditLogService } from '../services/audit-log.service';
 
 const CATEGORIES_STORAGE_KEY = 'salla-mock-categories';
 const PRODUCTS_STORAGE_KEY = 'salla-mock-products';
@@ -73,6 +74,7 @@ function paginate<T>(items: T[], page = 1, pageSize = 12): PagedResult<T> {
 @Injectable({ providedIn: 'root' })
 export class MockProductRepository implements ProductRepository {
   private readonly storage = inject(BrowserStorageService);
+  private readonly audit   = inject(AuditLogService);
   private products: Product[] = this.loadProducts();
 
   private loadProducts(): Product[] {
@@ -134,6 +136,13 @@ export class MockProductRepository implements ProductRepository {
     };
     this.products = [newProduct, ...this.products];
     this.save();
+    this.audit.record({
+      action: 'Product Created',
+      entityType: 'product',
+      entityId: newProduct.id,
+      entityLabel: newProduct.name,
+      metadata: { category: newProduct.category, price: newProduct.price },
+    });
     return of(newProduct);
   }
 
@@ -142,21 +151,39 @@ export class MockProductRepository implements ProductRepository {
     if (index === -1) {
       throw new Error(`Product #${id} not found.`);
     }
-    const updated: Product = {
-      ...this.products[index],
-      ...updates,
-      id,
-    };
+    const prev = this.products[index];
+    const updated: Product = { ...prev, ...updates, id };
     this.products[index] = updated;
     this.save();
+    const changed: Record<string, string | number | boolean> = {};
+    for (const key of Object.keys(updates) as (keyof Product)[]) {
+      if (key !== 'id' && prev[key] !== updated[key]) {
+        changed[`${key}_from`] = String(prev[key] ?? '');
+        changed[`${key}_to`]   = String(updated[key] ?? '');
+      }
+    }
+    this.audit.record({
+      action: 'Product Updated',
+      entityType: 'product',
+      entityId: id,
+      entityLabel: updated.name,
+      metadata: Object.keys(changed).length ? changed : undefined,
+    });
     return of(updated);
   }
 
   delete(id: string): Observable<boolean> {
+    const target = this.products.find((p) => p.id === id);
     const initLen = this.products.length;
     this.products = this.products.filter((p) => p.id !== id);
     if (this.products.length !== initLen) {
       this.save();
+      this.audit.record({
+        action: 'Product Deleted',
+        entityType: 'product',
+        entityId: id,
+        entityLabel: target?.name,
+      });
       return of(true);
     }
     return of(false);
@@ -166,6 +193,7 @@ export class MockProductRepository implements ProductRepository {
 @Injectable({ providedIn: 'root' })
 export class MockCategoryRepository implements CategoryRepository {
   private readonly storage = inject(BrowserStorageService);
+  private readonly audit   = inject(AuditLogService);
   private categories: Category[] = this.loadCategories();
 
   private loadCategories(): Category[] {
@@ -215,6 +243,12 @@ export class MockCategoryRepository implements CategoryRepository {
     };
     this.categories = [...this.categories, newCat];
     this.save();
+    this.audit.record({
+      action: 'Category Created',
+      entityType: 'category',
+      entityId: newCat.id,
+      entityLabel: newCat.name,
+    });
     return of(newCat);
   }
 
@@ -223,21 +257,30 @@ export class MockCategoryRepository implements CategoryRepository {
     if (index === -1) {
       throw new Error(`Category with ID ${id} not found.`);
     }
-    const updated: Category = {
-      ...this.categories[index],
-      ...updates,
-      id,
-    };
+    const updated: Category = { ...this.categories[index], ...updates, id };
     this.categories[index] = updated;
     this.save();
+    this.audit.record({
+      action: 'Category Updated',
+      entityType: 'category',
+      entityId: id,
+      entityLabel: updated.name,
+    });
     return of(updated);
   }
 
   delete(id: string): Observable<boolean> {
+    const target = this.categories.find((c) => c.id === id);
     const initialLen = this.categories.length;
     this.categories = this.categories.filter((c) => c.id !== id);
     if (this.categories.length !== initialLen) {
       this.save();
+      this.audit.record({
+        action: 'Category Deleted',
+        entityType: 'category',
+        entityId: id,
+        entityLabel: target?.name,
+      });
       return of(true);
     }
     return of(false);

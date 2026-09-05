@@ -50,10 +50,42 @@ export interface Customer {
 }
 
 export interface AuditLog {
+  /** Stable unique ID */
   id: string;
-  action: string;
-  actor: string;
-  target: string;
+  /** Human-readable action label, e.g. "Product Created" */
+  action: AuditAction;
+  /** The type of entity that was affected */
+  entityType: AuditEntityType;
+  /** Stable ID of the affected entity */
+  entityId: string;
+  /** Human-readable label of the affected entity at the time of the event */
+  entityLabel?: string;
+  /** Stable user ID of the actor performing the action */
+  actorId: string;
+  /** Display name of the actor (name or email) */
+  actorName: string;
+  /** ISO 8601 timestamp */
   timestamp: string;
-  details: string;
+  /** Optional key/value metadata, e.g. old→new price, status change */
+  metadata?: Record<string, string | number | boolean>;
+  // ── Legacy flat fields (used by seed data) ──
+  /** @deprecated use actorName */
+  actor?: string;
+  /** @deprecated use entityLabel */
+  target?: string;
+  /** @deprecated use metadata */
+  details?: string;
 }
+
+export type AuditAction =
+  | 'Product Created'
+  | 'Product Updated'
+  | 'Product Deleted'
+  | 'Category Created'
+  | 'Category Updated'
+  | 'Category Deleted'
+  | 'Order Status Changed'
+  | 'Order Cancelled'
+  | 'Customer Deactivated';
+
+export type AuditEntityType = 'product' | 'category' | 'order' | 'customer';

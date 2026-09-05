@@ -57,6 +57,46 @@
     cursor: pointer;
   }
 
+  /* Native Search Input Base Normalization (prevents duplicate clear icons) */
+  input[type="search"]::-webkit-search-decoration,
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-results-button,
+  input[type="search"]::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input::-ms-clear,
+  input::-ms-reveal {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  /* Native Select & Option Base Normalization */
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  select::-ms-expand {
+    display: none;
+  }
+
+  select option {
+    background-color: #ffffff;
+    color: var(--color-ink);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .dark select option,
+  html.dark select option {
+    background-color: #1c1916;
+    color: #f7f4ef;
+  }
+
   button:disabled,
   [aria-disabled="true"] {
     cursor: not-allowed;
@@ -247,6 +287,172 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+
+  /* Reusable Admin Search Input (aligned with admin-select-trigger) */
+  .admin-search-input {
+    width: 100%;
+    height: 2.5rem;
+    padding-left: 1rem;
+    padding-right: 2.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    background-color: rgba(235, 228, 216, 0.4);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: var(--color-ink);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  }
+
+  .admin-search-input::placeholder {
+    color: rgba(138, 129, 120, 0.6);
+  }
+
+  .admin-search-input:hover {
+    border-color: rgba(184, 111, 82, 0.35);
+  }
+
+  .admin-search-input:focus {
+    border-color: rgba(184, 111, 82, 0.5);
+    box-shadow: 0 0 0 2px rgba(184, 111, 82, 0.25);
+  }
+
+  .dark .admin-search-input,
+  html.dark .admin-search-input {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  .dark .admin-search-input::placeholder,
+  html.dark .admin-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .dark .admin-search-input:hover,
+  html.dark .admin-search-input:hover {
+    border-color: rgba(184, 111, 82, 0.45);
+  }
+
+  .dark .admin-search-input:focus,
+  html.dark .admin-search-input:focus {
+    border-color: rgba(184, 111, 82, 0.6);
+    box-shadow: 0 0 0 2px rgba(184, 111, 82, 0.35);
+  }
+
+  /* Reusable Admin Toolbar Select Trigger */
+  .admin-select-trigger {
+    display: inline-flex;
+    align-items: center;
+    height: 2.5rem;
+    padding-left: 0.875rem;
+    padding-right: 2.25rem;
+    border-radius: 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    background-color: rgba(235, 228, 216, 0.4);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: var(--color-ink);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  }
+
+  .admin-select-trigger:hover {
+    border-color: rgba(184, 111, 82, 0.35);
+  }
+
+  .admin-select-trigger:focus,
+  .admin-select-trigger:focus-visible {
+    outline: none;
+    border-color: rgba(184, 111, 82, 0.5);
+    box-shadow: 0 0 0 2px rgba(184, 111, 82, 0.25);
+  }
+
+  .dark .admin-select-trigger,
+  html.dark .admin-select-trigger {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+
+  .dark .admin-select-trigger:hover,
+  html.dark .admin-select-trigger:hover {
+    border-color: rgba(184, 111, 82, 0.45);
+  }
+
+  .dark .admin-select-trigger:focus,
+  .dark .admin-select-trigger:focus-visible,
+  html.dark .admin-select-trigger:focus,
+  html.dark .admin-select-trigger:focus-visible {
+    border-color: rgba(184, 111, 82, 0.6);
+    box-shadow: 0 0 0 2px rgba(184, 111, 82, 0.35);
+  }
+
+  /* Reusable Form Select (standalone / modal with embedded chevron) */
+  .form-select,
+  select.field-input {
+    width: 100%;
+    height: 2.625rem;
+    padding-left: 0.875rem;
+    padding-right: 2.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    background-color: rgba(235, 228, 216, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    color: var(--color-ink);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8178' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.875rem center;
+    background-repeat: no-repeat;
+    background-size: 1rem 1rem;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .form-select:hover,
+  select.field-input:hover {
+    border-color: rgba(184, 111, 82, 0.35);
+  }
+
+  .form-select:focus,
+  select.field-input:focus {
+    border-color: var(--color-clay);
+    box-shadow: 0 0 0 2px rgba(184, 111, 82, 0.25);
+  }
+
+  .dark .form-select,
+  html.dark .form-select,
+  .dark select.field-input,
+  html.dark select.field-input {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.45)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+
+  .dark .form-select:hover,
+  html.dark .form-select:hover,
+  .dark select.field-input:hover,
+  html.dark select.field-input:hover {
+    border-color: rgba(184, 111, 82, 0.5);
+  }
+
+  .dark .form-select:focus,
+  html.dark .form-select:focus,
+  .dark select.field-input:focus,
+  html.dark select.field-input:focus {
+    border-color: var(--color-clay);
+    box-shadow: 0 0 0 2px rgba(184, 111, 82, 0.35);
   }
 }
 

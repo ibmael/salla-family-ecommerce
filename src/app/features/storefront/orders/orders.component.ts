@@ -48,9 +48,13 @@ export class OrdersComponent {
     ChevronRight,
   };
 
-  formatDate(value: string, pattern: string): string {
+  formatDate(value: string | undefined, pattern: string): string {
     if (!value) return '';
-    return format(new Date(value), pattern);
+    try {
+      return format(new Date(value), pattern);
+    } catch {
+      return value;
+    }
   }
 
   getTotalItemCount(order: Order): number {

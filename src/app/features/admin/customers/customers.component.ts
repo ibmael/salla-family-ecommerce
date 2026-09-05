@@ -25,6 +25,10 @@ import {
 } from 'lucide-angular';
 import { CUSTOMER_REPOSITORY, CustomerProfile } from '../../../core/repositories/repository.tokens';
 import { UserAvatarComponent } from '../../../shared/ui/user-avatar/user-avatar.component';
+import {
+  CustomSelectComponent,
+  SelectOption,
+} from '../../../shared/ui/custom-select/custom-select.component';
 
 type SortKey = 'newest' | 'most-orders' | 'highest-spend' | 'name-az';
 
@@ -41,7 +45,7 @@ function formatMoney(n: number): string {
 @Component({
   selector: 'app-admin-customers',
   standalone: true,
-  imports: [RouterLink, FormsModule, LucideAngularModule, UserAvatarComponent],
+  imports: [RouterLink, FormsModule, LucideAngularModule, UserAvatarComponent, CustomSelectComponent],
   templateUrl: './customers.component.html',
   styleUrl: './customers.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,6 +58,13 @@ export class AdminCustomersComponent {
   // ── Filters & Sorting ─────────────────────────────────────────────────────
   readonly searchQuery = signal('');
   readonly sortKey     = signal<SortKey>('newest');
+
+  readonly sortOptions: SelectOption<SortKey>[] = [
+    { value: 'newest', label: 'Newest first' },
+    { value: 'most-orders', label: 'Most orders' },
+    { value: 'highest-spend', label: 'Highest spend' },
+    { value: 'name-az', label: 'Name A–Z' },
+  ];
 
   readonly filteredCustomers = computed<CustomerProfile[]>(() => {
     const query = this.searchQuery().toLowerCase().trim();

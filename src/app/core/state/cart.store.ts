@@ -46,7 +46,7 @@ export class CartStore {
     quantity = 1
   ): { action: 'added' | 'removed' } | false {
     if (!this.auth.isLoggedIn()) {
-      this.toast.success(AUTH_TOAST_MSG, AUTH_TOAST_TITLE, AUTH_TOAST_KEY);
+      this.toast.info(AUTH_TOAST_MSG, AUTH_TOAST_TITLE, AUTH_TOAST_KEY);
       return false;
     }
 

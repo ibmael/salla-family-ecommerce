@@ -9,7 +9,10 @@
   aria-label="Highlighted collections and stories"
   [appRevealOnScroll]="0"
 >
-  <div class="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-sand/40 dark:bg-ink/60 border border-black/10 dark:border-white/10 shadow-sm">
+  <div
+    #heroContainer
+    class="hero-interactive-container relative rounded-2xl sm:rounded-3xl overflow-hidden bg-sand/40 dark:bg-ink/60 border border-black/10 dark:border-white/10 shadow-sm"
+  >
     <!-- Embla Viewport -->
     <div #emblaViewport class="embla-viewport overflow-hidden w-full">
       <div class="embla-container flex touch-pan-y">
@@ -44,7 +47,9 @@
                 <p class="hero-desc mt-3 sm:mt-4 text-white/85 max-w-lg leading-relaxed">
                   {{ slide.description }}
                 </p>
-                <div class="mt-5 sm:mt-7">
+
+                <!-- CTA Group: Primary & Secondary Actions -->
+                <div class="mt-5 sm:mt-7 flex flex-wrap items-center gap-2 sm:gap-3">
                   <a
                     [routerLink]="slide.ctaLink"
                     class="btn-primary inline-flex items-center gap-2 hero-cta-btn text-sm font-bold shadow-lg hover:shadow-xl transition-all cursor-pointer"
@@ -52,7 +57,17 @@
                     <span>{{ slide.ctaText }}</span>
                     <lucide-icon [img]="icons.ArrowRight" class="size-4" />
                   </a>
+
+                  @if (slide.secondaryCtaText && slide.secondaryCtaLink) {
+                    <a
+                      [routerLink]="slide.secondaryCtaLink"
+                      class="hero-cta-secondary inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-semibold text-white/90 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/35 transition-all cursor-pointer shadow-xs"
+                    >
+                      <span>{{ slide.secondaryCtaText }}</span>
+                    </a>
+                  }
                 </div>
+
               </div>
             </div>
           </div>
@@ -60,7 +75,7 @@
       </div>
     </div>
 
-    <!-- Desktop Navigation Arrows (hidden on small mobile) -->
+    <!-- Desktop Navigation Arrows -->
     <button
       type="button"
       (click)="scrollPrev()"
@@ -79,7 +94,7 @@
       <lucide-icon [img]="icons.ChevronRight" class="size-5" />
     </button>
 
-    <!-- Indicators with Progress (Bottom Center) -->
+    <!-- Indicators with Real Progress Bar (Bottom Center) -->
     <div
       class="hero-indicators-bar absolute z-20"
       role="tablist"
@@ -87,7 +102,7 @@
     >
       @for (slide of slides; track slide.id; let idx = $index) {
         @if (activeIndex() === idx) {
-          <!-- Active indicator with CSS-driven 5s progress -->
+          <!-- Active indicator with CSS-driven synchronized progress -->
           <button
             type="button"
             (click)="scrollTo(idx)"
@@ -96,11 +111,17 @@
             aria-selected="true"
             role="tab"
           >
-            <span
-              class="hero-progress-fill absolute inset-0 rounded-full"
-              [class.paused]="isPaused()"
-              [attr.data-key]="progressKey()"
-            ></span>
+            @if (progressKey() % 2 === 0) {
+              <span
+                class="hero-progress-fill absolute inset-0 rounded-full"
+                [class.paused]="isPaused()"
+              ></span>
+            } @else {
+              <span
+                class="hero-progress-fill absolute inset-0 rounded-full"
+                [class.paused]="isPaused()"
+              ></span>
+            }
           </button>
         } @else {
           <!-- Inactive dot -->

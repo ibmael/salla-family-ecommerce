@@ -1,15 +1,530 @@
-<div>
-  <h1 class="font-display text-3xl font-semibold">Audit Logs</h1>
-  <div class="mt-8 space-y-3">
-    @for (log of logs(); track log.id) {
-      <article class="log-card">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <p class="font-semibold">{{ log.action }}</p>
-          <time class="text-xs opacity-60">{{ formatDate(log.timestamp, 'MMM d, yyyy HH:mm') }}</time>
-        </div>
-        <p class="mt-1 text-sm opacity-70">{{ log.actor }} → {{ log.target }}</p>
-        <p class="mt-2 text-sm">{{ log.details }}</p>
-      </article>
-    }
+<div class="admin-audit-logs space-y-7">
+  <!-- ── Page Header ───────────────────────────────────────────────────── -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <p class="eyebrow text-clay">Admin</p>
+      <h1
+        class="mt-1 font-display text-2xl sm:text-3xl lg:text-4xl font-semibold text-ink dark:text-white"
+      >
+        Audit Logs
+      </h1>
+      <p class="mt-1.5 text-xs sm:text-sm text-stone dark:text-white/60">
+        Track administrative activities, product and category modifications, and order status updates.
+      </p>
+    </div>
+
+    <!-- Refresh Button -->
+    <button
+      type="button"
+      (click)="loadLogs()"
+      [disabled]="loading()"
+      class="inline-flex items-center gap-2 self-start sm:self-auto px-4 py-2 rounded-xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-clay/40 text-xs font-semibold text-ink dark:text-white transition-colors cursor-pointer disabled:opacity-50"
+      aria-label="Refresh audit logs"
+    >
+      <lucide-icon
+        [img]="icons.RefreshCw"
+        class="size-3.5 text-clay"
+        [class.animate-spin]="loading()"
+        aria-hidden="true"
+      />
+      <span>Refresh</span>
+    </button>
   </div>
+
+  <!-- ── Summary KPI Cards ──────────────────────────────────────────────── -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div
+      class="p-4 rounded-2xl bg-white dark:bg-white/5 border border-black/8 dark:border-white/8 shadow-2xs"
+    >
+      <div
+        class="flex items-center gap-2 text-stone dark:text-white/50 text-[11px] font-semibold uppercase tracking-wider"
+      >
+        <lucide-icon [img]="icons.History" class="size-3.5 text-clay" />
+        Total events
+      </div>
+      <p class="mt-2 font-display text-2xl font-bold text-ink dark:text-white">
+        {{ stats().total }}
+      </p>
+    </div>
+
+    <div
+      class="p-4 rounded-2xl bg-white dark:bg-white/5 border border-black/8 dark:border-white/8 shadow-2xs"
+    >
+      <div
+        class="flex items-center gap-2 text-stone dark:text-white/50 text-[11px] font-semibold uppercase tracking-wider"
+      >
+        <lucide-icon [img]="icons.Package" class="size-3.5 text-purple-600 dark:text-purple-400" />
+        Product logs
+      </div>
+      <p class="mt-2 font-display text-2xl font-bold text-ink dark:text-white">
+        {{ stats().product }}
+      </p>
+    </div>
+
+    <div
+      class="p-4 rounded-2xl bg-white dark:bg-white/5 border border-black/8 dark:border-white/8 shadow-2xs"
+    >
+      <div
+        class="flex items-center gap-2 text-stone dark:text-white/50 text-[11px] font-semibold uppercase tracking-wider"
+      >
+        <lucide-icon [img]="icons.ShoppingBag" class="size-3.5 text-blue-600 dark:text-blue-400" />
+        Order logs
+      </div>
+      <p class="mt-2 font-display text-2xl font-bold text-ink dark:text-white">
+        {{ stats().order }}
+      </p>
+    </div>
+
+    <div
+      class="p-4 rounded-2xl bg-white dark:bg-white/5 border border-black/8 dark:border-white/8 shadow-2xs"
+    >
+      <div
+        class="flex items-center gap-2 text-stone dark:text-white/50 text-[11px] font-semibold uppercase tracking-wider"
+      >
+        <lucide-icon [img]="icons.Tag" class="size-3.5 text-indigo-600 dark:text-indigo-400" />
+        Category logs
+      </div>
+      <p class="mt-2 font-display text-2xl font-bold text-ink dark:text-white">
+        {{ stats().category }}
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Search & Filter Toolbar ──────────────────────────────────────── -->
+  <div
+    class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-2 sm:p-2.5 rounded-2xl bg-white dark:bg-white/5 border border-black/8 dark:border-white/8 shadow-2xs"
+  >
+    <!-- Search Input (takes remaining width, icon on the right) -->
+    <div class="relative flex-1 min-w-0">
+      <input
+        type="search"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="Search by action, actor, target or entity ID…"
+        id="audit-log-search"
+        aria-label="Search audit logs"
+        class="admin-search-input"
+      />
+      <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+        @if (searchQuery()) {
+          <button
+            type="button"
+            (click)="clearSearch()"
+            class="p-1 rounded-md text-stone/60 dark:text-white/40 hover:text-ink dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+            aria-label="Clear search"
+          >
+            <lucide-icon [img]="icons.X" class="size-3.5" />
+          </button>
+        }
+        <lucide-icon
+          [img]="icons.Search"
+          class="size-4 text-stone/60 dark:text-white/40 pointer-events-none"
+          aria-hidden="true"
+        />
+      </div>
+    </div>
+
+    <!-- Controls Group (Entity filter, Action filter, Sort) -->
+    <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
+      <!-- Entity Filter -->
+      <app-custom-select
+        [options]="entitySelectOptions"
+        [(value)]="filterEntity"
+        ariaLabel="Filter by entity"
+        [icon]="icons.Filter"
+        panelWidthClass="w-48"
+      />
+
+      <!-- Action Filter -->
+      <app-custom-select
+        [options]="actionSelectOptions()"
+        [(value)]="filterAction"
+        ariaLabel="Filter by action"
+        [icon]="icons.SlidersHorizontal"
+        panelWidthClass="w-56"
+      />
+
+      <!-- Sort Order -->
+      <app-custom-select
+        [options]="sortSelectOptions"
+        [(value)]="sortOrder"
+        ariaLabel="Sort audit logs"
+        [icon]="icons.ArrowUpDown"
+        panelWidthClass="w-44"
+        [alignRight]="true"
+      />
+
+      <!-- Clear filters (if any active) -->
+      @if (isFiltered()) {
+        <button
+          type="button"
+          (click)="clearFilters()"
+          class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-stone dark:text-white/60 hover:text-clay dark:hover:text-clay bg-sand/20 dark:bg-white/5 border border-transparent hover:border-clay/20 transition-colors cursor-pointer shrink-0"
+          title="Reset all filters"
+        >
+          <lucide-icon [img]="icons.X" class="size-3.5" />
+          <span>Reset</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ── Results Count Bar ─────────────────────────────────────────────── -->
+  <div class="flex items-center justify-between px-1 text-xs text-stone dark:text-white/50">
+    <p>
+      Showing
+      <span class="font-semibold text-ink dark:text-white">{{ filteredLogs().length }}</span>
+      @if (isFiltered()) {
+        of {{ rawLogs().length }}
+      }
+      events
+    </p>
+  </div>
+
+  <!-- ── Logs Content ──────────────────────────────────────────────────── -->
+  @if (filteredLogs().length > 0) {
+    <!-- Desktop & Tablet Table (sm:block) -->
+    <div
+      class="hidden sm:block rounded-2xl bg-white dark:bg-white/5 border border-black/8 dark:border-white/8 shadow-2xs overflow-hidden"
+    >
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[700px]">
+          <thead>
+            <tr class="border-b border-black/8 dark:border-white/8 bg-sand/20 dark:bg-white/2">
+              <th
+                scope="col"
+                class="py-3.5 pl-5 pr-3 text-[11px] font-semibold uppercase tracking-wider text-stone dark:text-white/50"
+              >
+                Action
+              </th>
+              <th
+                scope="col"
+                class="py-3.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-stone dark:text-white/50"
+              >
+                Target Entity
+              </th>
+              <th
+                scope="col"
+                class="py-3.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-stone dark:text-white/50"
+              >
+                Actor
+              </th>
+              <th
+                scope="col"
+                class="py-3.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-stone dark:text-white/50"
+              >
+                Timestamp
+              </th>
+              <th
+                scope="col"
+                class="py-3.5 pr-5 pl-3 text-right text-[11px] font-semibold uppercase tracking-wider text-stone dark:text-white/50"
+              >
+                Details
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-black/5 dark:divide-white/5 text-xs">
+            @for (log of filteredLogs(); track log.id) {
+              <!-- Main Row -->
+              <tr
+                class="hover:bg-sand/30 dark:hover:bg-white/[0.02] transition-colors cursor-pointer"
+                (click)="toggleExpand(log.id)"
+              >
+                <!-- Action Column -->
+                <td class="py-3 pl-5 pr-3">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border {{
+                        actionMeta(log).badgeClass
+                      }}"
+                    >
+                      <lucide-icon [img]="actionMeta(log).icon" class="size-3 shrink-0" />
+                      {{ log.action }}
+                    </span>
+                  </div>
+                </td>
+
+                <!-- Target Entity Column -->
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wide border {{
+                        entityBadgeClass(log.entityType)
+                      }}"
+                    >
+                      <lucide-icon [img]="entityIcon(log)" class="size-3" />
+                      {{ log.entityType }}
+                    </span>
+                    <div class="min-w-0">
+                      <p class="font-semibold text-ink dark:text-white truncate max-w-[200px]">
+                        {{ entityLabel(log) }}
+                      </p>
+                      @if (log.entityId) {
+                        <p class="text-[10px] font-mono text-stone/70 dark:text-white/40 truncate">
+                          {{ log.entityId }}
+                        </p>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Actor Column -->
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="size-7 rounded-full bg-sand dark:bg-white/10 text-ink dark:text-white text-[10px] font-bold flex items-center justify-center shrink-0 border border-black/5 dark:border-white/10"
+                    >
+                      {{ actorInitials(log) }}
+                    </div>
+                    <div class="min-w-0">
+                      <p class="font-medium text-ink dark:text-white truncate">
+                        {{ actorName(log) }}
+                      </p>
+                      @if (log.actorId) {
+                        <p class="text-[10px] font-mono text-stone/70 dark:text-white/40 truncate">
+                          {{ log.actorId }}
+                        </p>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Timestamp Column -->
+                <td class="py-3 px-3">
+                  <div class="flex flex-col">
+                    <span
+                      class="font-medium text-ink dark:text-white"
+                      [title]="formatAbsolute(log.timestamp)"
+                    >
+                      {{ formatRelative(log.timestamp) }}
+                    </span>
+                    <span class="text-[10px] text-stone/70 dark:text-white/40">
+                      {{ formatAbsolute(log.timestamp) }}
+                    </span>
+                  </div>
+                </td>
+
+                <!-- Expand Details Column -->
+                <td class="py-3 pr-5 pl-3 text-right">
+                  <button
+                    type="button"
+                    (click)="$event.stopPropagation(); toggleExpand(log.id)"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-clay hover:bg-clay/10 transition-colors cursor-pointer"
+                    [attr.aria-expanded]="expandedLogId() === log.id"
+                    aria-label="Toggle event details"
+                  >
+                    <span>{{ expandedLogId() === log.id ? 'Hide' : 'Details' }}</span>
+                    <lucide-icon
+                      [img]="expandedLogId() === log.id ? icons.ChevronUp : icons.ChevronDown"
+                      class="size-3.5"
+                    />
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Expanded Detail Row -->
+              @if (expandedLogId() === log.id) {
+                <tr class="bg-sand/15 dark:bg-white/[0.015]">
+                  <td colspan="5" class="py-4 px-5">
+                    <div
+                      class="rounded-xl p-4 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-3"
+                    >
+                      <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-black/5 dark:border-white/5 text-xs">
+                        <div class="flex items-center gap-2">
+                          <lucide-icon [img]="icons.Info" class="size-4 text-clay" />
+                          <span class="font-semibold text-ink dark:text-white">Event Details</span>
+                          <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-sand/50 dark:bg-white/10 text-stone dark:text-white/60">
+                            {{ log.id }}
+                          </span>
+                        </div>
+                        <div class="flex items-center gap-2 text-stone dark:text-white/50 text-[11px]">
+                          <lucide-icon [img]="icons.Clock" class="size-3.5" />
+                          <span>{{ formatAbsolute(log.timestamp) }}</span>
+                        </div>
+                      </div>
+
+                      <!-- Metadata Items -->
+                      @if (metadataEntries(log).length > 0) {
+                        <div>
+                          <p class="text-[11px] font-semibold text-stone dark:text-white/50 uppercase tracking-wider mb-2">
+                            Changes & Metadata
+                          </p>
+                          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                            @for (item of metadataEntries(log); track item.key) {
+                              <div
+                                class="p-2.5 rounded-lg bg-sand/30 dark:bg-white/5 border border-black/5 dark:border-white/5"
+                              >
+                                <p class="text-[10px] uppercase font-semibold text-stone/70 dark:text-white/40">
+                                  {{ item.key }}
+                                </p>
+                                <p class="mt-0.5 text-xs font-medium text-ink dark:text-white font-mono break-all">
+                                  {{ item.value }}
+                                </p>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      } @else {
+                        <p class="text-xs text-stone dark:text-white/50 italic">
+                          No additional metadata recorded for this event.
+                        </p>
+                      }
+
+                      <!-- Technical Context -->
+                      <div class="pt-2 border-t border-black/5 dark:border-white/5 flex flex-wrap gap-4 text-[11px] text-stone dark:text-white/60">
+                        <div>
+                          <span class="font-semibold text-ink dark:text-white">Entity ID:</span>
+                          <span class="ml-1 font-mono">{{ log.entityId }}</span>
+                        </div>
+                        <div>
+                          <span class="font-semibold text-ink dark:text-white">Actor ID:</span>
+                          <span class="ml-1 font-mono">{{ log.actorId }}</span>
+                        </div>
+                        @if (log.entityLabel) {
+                          <div>
+                            <span class="font-semibold text-ink dark:text-white">Target Name:</span>
+                            <span class="ml-1">{{ log.entityLabel }}</span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mobile Card View (sm:hidden) -->
+    <div class="block sm:hidden space-y-3">
+      @for (log of filteredLogs(); track log.id) {
+        <div
+          class="p-4 rounded-2xl bg-white dark:bg-white/5 border border-black/8 dark:border-white/8 shadow-2xs space-y-3"
+        >
+          <!-- Top Row: Action & Entity Type -->
+          <div class="flex items-start justify-between gap-2">
+            <span
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border {{
+                actionMeta(log).badgeClass
+              }}"
+            >
+              <lucide-icon [img]="actionMeta(log).icon" class="size-3" />
+              {{ log.action }}
+            </span>
+            <span
+              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wide border {{
+                entityBadgeClass(log.entityType)
+              }}"
+            >
+              <lucide-icon [img]="entityIcon(log)" class="size-3" />
+              {{ log.entityType }}
+            </span>
+          </div>
+
+          <!-- Target & Actor -->
+          <div>
+            <p class="font-semibold text-ink dark:text-white text-sm">
+              {{ entityLabel(log) }}
+            </p>
+            <p class="text-xs text-stone dark:text-white/50 mt-0.5 font-mono">
+              {{ log.entityId }}
+            </p>
+          </div>
+
+          <!-- Actor & Timestamp -->
+          <div class="flex items-center justify-between text-xs text-stone dark:text-white/60 pt-2 border-t border-black/5 dark:border-white/5">
+            <div class="flex items-center gap-2">
+              <div
+                class="size-6 rounded-full bg-sand dark:bg-white/10 text-ink dark:text-white text-[10px] font-bold flex items-center justify-center shrink-0"
+              >
+                {{ actorInitials(log) }}
+              </div>
+              <span class="font-medium text-ink dark:text-white truncate max-w-[120px]">
+                {{ actorName(log) }}
+              </span>
+            </div>
+            <span [title]="formatAbsolute(log.timestamp)">
+              {{ formatRelative(log.timestamp) }}
+            </span>
+          </div>
+
+          <!-- Mobile Details Expand -->
+          <button
+            type="button"
+            (click)="toggleExpand(log.id)"
+            class="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-xl bg-sand/30 dark:bg-white/5 text-xs font-semibold text-clay cursor-pointer"
+          >
+            <span>{{ expandedLogId() === log.id ? 'Hide details' : 'View event details' }}</span>
+            <lucide-icon
+              [img]="expandedLogId() === log.id ? icons.ChevronUp : icons.ChevronDown"
+              class="size-3.5"
+            />
+          </button>
+
+          <!-- Mobile Expanded Panel -->
+          @if (expandedLogId() === log.id) {
+            <div class="p-3 rounded-xl bg-sand/20 dark:bg-white/[0.03] space-y-2.5 text-xs">
+              <div class="text-[11px] text-stone dark:text-white/60 font-mono">
+                Event ID: {{ log.id }}
+              </div>
+
+              @if (metadataEntries(log).length > 0) {
+                <div class="space-y-1.5">
+                  @for (item of metadataEntries(log); track item.key) {
+                    <div class="flex justify-between gap-2 p-2 rounded bg-white dark:bg-white/5">
+                      <span class="text-stone dark:text-white/50 uppercase text-[10px] font-semibold">
+                        {{ item.key }}:
+                      </span>
+                      <span class="font-mono text-ink dark:text-white text-right break-all">
+                        {{ item.value }}
+                      </span>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <p class="text-stone dark:text-white/50 italic text-[11px]">
+                  No additional metadata recorded.
+                </p>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Empty / No-results State -->
+    <div
+      class="rounded-3xl bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 py-16 px-4 text-center"
+    >
+      <lucide-icon
+        [img]="icons.History"
+        class="size-10 mx-auto text-stone/30 dark:text-white/20 mb-3"
+        aria-hidden="true"
+      />
+      @if (isFiltered()) {
+        <p class="text-sm font-semibold text-ink dark:text-white">
+          No audit logs match your criteria
+        </p>
+        <p class="text-xs text-stone dark:text-white/50 mt-1 max-w-sm mx-auto">
+          We couldn't find any events matching your current search or filter selections.
+        </p>
+        <button
+          type="button"
+          (click)="clearFilters()"
+          class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-clay text-white text-xs font-semibold hover:bg-clay/90 transition-colors cursor-pointer"
+        >
+          <lucide-icon [img]="icons.X" class="size-3.5" />
+          <span>Clear all filters</span>
+        </button>
+      } @else {
+        <p class="text-sm font-semibold text-ink dark:text-white">No audit logs recorded yet</p>
+        <p class="text-xs text-stone dark:text-white/50 mt-1 max-w-sm mx-auto">
+          Administrative actions like creating or editing products, categories, and updating orders
+          will automatically generate audit records here.
+        </p>
+      }
+    </div>
+  }
 </div>

@@ -6,6 +6,7 @@ import { Order, OrderLine, OrderStatus, OrderStatusHistoryItem } from '../models
 import { AdminRepository, OrderRepository } from './repository.tokens';
 import { AuditLog, Customer } from '../models/user.model';
 import { BrowserStorageService } from '../services/browser-storage.service';
+import { AuditLogService } from '../services/audit-log.service';
 
 const ORDERS_STORAGE_KEY = 'salla-mock-orders';
 const DATA_VERSION_KEY   = 'salla-mock-data-version';
@@ -29,7 +30,8 @@ const DEFAULT_MILESTONE_NOTES: Record<OrderStatus, string> = {
 
 @Injectable({ providedIn: 'root' })
 export class MockOrderRepository implements OrderRepository {
-  private readonly storage = inject(BrowserStorageService);
+  private readonly storage  = inject(BrowserStorageService);
+  private readonly audit    = inject(AuditLogService);
   private orders: Order[] = this.loadOrders();
 
   private loadOrders(): Order[] {
@@ -165,6 +167,15 @@ export class MockOrderRepository implements OrderRepository {
     };
     this.orders[index] = updated;
     this.save();
+
+    this.audit.record({
+      action: 'Order Status Changed',
+      entityType: 'order',
+      entityId: id,
+      entityLabel: id,
+      metadata: { newStatus: status, note: note || DEFAULT_MILESTONE_NOTES[status] || '' },
+    });
+
     return of(updated);
   }
 
@@ -188,6 +199,15 @@ export class MockOrderRepository implements OrderRepository {
     };
     this.orders[index] = updated;
     this.save();
+
+    this.audit.record({
+      action: 'Order Cancelled',
+      entityType: 'order',
+      entityId: id,
+      entityLabel: id,
+      metadata: { reason },
+    });
+
     return of(updated);
   }
 }
@@ -196,6 +216,7 @@ export class MockOrderRepository implements OrderRepository {
 export class MockAdminRepository implements AdminRepository {
   private readonly orderRepo = inject(MockOrderRepository);
   private readonly storage   = inject(BrowserStorageService);
+  private readonly auditSvc  = inject(AuditLogService);
 
   dashboardStats(): Observable<{ revenue: number; orders: number; customers: number; products: number }> {
     let revenue = 0;
@@ -227,7 +248,7 @@ export class MockAdminRepository implements AdminRepository {
   }
 
   auditLogs(): Observable<AuditLog[]> {
-    return of(MOCK_AUDIT_LOGS);
+    return this.auditSvc.list();
   }
 }
 

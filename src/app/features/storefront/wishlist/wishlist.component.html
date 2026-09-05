@@ -9,6 +9,10 @@
       }
     </div>
   } @else {
-    <a routerLink="/category" class="btn-primary mt-8 inline-block">Browse collection</a>
+    <div class="empty-state py-16 text-center max-w-md mx-auto">
+      <p class="font-display text-2xl font-bold text-ink dark:text-white">Your wishlist is empty</p>
+      <p class="text-sm text-stone dark:text-white/60 mt-2">Explore pieces and save your favorites for later.</p>
+      <a routerLink="/category" class="btn-primary mt-6 inline-block">Browse collection</a>
+    </div>
   }
 </section>

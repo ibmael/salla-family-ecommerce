@@ -1,0 +1,62 @@
+<div class="relative inline-block text-left" [class.opacity-50]="disabled()">
+  <!-- Trigger Button -->
+  <button
+    type="button"
+    (click)="toggle()"
+    (keydown)="onKeydown($event)"
+    [disabled]="disabled()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="listbox"
+    [attr.aria-label]="ariaLabel()"
+    class="custom-select-trigger"
+  >
+    @if (icon()) {
+      <lucide-icon [img]="icon()!" class="size-3.5 text-stone/70 dark:text-white/40 shrink-0" aria-hidden="true" />
+    }
+    @if (selectedOption()?.icon) {
+      <lucide-icon [img]="selectedOption()!.icon!" class="size-3.5 text-stone/70 dark:text-white/40 shrink-0" aria-hidden="true" />
+    }
+    <span class="truncate">{{ displayLabel() }}</span>
+    <lucide-icon
+      [img]="icons.ChevronDown"
+      class="size-3.5 text-stone/70 dark:text-white/40 shrink-0 transition-transform duration-200 ml-auto"
+      [class.rotate-180]="isOpen()"
+      aria-hidden="true"
+    />
+  </button>
+
+  <!-- Dropdown Panel -->
+  @if (isOpen()) {
+    <div
+      class="custom-select-panel"
+      [class.right-0]="alignRight()"
+      [class.left-0]="!alignRight()"
+      [ngClass]="panelWidthClass()"
+      role="listbox"
+      [attr.aria-label]="ariaLabel()"
+    >
+      @for (opt of options(); track opt.value; let idx = $index) {
+        <button
+          type="button"
+          role="option"
+          [attr.aria-selected]="value() === opt.value"
+          (click)="selectOption(opt)"
+          class="custom-select-option"
+          [class.active-option]="value() === opt.value"
+          [class.focused-option]="focusedIndex() === idx && value() !== opt.value"
+        >
+          <div class="flex items-center gap-2 min-w-0">
+            @if (opt.icon) {
+              <lucide-icon [img]="opt.icon" class="size-3.5 shrink-0 opacity-70" aria-hidden="true" />
+            }
+            <span class="truncate">{{ opt.label }}</span>
+          </div>
+
+          @if (showCheckmark() && value() === opt.value) {
+            <lucide-icon [img]="icons.Check" class="size-3.5 text-clay shrink-0 ml-2" aria-hidden="true" />
+          }
+        </button>
+      }
+    </div>
+  }
+</div>

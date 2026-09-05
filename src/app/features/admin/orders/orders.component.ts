@@ -20,6 +20,10 @@ import {
 import { ORDER_REPOSITORY } from '../../../core/repositories/repository.tokens';
 import { Order, OrderStatus } from '../../../core/models/order.model';
 import { OrderStatusBadgeComponent } from '../../../shared/ui/order-status-badge/order-status-badge.component';
+import {
+  CustomSelectComponent,
+  SelectOption,
+} from '../../../shared/ui/custom-select/custom-select.component';
 
 type SortOption = 'newest' | 'oldest' | 'total-desc' | 'total-asc';
 type QuickTab = 'all' | 'active' | 'delivered' | 'cancelled';
@@ -27,7 +31,7 @@ type QuickTab = 'all' | 'active' | 'delivered' | 'cancelled';
 @Component({
   selector: 'app-admin-orders',
   standalone: true,
-  imports: [RouterLink, OrderStatusBadgeComponent, LucideAngularModule],
+  imports: [RouterLink, OrderStatusBadgeComponent, LucideAngularModule, CustomSelectComponent],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +43,25 @@ export class AdminOrdersComponent {
   readonly selectedTab = signal<QuickTab>('all');
   readonly specificStatus = signal<string>('all');
   readonly selectedSort = signal<SortOption>('newest');
+
+  readonly statusOptions: SelectOption<string>[] = [
+    { value: 'all', label: 'All statuses' },
+    { value: 'placed', label: 'Order Placed' },
+    { value: 'confirmed', label: 'Confirmed' },
+    { value: 'processing', label: 'Processing' },
+    { value: 'packed', label: 'Packed' },
+    { value: 'shipped', label: 'Shipped' },
+    { value: 'out_for_delivery', label: 'Out for Delivery' },
+    { value: 'delivered', label: 'Delivered' },
+    { value: 'cancelled', label: 'Cancelled' },
+  ];
+
+  readonly sortOptions: SelectOption<SortOption>[] = [
+    { value: 'newest', label: 'Newest first' },
+    { value: 'oldest', label: 'Oldest first' },
+    { value: 'total-desc', label: 'Highest total' },
+    { value: 'total-asc', label: 'Lowest total' },
+  ];
 
   readonly rawOrders = toSignal(this.orderRepo.list(), { initialValue: [] });
 

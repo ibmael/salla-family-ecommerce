@@ -22,6 +22,7 @@ import {
   Check,
   Image,
   ChevronDown,
+  ArrowUpDown,
 } from 'lucide-angular';
 import {
   CATEGORY_REPOSITORY,
@@ -29,13 +30,17 @@ import {
 } from '../../../core/repositories/repository.tokens';
 import { Category, Product } from '../../../core/models/product.model';
 import { ToastService } from '../../../core/services/toast.service';
+import {
+  CustomSelectComponent,
+  SelectOption,
+} from '../../../shared/ui/custom-select/custom-select.component';
 
 type ProductSortOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'rating-desc';
 
 @Component({
   selector: 'app-admin-products',
   standalone: true,
-  imports: [ReactiveFormsModule, LucideAngularModule],
+  imports: [ReactiveFormsModule, LucideAngularModule, CustomSelectComponent],
   templateUrl: './products.component.html',
   styleUrl: './products.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,6 +58,14 @@ export class AdminProductsComponent {
   readonly dealsOnly = signal<boolean>(false);
   readonly selectedSort = signal<ProductSortOption>('name-asc');
 
+  readonly sortOptions: SelectOption<ProductSortOption>[] = [
+    { value: 'name-asc', label: 'Name A → Z' },
+    { value: 'name-desc', label: 'Name Z → A' },
+    { value: 'price-asc', label: 'Price low to high' },
+    { value: 'price-desc', label: 'Price high to low' },
+    { value: 'rating-desc', label: 'Highest rated' },
+  ];
+
   readonly isModalOpen = signal<boolean>(false);
   readonly isDeleteModalOpen = signal<boolean>(false);
   readonly editingProduct = signal<Product | null>(null);
@@ -60,6 +73,10 @@ export class AdminProductsComponent {
   readonly imagePreview = signal<string>('');
 
   readonly categories = toSignal(this.catRepo.list(), { initialValue: [] });
+  readonly categoryOptions = computed<SelectOption<string>[]>(() => [
+    { value: 'all', label: 'All categories' },
+    ...this.categories().map((cat) => ({ value: cat.id, label: cat.name })),
+  ]);
   readonly rawProductResult = toSignal(this.productRepo.list({ pageSize: 100 }), {
     initialValue: { items: [], total: 0, page: 1, pageSize: 100, totalPages: 1 },
   });
@@ -148,6 +165,7 @@ export class AdminProductsComponent {
     Check,
     Image,
     ChevronDown,
+    ArrowUpDown,
   };
 
   onSearch(event: Event): void {

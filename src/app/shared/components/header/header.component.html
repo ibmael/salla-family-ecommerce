@@ -93,10 +93,6 @@
       <form (submit)="$event.preventDefault(); submitSearch()">
         <label class="sr-only" for="header-search">Search products</label>
         <div class="relative">
-          <lucide-icon
-            [img]="icons.Search"
-            class="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-stone pointer-events-none"
-          />
           <input
             id="header-search"
             [ngModel]="searchQuery()"
@@ -108,18 +104,25 @@
             type="search"
             autocomplete="off"
             placeholder="Search the collection..."
-            class="w-full rounded-full border border-black/10 bg-white/80 py-2 pl-10 pr-9 text-sm outline-none transition-all placeholder:text-stone/70 focus:border-clay focus:bg-white dark:border-white/15 dark:bg-white/5 dark:focus:bg-white/10 dark:text-white"
+            class="w-full rounded-full border border-black/10 bg-white/80 py-2 pl-4 pr-16 text-sm outline-none transition-all placeholder:text-stone/70 focus:border-clay focus:bg-white dark:border-white/15 dark:bg-white/5 dark:focus:bg-white/10 dark:text-white"
           />
-          @if (searchQuery().length > 0) {
-            <button
-              type="button"
-              (click)="clearSearch()"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-stone hover:text-ink dark:hover:text-white p-0.5 rounded-full cursor-pointer"
-              aria-label="Clear search"
-            >
-              <lucide-icon [img]="icons.X" class="size-3.5" />
-            </button>
-          }
+          <div class="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none">
+            @if (searchQuery().length > 0) {
+              <button
+                type="button"
+                (mousedown)="$event.preventDefault()"
+                (click)="clearSearch()"
+                class="text-stone hover:text-ink dark:hover:text-white p-0.5 rounded-full cursor-pointer pointer-events-auto"
+                aria-label="Clear search"
+              >
+                <lucide-icon [img]="icons.X" class="size-3.5" />
+              </button>
+            }
+            <lucide-icon
+              [img]="icons.Search"
+              class="size-4 text-stone"
+            />
+          </div>
         </div>
       </form>
 

@@ -24,7 +24,7 @@ import {
 
 @Component({
   selector: 'app-product',
-  imports: [ProductCardComponent, BreadcrumbsComponent],
+  imports: [RouterLink, ProductCardComponent, BreadcrumbsComponent],
   templateUrl: './product.component.html',
   styleUrl: './product.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
