@@ -1,0 +1,307 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.hero-carousel-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.embla-viewport {
+  overflow: hidden;
+  user-select: none;
+  width: 100%;
+}
+
+.embla-container {
+  display: flex;
+  will-change: transform;
+}
+
+/* Slide Widths */
+.embla-slide {
+  flex: 0 0 88%;
+  min-width: 0;
+  padding-inline: 0.375rem;
+}
+
+@media (min-width: 640px) {
+  .embla-slide {
+    flex: 0 0 78%;
+    padding-inline: 0.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .embla-slide {
+    flex: 0 0 70%;
+    padding-inline: 0.625rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .embla-slide {
+    flex: 0 0 58%;
+    padding-inline: 0.75rem;
+  }
+}
+
+/* Media Heights */
+.hero-media {
+  height: 350px;
+}
+
+@media (min-width: 640px) {
+  .hero-media {
+    height: 380px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-media {
+    height: 420px;
+  }
+}
+
+/* Card Transitions */
+.hero-card {
+  transform-origin: center center;
+  transition: transform 400ms cubic-bezier(0.25, 1, 0.5, 1),
+              opacity 400ms cubic-bezier(0.25, 1, 0.5, 1),
+              box-shadow 400ms ease;
+  will-change: transform, opacity;
+}
+
+.embla-slide:not(.is-active) .hero-card {
+  transform: scale(0.92);
+  opacity: 0.85;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.embla-slide:not(.is-active) .hero-card:hover {
+  transform: scale(0.94);
+  opacity: 0.95;
+}
+
+.embla-slide.is-active .hero-card {
+  transform: scale(1);
+  opacity: 1;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.22), 0 8px 10px -6px rgba(0, 0, 0, 0.12);
+}
+
+.hero-img {
+  transform: scale(1.02);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.hero-overlay {
+  background: linear-gradient(to right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.45) 50%, transparent 85%);
+}
+
+@media (max-width: 639px) {
+  .hero-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.2) 80%, transparent 100%);
+  }
+}
+
+.hero-content {
+  padding: 1.25rem 1.25rem 4rem;
+  max-width: 32rem;
+  z-index: 2;
+}
+
+@media (min-width: 640px) {
+  .hero-content {
+    padding: 2rem 2rem 4rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-content {
+    padding: 2.75rem 2.75rem 4.5rem;
+  }
+}
+
+.hero-heading {
+  font-size: clamp(1.25rem, 2.2vw + 0.4rem, 2.5rem);
+  line-height: 1.15;
+}
+
+.hero-desc {
+  font-size: clamp(0.8125rem, 0.85vw + 0.2rem, 0.9375rem);
+}
+
+/* Side slide clean preview (no overcrowding) */
+@media (min-width: 768px) {
+  .embla-slide:not(.is-active) .hero-desc,
+  .embla-slide:not(.is-active) .hero-actions {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .embla-slide:not(.is-active) .hero-heading {
+    font-size: clamp(1.1rem, 1.4vw + 0.3rem, 1.5rem);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+}
+
+/* Navigation Arrows */
+.hero-nav-btn {
+  position: absolute;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  cursor: pointer;
+  width: 2.75rem;
+  height: 2.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.hero-nav-btn:hover {
+  background-color: rgba(0, 0, 0, 0.65);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-50%) scale(1.06);
+}
+
+.hero-nav-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.hero-nav-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.hero-nav-prev { left: 0.75rem; }
+.hero-nav-next { right: 0.75rem; }
+
+@media (min-width: 1024px) {
+  .hero-nav-prev { left: 1.25rem; }
+  .hero-nav-next { right: 1.25rem; }
+}
+
+@media (max-width: 639px) {
+  .hero-nav-btn {
+    top: auto;
+    bottom: 1rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    transform: none;
+  }
+  .hero-nav-prev { left: 1rem; right: auto; }
+  .hero-nav-next { right: 1rem; left: auto; }
+  .hero-nav-prev:hover, .hero-nav-next:hover {
+    transform: scale(1.08);
+  }
+}
+
+/* Indicators */
+.hero-indicators-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+@media (max-width: 639px) {
+  .hero-indicators-bar {
+    bottom: 1.125rem;
+  }
+}
+
+.hero-progress-track {
+  width: 2.5rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.25);
+  border: none;
+  padding: 0;
+}
+
+.hero-progress-fill {
+  background-color: #fff;
+  border-radius: 9999px;
+  width: 0%;
+  animation: heroProgress 5s linear forwards;
+}
+
+.hero-progress-fill.paused {
+  animation-play-state: paused;
+}
+
+@keyframes heroProgress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+.hero-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.35);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.hero-dot:hover {
+  background-color: rgba(255, 255, 255, 0.75);
+  transform: scale(1.2);
+}
+
+.hero-dot:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-card,
+  .embla-slide .hero-card,
+  .hero-img,
+  .embla-container,
+  .hero-dot,
+  .hero-desc,
+  .hero-actions,
+  .hero-heading {
+    transition: none !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  .hero-nav-btn {
+    transition: background-color 0.1s ease !important;
+    transform: translateY(-50%) !important;
+  }
+
+  .hero-progress-fill {
+    animation: none !important;
+    width: 100% !important;
+  }
+}

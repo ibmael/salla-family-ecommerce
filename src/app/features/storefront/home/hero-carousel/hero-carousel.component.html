@@ -1,0 +1,149 @@
+<div
+  class="hero-carousel-wrapper relative w-full select-none"
+  (mouseenter)="onHeroMouseEnter()"
+  (mouseleave)="onHeroMouseLeave()"
+  (focusin)="onHeroFocusIn()"
+  (focusout)="onHeroFocusOut()"
+  aria-roledescription="carousel"
+  aria-label="Highlighted collections and stories"
+>
+  <!-- Embla Viewport -->
+  <div #emblaViewport class="embla-viewport w-full overflow-hidden py-2 sm:py-3">
+    <div class="embla-container flex touch-pan-y items-center">
+      @for (slide of slides(); track slide.id; let idx = $index) {
+        <div
+          class="embla-slide relative min-w-0"
+          [class.is-active]="activeIndex() === idx"
+          role="group"
+          aria-roledescription="slide"
+          [attr.aria-label]="'Slide ' + (idx + 1) + ' of ' + slides().length + ': ' + slide.heading"
+          [attr.aria-hidden]="activeIndex() !== idx"
+          (click)="onSlideClick(idx)"
+          (keydown.enter)="onSlideClick(idx)"
+          (keydown.space)="onSlideClick(idx); $event.preventDefault()"
+          [tabindex]="activeIndex() === idx ? 0 : -1"
+        >
+          <!-- Card Container -->
+          <div
+            class="hero-card relative w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-black/10 dark:border-white/10 shadow-sm"
+            [class.cursor-pointer]="activeIndex() !== idx"
+          >
+            <!-- Background Image Media -->
+            <div class="hero-media relative w-full overflow-hidden bg-sand/40 dark:bg-ink/60">
+              <img
+                [src]="slide.image"
+                [alt]="slide.heading"
+                class="hero-img w-full h-full object-cover"
+                [style.object-position]="slide.objectPosition"
+                [loading]="idx === 0 ? 'eager' : 'lazy'"
+              />
+
+              <!-- Overlay -->
+              <div class="hero-overlay absolute inset-0"></div>
+
+              <!-- Content Overlay -->
+              <div class="hero-content absolute inset-0 flex flex-col justify-end text-white">
+                <p class="hero-eyebrow text-clay tracking-widest text-[11px] sm:text-xs font-bold uppercase mb-1 sm:mb-2">
+                  {{ slide.eyebrow }}
+                </p>
+
+                <h2 class="hero-heading font-display font-bold tracking-tight leading-tight">
+                  {{ slide.heading }}
+                </h2>
+
+                <p class="hero-desc mt-2 sm:mt-3 text-white/85 leading-relaxed">
+                  {{ slide.description }}
+                </p>
+
+                <!-- CTA Group -->
+                <div class="hero-actions mt-3 sm:mt-5 flex flex-wrap items-center gap-2 sm:gap-3">
+                  <a
+                    [routerLink]="slide.ctaLink"
+                    class="btn-primary inline-flex items-center gap-2 hero-cta-btn text-xs sm:text-sm font-bold shadow-lg hover:shadow-xl transition-all cursor-pointer"
+                    [tabindex]="activeIndex() === idx ? 0 : -1"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <span>{{ slide.ctaText }}</span>
+                    <lucide-icon [img]="icons.ArrowRight" class="size-4" />
+                  </a>
+
+                  @if (slide.secondaryCtaText && slide.secondaryCtaLink) {
+                    <a
+                      [routerLink]="slide.secondaryCtaLink"
+                      class="hero-cta-secondary inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold text-white/90 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/35 transition-all cursor-pointer shadow-xs"
+                      [tabindex]="activeIndex() === idx ? 0 : -1"
+                      (click)="$event.stopPropagation()"
+                    >
+                      <span>{{ slide.secondaryCtaText }}</span>
+                    </a>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Navigation Arrows -->
+  <button
+    type="button"
+    (click)="scrollPrev()"
+    class="hero-nav-btn hero-nav-prev"
+    aria-label="Previous slide"
+  >
+    <lucide-icon [img]="icons.ChevronLeft" class="size-5" />
+  </button>
+
+  <button
+    type="button"
+    (click)="scrollNext()"
+    class="hero-nav-btn hero-nav-next"
+    aria-label="Next slide"
+  >
+    <lucide-icon [img]="icons.ChevronRight" class="size-5" />
+  </button>
+
+  <!-- Indicators Bar with Synchronized Progress -->
+  <div
+    class="hero-indicators-bar absolute z-20"
+    role="tablist"
+    aria-label="Slide selection"
+  >
+    @for (slide of slides(); track slide.id; let idx = $index) {
+      @if (activeIndex() === idx) {
+        <button
+          type="button"
+          (click)="scrollTo(idx)"
+          class="hero-progress-track relative overflow-hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          [attr.aria-label]="'Current slide ' + (idx + 1)"
+          aria-selected="true"
+          role="tab"
+        >
+          @if (progressKey() % 2 === 0) {
+            <span
+              class="hero-progress-fill absolute inset-0 rounded-full"
+              [class.paused]="isPaused()"
+            ></span>
+          } @else {
+            <span
+              class="hero-progress-fill absolute inset-0 rounded-full"
+              [class.paused]="isPaused()"
+            ></span>
+          }
+        </button>
+      } @else {
+        <button
+          type="button"
+          (click)="scrollTo(idx)"
+          class="hero-dot"
+          [attr.aria-label]="'Go to slide ' + (idx + 1)"
+          aria-selected="false"
+          role="tab"
+        ></button>
+      }
+    }
+  </div>
+</div>
+
